@@ -3604,18 +3604,18 @@ body.mobile-modal-open {
   html {
     overflow-x: hidden !important;
     -webkit-text-size-adjust: 100%;
+    scroll-behavior: auto !important;
   }
 
-  /* Body & Global Spacing: Guaranteed butter-smooth vertical touch scrolling */
+  /* Body & Global Spacing: Guaranteed natural, smooth vertical touch scrolling */
   body {
     overflow-x: hidden !important;
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch !important;
     touch-action: pan-y !important;
     min-height: 100vh !important;
     height: auto !important;
     padding: 8px 8px 84px; /* Space for bottom floating cart bar */
     -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: none;
   }
 
   /* Top Header */
@@ -5313,10 +5313,10 @@ body.mobile-modal-open {
 
   <!-- Mobile-Only View Switcher (Visible on phone viewports <= 768px) -->
   <div class="mobile-section-nav" id="mobileSectionNav">
-    <button type="button" class="mobile-nav-btn active" id="btnMobileTabMenu" onclick="switchMobileView('menu')">
+    <button type="button" class="mobile-nav-btn active" id="btnMobileTabMenu" onclick="switchMobileView('menu', true)">
       <span>🍰 Catalog Menu</span>
     </button>
-    <button type="button" class="mobile-nav-btn" id="btnMobileTabCart" onclick="switchMobileView('cart')">
+    <button type="button" class="mobile-nav-btn" id="btnMobileTabCart" onclick="switchMobileView('cart', true)">
       <span>🛒 Bill Register</span>
       <span class="mobile-nav-badge" id="mobileNavCartBadge">0</span>
     </button>
@@ -6186,7 +6186,7 @@ body.mobile-modal-open {
   <!-- =========================================================================
        Floating Mobile Cart Bar (Sticky on Mobile Screens)
        ========================================================================= -->
-  <div id="mobileStickyCartBar" class="mobile-sticky-cart-bar" style="display: none;" onclick="switchMobileView('cart')">
+  <div id="mobileStickyCartBar" class="mobile-sticky-cart-bar" style="display: none;" onclick="switchMobileView('cart', true)">
     <div class="mobile-cart-info">
       <div class="mobile-cart-badge-wrap">
         <span style="font-size: 1.25rem;">🛒</span>
@@ -9801,7 +9801,8 @@ function renderProfOrdersHistory() {
 
 let currentMobileTab = 'menu'; // 'menu' | 'cart'
 
-function switchMobileView(view) {
+function switchMobileView(view, userExplicit = false) {
+  const isTabChange = currentMobileTab !== view;
   currentMobileTab = view;
   const leftPane = document.querySelector('.pos-left-pane');
   const rightPane = document.querySelector('.pos-right-register');
@@ -9814,7 +9815,9 @@ function switchMobileView(view) {
       if (leftPane) leftPane.classList.add('mobile-pane-hidden');
       if (rightPane) {
         rightPane.classList.remove('mobile-pane-hidden');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (userExplicit && isTabChange) {
+          window.scrollTo({ top: 0, behavior: 'auto' });
+        }
       }
       if (btnMenu) btnMenu.classList.remove('active');
       if (btnCart) btnCart.classList.add('active');
@@ -9822,7 +9825,9 @@ function switchMobileView(view) {
     } else {
       if (leftPane) {
         leftPane.classList.remove('mobile-pane-hidden');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (userExplicit && isTabChange) {
+          window.scrollTo({ top: 0, behavior: 'auto' });
+        }
       }
       if (rightPane) rightPane.classList.add('mobile-pane-hidden');
       if (btnMenu) btnMenu.classList.add('active');
@@ -9839,17 +9844,26 @@ function switchMobileView(view) {
   }
 }
 
+let lastViewportWidth = window.innerWidth;
+
 window.addEventListener('resize', () => {
+  const currentWidth = window.innerWidth;
+  // Ignore vertical height-only resize events (caused by mobile browser address bar expand/collapse during scrolling)
+  if (currentWidth === lastViewportWidth) {
+    return;
+  }
+  lastViewportWidth = currentWidth;
+
   const leftPane = document.querySelector('.pos-left-pane');
   const rightPane = document.querySelector('.pos-right-register');
   const stickyBar = document.getElementById('mobileStickyCartBar');
 
-  if (window.innerWidth > 768) {
+  if (currentWidth > 768) {
     if (leftPane) leftPane.classList.remove('mobile-pane-hidden');
     if (rightPane) rightPane.classList.remove('mobile-pane-hidden');
     if (stickyBar) stickyBar.style.display = 'none';
   } else {
-    switchMobileView(currentMobileTab);
+    switchMobileView(currentMobileTab, false);
   }
 });
 

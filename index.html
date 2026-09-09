@@ -76,10 +76,10 @@
 
   <!-- Mobile-Only View Switcher (Visible on phone viewports <= 768px) -->
   <div class="mobile-section-nav" id="mobileSectionNav">
-    <button type="button" class="mobile-nav-btn active" id="btnMobileTabMenu" onclick="switchMobileView('menu')">
+    <button type="button" class="mobile-nav-btn active" id="btnMobileTabMenu" onclick="switchMobileView('menu', true)">
       <span>🍰 Catalog Menu</span>
     </button>
-    <button type="button" class="mobile-nav-btn" id="btnMobileTabCart" onclick="switchMobileView('cart')">
+    <button type="button" class="mobile-nav-btn" id="btnMobileTabCart" onclick="switchMobileView('cart', true)">
       <span>🛒 Bill Register</span>
       <span class="mobile-nav-badge" id="mobileNavCartBadge">0</span>
     </button>
@@ -949,7 +949,7 @@
   <!-- =========================================================================
        Floating Mobile Cart Bar (Sticky on Mobile Screens)
        ========================================================================= -->
-  <div id="mobileStickyCartBar" class="mobile-sticky-cart-bar" style="display: none;" onclick="switchMobileView('cart')">
+  <div id="mobileStickyCartBar" class="mobile-sticky-cart-bar" style="display: none;" onclick="switchMobileView('cart', true)">
     <div class="mobile-cart-info">
       <div class="mobile-cart-badge-wrap">
         <span style="font-size: 1.25rem;">🛒</span>

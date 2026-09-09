@@ -3475,7 +3475,8 @@ function renderProfOrdersHistory() {
 
 let currentMobileTab = 'menu'; // 'menu' | 'cart'
 
-function switchMobileView(view) {
+function switchMobileView(view, userExplicit = false) {
+  const isTabChange = currentMobileTab !== view;
   currentMobileTab = view;
   const leftPane = document.querySelector('.pos-left-pane');
   const rightPane = document.querySelector('.pos-right-register');
@@ -3488,7 +3489,9 @@ function switchMobileView(view) {
       if (leftPane) leftPane.classList.add('mobile-pane-hidden');
       if (rightPane) {
         rightPane.classList.remove('mobile-pane-hidden');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (userExplicit && isTabChange) {
+          window.scrollTo({ top: 0, behavior: 'auto' });
+        }
       }
       if (btnMenu) btnMenu.classList.remove('active');
       if (btnCart) btnCart.classList.add('active');
@@ -3496,7 +3499,9 @@ function switchMobileView(view) {
     } else {
       if (leftPane) {
         leftPane.classList.remove('mobile-pane-hidden');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (userExplicit && isTabChange) {
+          window.scrollTo({ top: 0, behavior: 'auto' });
+        }
       }
       if (rightPane) rightPane.classList.add('mobile-pane-hidden');
       if (btnMenu) btnMenu.classList.add('active');
@@ -3513,17 +3518,26 @@ function switchMobileView(view) {
   }
 }
 
+let lastViewportWidth = window.innerWidth;
+
 window.addEventListener('resize', () => {
+  const currentWidth = window.innerWidth;
+  // Ignore vertical height-only resize events (caused by mobile browser address bar expand/collapse during scrolling)
+  if (currentWidth === lastViewportWidth) {
+    return;
+  }
+  lastViewportWidth = currentWidth;
+
   const leftPane = document.querySelector('.pos-left-pane');
   const rightPane = document.querySelector('.pos-right-register');
   const stickyBar = document.getElementById('mobileStickyCartBar');
 
-  if (window.innerWidth > 768) {
+  if (currentWidth > 768) {
     if (leftPane) leftPane.classList.remove('mobile-pane-hidden');
     if (rightPane) rightPane.classList.remove('mobile-pane-hidden');
     if (stickyBar) stickyBar.style.display = 'none';
   } else {
-    switchMobileView(currentMobileTab);
+    switchMobileView(currentMobileTab, false);
   }
 });
 

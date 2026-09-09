@@ -3596,18 +3596,18 @@ body.mobile-modal-open {
   html {
     overflow-x: hidden !important;
     -webkit-text-size-adjust: 100%;
+    scroll-behavior: auto !important;
   }
 
-  /* Body & Global Spacing: Guaranteed butter-smooth vertical touch scrolling */
+  /* Body & Global Spacing: Guaranteed natural, smooth vertical touch scrolling */
   body {
     overflow-x: hidden !important;
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch !important;
     touch-action: pan-y !important;
     min-height: 100vh !important;
     height: auto !important;
     padding: 8px 8px 84px; /* Space for bottom floating cart bar */
     -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: none;
   }
 
   /* Top Header */
