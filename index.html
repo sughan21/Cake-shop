@@ -533,10 +533,22 @@
           <!-- Quick Preset Increment Chips -->
           <div class="stock-quick-presets-strip">
             <span class="preset-strip-label">Quick Presets:</span>
-            <button type="button" class="stock-preset-pill" onclick="addEditProductStock(5)">+5 Units</button>
-            <button type="button" class="stock-preset-pill" onclick="addEditProductStock(10)">+10 Units</button>
-            <button type="button" class="stock-preset-pill" onclick="addEditProductStock(25)">+25 Bulk</button>
-            <button type="button" class="stock-preset-pill preset-zero" onclick="setEditProductStock(0)" title="Mark as sold out">Set 0 (Out)</button>
+            <button type="button" class="stock-preset-pill" onclick="addEditProductStock(5)">
+              <span class="preset-btn-full">+5 Units</span>
+              <span class="preset-btn-short">+5</span>
+            </button>
+            <button type="button" class="stock-preset-pill" onclick="addEditProductStock(10)">
+              <span class="preset-btn-full">+10 Units</span>
+              <span class="preset-btn-short">+10</span>
+            </button>
+            <button type="button" class="stock-preset-pill" onclick="addEditProductStock(25)">
+              <span class="preset-btn-full">+25 Bulk</span>
+              <span class="preset-btn-short">+25</span>
+            </button>
+            <button type="button" class="stock-preset-pill preset-zero" onclick="setEditProductStock(0)" title="Mark as sold out">
+              <span class="preset-btn-full">Set 0 (Out)</span>
+              <span class="preset-btn-short">Set 0</span>
+            </button>
           </div>
         </div>
       </div>
@@ -546,7 +558,8 @@
           <span>✕ Cancel</span>
         </button>
         <button type="button" class="btn-edit-save" onclick="saveProductChanges()">
-          <span>💾 Save & Apply Changes</span>
+          <span class="btn-text-full">💾 Save & Apply Changes</span>
+          <span class="btn-text-short">💾 Save Changes</span>
         </button>
       </div>
     </div>
@@ -563,7 +576,7 @@
             <span>📋</span>
             <span class="prod-list-beacon" title="Live Master Database Active"></span>
           </div>
-          <div>
+          <div class="prod-list-header-text">
             <div class="prod-list-badge">BAKERY INVENTORY CONTROL</div>
             <h3 class="prod-list-title">All Bakery Products & Stock Hub</h3>
             <p class="prod-list-subtitle">Manage retail pricing, catalog categories & live shelf quantities</p>
@@ -606,13 +619,16 @@
       <div class="modal-card-bottom product-list-footer">
         <div class="prod-list-footer-dock">
           <button type="button" class="btn-prod-footer-back" onclick="closeProductListModal()">
-            <span>← Back to Store</span>
+            <span class="btn-text-full">← Back to Store</span>
+            <span class="btn-text-short">← Store</span>
           </button>
           <button type="button" class="btn-prod-footer-reset" onclick="resetCatalogStock()">
-            <span>🔄 Restore Defaults</span>
+            <span class="btn-text-full">🔄 Restore Defaults</span>
+            <span class="btn-text-short">🔄 Defaults</span>
           </button>
           <button type="button" class="btn-prod-footer-custom" onclick="openCustomOrderFromProductList()">
-            <span>➕ Add Custom Cake</span>
+            <span class="btn-text-full">➕ Add Custom Cake</span>
+            <span class="btn-text-short">➕ Custom</span>
           </button>
         </div>
       </div>
