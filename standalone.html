@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>🍰 Sugar Cubes | Artisanal Cake Shop POS & Daily Sales Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Sugar Cubes | Artisanal Cake Shop POS & Daily Sales Tracker</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍰</text></svg>">
   <style>
 /* ==========================================================================
    🍰 SUGAR CUBES - Enterprise Artisanal Cake Shop POS & Daily Sales Tracker
@@ -511,7 +512,19 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.active-context-badge::before {
+  content: '';
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  flex-shrink: 0;
 }
 
 /* Interactive Product Catalog Panel */
@@ -807,105 +820,177 @@ body {
 }
 
 .register-main-card {
-  background: var(--surface);
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 18px;
+  box-shadow: 0 16px 40px -8px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(15, 23, 42, 0.04);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  transition: all 0.3s ease;
 }
 
-/* Register Header */
+/* ==========================================================================
+   Register Header & Customer Bar (Light Theme & Proper Slider Sizing)
+   ========================================================================== */
+
+/* Register Header - Clean Light Theme */
 .register-header {
-  background: #0f172a;
-  color: #ffffff;
-  padding: 10px 14px;
+  background: #ffffff;
+  color: #0f172a;
+  padding: 14px 18px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.register-header-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  flex-wrap: nowrap;
-  border-bottom: 1px solid #1e293b;
+  gap: 10px;
 }
 
 .register-order-tag {
   font-family: var(--font-mono);
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-weight: 700;
-  color: #0369a1;
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-  border: 1.5px solid #7dd3fc;
-  padding: 4px 8px;
-  border-radius: var(--radius-sm);
+  color: #0284c7;
+  background: #f0f9ff;
+  border: 1.5px solid #bae6fd;
+  padding: 4px 10px;
+  border-radius: 8px;
   letter-spacing: 0.3px;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.18);
+  gap: 5px;
+  box-shadow: 0 1px 3px rgba(2, 132, 199, 0.08);
   cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;
   transition: var(--transition);
 }
 
+.register-order-tag span:first-child {
+  font-size: 0.68rem;
+  color: #64748b;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.register-order-tag strong {
+  color: #0369a1;
+  font-size: 0.85rem;
+}
+
 .register-order-tag:hover {
-  background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
-  border-color: #38bdf8;
+  background: #e0f2fe;
+  border-color: #7dd3fc;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.28);
+  box-shadow: 0 3px 8px rgba(2, 132, 199, 0.18);
 }
 
-.order-type-pills {
-  display: flex;
+.register-terminal-badge {
+  display: inline-flex;
   align-items: center;
-  gap: 3px;
-  background: #1e293b;
-  padding: 3px 4px;
-  border-radius: var(--radius-full);
-  flex-wrap: nowrap;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.order-type-btn {
-  background: transparent;
-  border: none;
-  color: #94a3b8;
+  gap: 5px;
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
   font-size: 0.72rem;
   font-weight: 700;
-  padding: 4px 8px;
-  border-radius: var(--radius-full);
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.live-dot-green {
+  width: 6px;
+  height: 6px;
+  background: #10b981;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+/* Modern Full-Width Sliding Box-Type Segmented Control */
+.order-type-box-container {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  background: #eef2f6;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 3px;
+  width: 100%;
+  box-sizing: border-box;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+  user-select: none;
+}
+
+/* Sliding Box Glider Indicator */
+.order-type-slide-glider {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc((100% - 6px) / 3);
+  background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+  border-radius: 7px;
+  box-shadow: 0 2px 8px rgba(225, 29, 72, 0.35);
+  transition: transform 0.26s cubic-bezier(0.34, 1.25, 0.64, 1);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.order-box-btn {
+  position: relative;
+  z-index: 2;
+  background: transparent;
+  border: none;
+  color: #475569;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 8px 4px;
+  border-radius: 7px;
   cursor: pointer;
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 3px;
-  flex-shrink: 0;
+  gap: 5px;
+  width: 100%;
   line-height: 1.2;
-  transition: var(--transition);
+  transition: color 0.18s ease;
 }
 
-.order-type-btn.active {
-  background: #f43f5e;
+.order-box-btn:hover {
+  color: #0f172a;
+}
+
+.order-box-btn.active {
   color: #ffffff;
-  box-shadow: 0 2px 6px rgba(244, 63, 94, 0.4);
+  font-weight: 800;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 
-/* Customer Mobile & Name Bar */
+.order-box-btn:active {
+  transform: scale(0.97);
+}
+
+/* Customer Mobile & Name Bar - Same Unified Light Palette */
 .register-customer-bar {
-  background: #f8fafc;
-  border-bottom: 1px solid var(--border);
+  background: #ffffff;
+  border-bottom: 1px solid #f1f5f9;
   padding: 12px 18px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .customer-input-row {
   display: flex;
-  gap: 8px;
+  gap: 10px;
 }
 
 .cust-input-wrap {
@@ -914,45 +999,140 @@ body {
 }
 
 .cust-input-wrap.mobile-wrap {
-  flex: 1.3;
+  flex: 1.35;
 }
 
 .cust-input-wrap input {
   width: 100%;
-  background: #ffffff;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 8px 10px 8px 30px;
-  font-size: 0.82rem;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 9px 12px 9px 34px;
+  font-size: 0.84rem;
   font-family: var(--font-sans);
-  color: var(--text-main);
+  color: #0f172a;
   outline: none;
-  transition: var(--transition);
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.cust-input-wrap input::placeholder {
+  color: #94a3b8;
+  font-size: 0.8rem;
 }
 
 .cust-input-wrap input:focus {
-  border-color: var(--brand-whatsapp);
-  box-shadow: 0 0 0 2px rgba(37, 211, 102, 0.2);
+  border-color: #22c55e;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
+  color: #0f172a;
 }
 
 .cust-input-icon {
   position: absolute;
-  left: 9px;
+  left: 10px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 0.9rem;
-  color: var(--text-muted);
+  font-size: 0.92rem;
+  color: #64748b;
 }
 
-/* Cart Items Container */
+.register-customer-subrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.74rem;
+  padding: 0 2px;
+}
+
+.wa-oneclick-hint {
+  color: #15803d;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.auto-pdf-toggle-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #334155;
+  font-weight: 700;
+  cursor: pointer;
+  user-select: none;
+}
+
+.auto-pdf-toggle-label input[type="checkbox"] {
+  accent-color: #22c55e;
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   Professional Cart Items Container & Line Items
+   ========================================================================== */
+
 .register-cart-container {
-  padding: 12px 18px;
+  padding: 14px 18px;
   min-height: 220px;
-  max-height: 310px;
+  max-height: 320px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 8px;
+  background: #ffffff;
+}
+
+.cart-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.cart-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cart-title-text {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #334155;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.cart-items-pill {
+  background: #e2e8f0;
+  color: #0f172a;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 1px 7px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+}
+
+.cart-clear-link {
+  background: none;
+  border: none;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.cart-clear-link:hover {
+  color: #ef4444;
+  background: #fee2e2;
 }
 
 .cart-items-list {
@@ -964,19 +1144,22 @@ body {
 
 .cart-line-item {
   background: #ffffff;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 8px 10px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  transition: var(--transition);
+  gap: 12px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .cart-line-item:hover {
-  background: #fdf2f8;
-  border-color: #fbcfe8;
+  background: #ffffff;
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+  transform: translateY(-1px);
 }
 
 .cart-item-info {
@@ -985,105 +1168,146 @@ body {
 }
 
 .cart-item-title {
-  font-size: 0.85rem;
+  font-size: 0.86rem;
   font-weight: 700;
-  color: var(--text-main);
+  color: #0f172a;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .cart-item-sub {
-  font-size: 0.72rem;
-  color: var(--text-muted);
+  font-size: 0.74rem;
+  color: #64748b;
   font-family: var(--font-mono);
+  font-weight: 500;
+  margin-top: 2px;
 }
 
 .cart-item-controls {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .cart-stepper {
   display: flex;
   align-items: center;
-  background: var(--surface-raised);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  overflow: hidden;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 2px;
+  gap: 1px;
 }
 
 .cart-step-btn {
-  background: transparent;
+  background: #ffffff;
   border: none;
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 800;
-  color: var(--text-main);
+  color: #0f172a;
   cursor: pointer;
-  transition: var(--transition);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  transition: all 0.15s ease;
 }
 
 .cart-step-btn:hover {
   background: #e2e8f0;
+  color: #000000;
+  transform: scale(1.05);
+}
+
+.cart-step-btn:active {
+  transform: scale(0.95);
 }
 
 .cart-qty-text {
   font-family: var(--font-mono);
-  font-size: 0.85rem;
-  font-weight: 700;
+  font-size: 0.86rem;
+  font-weight: 800;
   padding: 0 6px;
   min-width: 24px;
   text-align: center;
+  color: #0f172a;
 }
 
 .cart-item-total {
   font-family: var(--font-mono);
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--text-main);
-  min-width: 60px;
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #0f172a;
+  min-width: 62px;
   text-align: right;
 }
 
 .cart-remove-btn {
-  background: none;
+  background: transparent;
   border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: #94a3b8;
   font-size: 0.85rem;
   cursor: pointer;
-  padding: 3px;
-  transition: var(--transition);
+  transition: all 0.2s ease;
 }
 
 .cart-remove-btn:hover {
+  background: #fee2e2;
   color: #ef4444;
 }
 
-/* Empty Cart State */
+/* Professional Empty Cart State */
 .cart-empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 36px 16px;
+  padding: 34px 20px;
   text-align: center;
-  color: var(--text-muted);
+  border-radius: 12px;
+  border: 1.5px dashed #cbd5e1;
+  background: #fafbfd;
+  margin: 8px 0;
+}
+
+.cart-empty-icon-wrap {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #ffe4e6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  box-shadow: 0 4px 12px rgba(244, 63, 94, 0.15);
 }
 
 .cart-empty-icon {
-  font-size: 2.5rem;
-  margin-bottom: 6px;
-  opacity: 0.7;
+  font-size: 1.8rem;
+  line-height: 1;
 }
 
-.cart-empty-state p {
-  font-size: 0.85rem;
+.cart-empty-title {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.cart-empty-subtitle {
+  font-size: 0.78rem;
+  color: #64748b;
+  max-width: 250px;
   line-height: 1.4;
 }
 
@@ -1267,20 +1491,35 @@ body {
   box-shadow: 0 3px 8px rgba(37, 211, 102, 0.35);
 }
 
+/* Dual Row for Download PDF & Thermal Receipt */
+.register-action-dual-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  width: 100%;
+}
+
+.register-action-dual-row button {
+  width: 100%;
+  padding: 10px 8px;
+  font-size: 0.84rem;
+  white-space: nowrap;
+}
+
 /* Download PDF Bill Button */
 .btn-download-pdf {
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   border: 1px solid #334155;
   color: #ffffff;
-  font-size: 0.92rem;
+  font-size: 0.84rem;
   font-weight: 800;
-  padding: 11px 16px;
+  padding: 10px 12px;
   border-radius: var(--radius-md);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   box-shadow: 0 2px 6px rgba(15, 23, 42, 0.12);
   transition: var(--transition);
 }
@@ -1297,15 +1536,15 @@ body {
   background: linear-gradient(135deg, #e11d48 0%, #be123c 100%);
   border: none;
   color: #ffffff;
-  font-size: 0.92rem;
+  font-size: 0.84rem;
   font-weight: 800;
-  padding: 11px 16px;
+  padding: 10px 12px;
   border-radius: var(--radius-md);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   box-shadow: 0 2px 6px rgba(225, 29, 72, 0.22);
   transition: var(--transition);
 }
@@ -1353,6 +1592,13 @@ body {
    Modals: Custom Order, Thermal Bill, Daily Sales Audit
    ========================================================================== */
 
+/* 📱 Background Scroll Lock when any Modal is Active */
+body.mobile-modal-open {
+  overflow: hidden !important;
+  touch-action: none !important;
+  overscroll-behavior: none !important;
+}
+
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -1363,12 +1609,18 @@ body {
   justify-content: center;
   z-index: 9999;
   padding: 16px;
+  overscroll-behavior: contain;
+  touch-action: none;
 }
 
 /* Modal Stacking Hierarchy - Guarantees billModal renders in front */
 #orderHistoryModal,
 #customOrderModal {
   z-index: 10000;
+}
+
+#bestSalesAnalyticsModal {
+  z-index: 10035 !important;
 }
 
 #dailyReportModal {
@@ -1379,8 +1631,9 @@ body {
   z-index: 10050 !important;
 }
 
-/* Custom Cake Modal Card */
-.modal-window-card {
+/* Modal Windows & Scroll Isolation */
+.modal-window-card,
+.profile-modal-window {
   background: #ffffff;
   border-radius: var(--radius-lg);
   width: 100%;
@@ -1388,6 +1641,291 @@ body {
   box-shadow: var(--shadow-lg);
   overflow: hidden;
   border: 1px solid var(--border);
+  overscroll-behavior: contain;
+  touch-action: auto;
+}
+
+.modal-card-body,
+.profile-modal-body,
+.prof-orders-scroll-list,
+.hist-orders-list,
+#orderHistoryModalBody,
+#dailyReportModalBody,
+#bestSalesAnalyticsModalBody,
+.receipt-scroll,
+.receipt-preview-box {
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ==========================================================================
+   Modal: Best Selling Foods & Average Sales Analytics
+   ========================================================================== */
+#bestSalesAnalyticsModal .modal-window-card {
+  max-width: 640px;
+  width: 95%;
+  max-height: 92vh;
+}
+
+.best-sales-filter-bar {
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 10px 14px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.best-filter-btn {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  line-height: 1.2;
+}
+
+.best-filter-btn.active {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.best-sales-count-badge {
+  font-size: 0.70rem;
+  font-weight: 700;
+  color: #0284c7;
+  background: #e0f2fe;
+  padding: 2px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+/* Average Sales Metric Ribbon */
+.best-sales-kpi-ribbon {
+  background: #ffffff;
+  border-bottom: 1px solid #f1f5f9;
+  padding: 10px 14px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.best-kpi-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.best-kpi-box.purple {
+  border-left: 3px solid #8b5cf6;
+  background: linear-gradient(135deg, #faf5ff 0%, #ffffff 100%);
+}
+
+.best-kpi-box.sky {
+  border-left: 3px solid #0284c7;
+  background: linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%);
+}
+
+.best-kpi-box.emerald {
+  border-left: 3px solid #10b981;
+  background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+}
+
+.best-kpi-box.amber {
+  border-left: 3px solid #d97706;
+  background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
+}
+
+.best-kpi-label {
+  font-size: 0.64rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+}
+
+.best-kpi-val {
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.best-kpi-box.purple .best-kpi-val { color: #7c3aed; }
+.best-kpi-box.sky .best-kpi-val { color: #0284c7; }
+.best-kpi-box.emerald .best-kpi-val { color: #059669; }
+.best-kpi-box.amber .best-kpi-val { color: #b45309; }
+
+/* Ranked Food Item Cards ("Which food is more order") */
+.food-rank-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  transition: all 0.15s ease;
+}
+
+.food-rank-card.rank-1 {
+  border-left: 4px solid #f59e0b;
+  background: linear-gradient(135deg, #fffdfa 0%, #ffffff 100%);
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.1);
+}
+
+.food-rank-card.rank-2 {
+  border-left: 4px solid #94a3b8;
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+}
+
+.food-rank-card.rank-3 {
+  border-left: 4px solid #b45309;
+  background: linear-gradient(135deg, #fffaf5 0%, #ffffff 100%);
+}
+
+.food-rank-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.food-rank-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+
+.food-rank-medal {
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  line-height: 1.3;
+}
+
+.food-rank-card.rank-1 .food-rank-medal {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.food-rank-card.rank-2 .food-rank-medal {
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+}
+
+.food-rank-card.rank-3 .food-rank-medal {
+  background: #ffedd5;
+  color: #9a3412;
+  border: 1px solid #fed7aa;
+}
+
+.food-rank-card .food-rank-medal-default {
+  background: #f8fafc;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+  font-size: 0.70rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.food-rank-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.food-rank-name {
+  font-size: 0.86rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.food-rank-cat {
+  font-size: 0.68rem;
+  color: #64748b;
+  font-weight: 600;
+  margin-top: 1px;
+}
+
+.food-rank-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.food-rank-qty-tag {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #059669;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  padding: 2px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.food-rank-rev-tag {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-top: 2px;
+}
+
+.food-popularity-track {
+  width: 100%;
+  height: 5px;
+  background: #f1f5f9;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 2px;
+}
+
+.food-popularity-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.food-rank-card.rank-1 .food-popularity-fill {
+  background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+}
+
+.food-rank-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+  color: #64748b;
+  padding-top: 2px;
 }
 
 .modal-card-top {
@@ -2365,6 +2903,686 @@ body {
   display: none;
 }
 
+.mobile-corner-profile-btn {
+  display: none;
+}
+
+/* ==========================================================================
+   Cashier & User Profile Modal Styles
+   ========================================================================== */
+/* ==========================================================================
+   Cashier Profile & Mobile Sales Hub Modal Styles
+   ========================================================================== */
+.profile-modal-window {
+  max-width: 480px !important;
+  width: 95% !important;
+  max-height: 92vh !important;
+  border-radius: var(--radius-lg) !important;
+  overflow: hidden !important;
+  box-shadow: 0 20px 48px -10px rgba(15, 23, 42, 0.45) !important;
+  border: 1px solid rgba(226, 232, 240, 0.8) !important;
+  padding: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.profile-modal-header {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: #ffffff;
+  padding: 14px 16px 12px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.btn-profile-nav-back {
+  display: none; /* Hidden on desktop; shown only on mobile phone viewports */
+}
+
+.profile-modal-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.profile-user-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.profile-avatar-emoji {
+  font-size: 1.5rem;
+  line-height: 1;
+  background: rgba(255, 255, 255, 0.12);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-user-texts {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.profile-user-title {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.profile-user-shift {
+  font-size: 0.68rem;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.prof-beacon-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  display: inline-block;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.4);
+}
+
+.profile-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.prof-sound-toggle-btn {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.prof-sound-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.profile-close-btn {
+  color: #94a3b8 !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 50% !important;
+  width: 30px !important;
+  height: 30px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  font-size: 0.85rem !important;
+  transition: all 0.2s ease !important;
+}
+
+.profile-close-btn:hover {
+  background: rgba(255, 255, 255, 0.22) !important;
+  color: #ffffff !important;
+}
+
+/* 🕒 Time & Date Card */
+.prof-time-date-card {
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  border-radius: 10px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.prof-time-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.prof-time-icon {
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+.prof-time-digits {
+  font-family: var(--font-mono);
+  font-size: 1.16rem;
+  font-weight: 800;
+  color: #38bdf8;
+  letter-spacing: 0.5px;
+  line-height: 1;
+}
+
+.prof-date-badge {
+  font-size: 0.72rem;
+  color: #cbd5e1;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Modal Body */
+.profile-modal-body {
+  padding: 12px 14px;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  flex: 1;
+  box-sizing: border-box;
+}
+
+/* 4 KPI Metrics Grid */
+.prof-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.prof-kpi-card {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 66px;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.prof-kpi-card.kpi-sales {
+  border-left: 4px solid #10b981;
+  background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+}
+
+.prof-kpi-card.kpi-orders {
+  border-left: 4px solid #0284c7;
+  background: linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%);
+}
+
+.prof-kpi-card.kpi-best {
+  border-left: 4px solid #d97706;
+  background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
+}
+
+.prof-kpi-card.kpi-aov {
+  border-left: 4px solid #7c3aed;
+  background: linear-gradient(135deg, #f5f3ff 0%, #ffffff 100%);
+}
+
+.prof-kpi-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-width: 0;
+  gap: 4px;
+}
+
+.prof-kpi-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.prof-kpi-icon {
+  font-size: 0.90rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.prof-kpi-label {
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: #64748b;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.prof-kpi-val {
+  font-size: 1.08rem;
+  font-weight: 800;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.2px;
+  margin-top: 4px;
+}
+
+.prof-kpi-val.text-emerald { color: #059669; }
+.prof-kpi-val.text-blue { color: #0284c7; }
+.prof-kpi-val.text-amber { 
+  color: #b45309; 
+  font-size: 0.88rem;
+}
+.prof-kpi-val.text-purple { color: #7c3aed; }
+
+/* Interactive Clickable KPI Cards inside Profile Dashboard */
+.prof-kpi-card.kpi-clickable {
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.prof-kpi-card.kpi-clickable:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.prof-kpi-card.kpi-clickable:active {
+  transform: scale(0.96);
+}
+
+.prof-kpi-action-tag {
+  font-size: 0.58rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  line-height: 1.3;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  transition: all 0.15s ease;
+}
+
+.prof-kpi-card.kpi-sales .prof-kpi-action-tag {
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+}
+
+.prof-kpi-card.kpi-orders .prof-kpi-action-tag {
+  background: #f0f9ff;
+  color: #0284c7;
+  border: 1px solid #bae6fd;
+}
+
+.prof-kpi-card.kpi-best .prof-kpi-action-tag {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.prof-kpi-card.kpi-aov .prof-kpi-action-tag {
+  background: #f5f3ff;
+  color: #7c3aed;
+  border: 1px solid #ddd6fe;
+}
+
+.prof-kpi-card.kpi-clickable:hover .prof-kpi-action-tag {
+  transform: translateX(2px);
+}
+
+/* 📋 Orders History Section */
+.prof-history-section {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.prof-history-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.prof-history-title {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.prof-history-count-badge {
+  font-size: 0.70rem;
+  font-weight: 700;
+  color: #0284c7;
+  background: #e0f2fe;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+.prof-date-filter-bar {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.prof-date-btn {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  height: 32px;
+  padding: 0 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #475569;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+}
+
+.prof-date-btn.active {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+  box-shadow: 0 2px 5px rgba(15, 23, 42, 0.2);
+}
+
+.prof-custom-date-box {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  height: 32px;
+  padding: 0 8px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.prof-custom-date-box label {
+  font-size: 0.69rem;
+  font-weight: 700;
+  color: #64748b;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.prof-custom-date-box input[type="date"] {
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 2px 6px;
+  font-size: 0.72rem;
+  color: #0f172a;
+  background: #ffffff;
+  flex: 1;
+  height: 24px;
+  outline: none;
+  min-width: 0;
+}
+
+.prof-search-bar {
+  width: 100%;
+}
+
+.prof-search-bar input {
+  width: 100%;
+  height: 32px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 0 10px;
+  font-size: 0.75rem;
+  outline: none;
+  box-sizing: border-box;
+  background: #ffffff;
+}
+
+.prof-search-bar input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(225, 29, 72, 0.1);
+}
+
+.prof-orders-scroll-list {
+  max-height: 220px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-right: 2px;
+}
+
+.prof-order-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.prof-order-card:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.prof-order-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.prof-order-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.prof-ticket-pill {
+  background: #e0f2fe;
+  color: #0284c7;
+  font-weight: 800;
+  font-size: 0.74rem;
+  font-family: var(--font-mono);
+  padding: 2px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.prof-order-date-pill {
+  font-size: 0.68rem;
+  color: #64748b;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.prof-order-amount {
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: #059669;
+  font-family: var(--font-mono);
+  flex-shrink: 0;
+  margin-left: 6px;
+}
+
+.prof-order-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.70rem;
+  flex-wrap: wrap;
+}
+
+.prof-pay-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.prof-type-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.prof-cust-text {
+  color: #334155;
+  font-weight: 600;
+  font-size: 0.70rem;
+}
+
+.prof-order-items-text {
+  font-size: 0.70rem;
+  color: #475569;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.prof-order-actions-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.prof-btn-action {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 5px;
+  height: 26px;
+  padding: 0 8px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #334155;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.prof-btn-action:hover {
+  background: #f1f5f9;
+}
+
+.prof-btn-action.wa {
+  background: #25d366;
+  color: #ffffff;
+  border-color: #1da851;
+}
+
+.prof-btn-action.wa:hover {
+  background: #1da851;
+}
+
+/* Modal Footer */
+.profile-modal-footer {
+  padding: 10px 14px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.btn-profile-logout-sm {
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  color: #e11d48;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.btn-profile-logout-sm:hover {
+  background: #ffe4e6;
+  border-color: #fda4af;
+  color: #be123c;
+}
+
+.btn-profile-close {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 8px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.btn-profile-close:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
 /* ==========================================================================
    Responsive Adaptations
    ========================================================================== */
@@ -2400,9 +3618,19 @@ body {
   }
 
   .brand-section {
-    justify-content: flex-start;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    width: 100% !important;
+    gap: 8px;
+  }
+
+  .brand-identity-left {
+    display: flex;
     align-items: center;
     gap: 10px;
+    min-width: 0;
+    flex: 1;
   }
 
   .brand-avatar {
@@ -2421,76 +3649,81 @@ body {
     display: none; /* Hide tagline on mobile to save vertical space */
   }
 
-  .header-controls {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    gap: 6px;
-  }
-
-  .header-utility-btns {
-    display: flex;
-    width: 100%;
-    gap: 6px;
+  /* Top-Corner Cashier Profile Button on Phone View (Icon-Only 44px Round Executive Button) */
+  .mobile-corner-profile-btn {
+    display: inline-flex !important;
     align-items: center;
-    justify-content: space-between;
-  }
-
-  .logged-user-pill {
-    flex: 1.2;
-    padding: 3px 8px;
-    height: 36px;
-    gap: 6px;
-    min-width: 0;
-  }
-
-  .user-name-title {
-    font-size: 0.75rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .user-role-tag {
-    font-size: 0.6rem;
-  }
-
-  .btn-logout-pill {
-    padding: 3px 8px;
-    font-size: 0.68rem;
-    height: 26px;
+    justify-content: center;
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    padding: 0 !important;
+    margin: 0 0 0 auto !important; /* Pins firmly to the top-right corner */
+    background: linear-gradient(140deg, #ffffff 0%, #fff1f2 42%, #ffe4e6 100%) !important;
+    border: 2px solid #f43f5e !important;
+    border-radius: 50% !important;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(244, 63, 94, 0.20), 0 0 0 2px rgba(255, 255, 255, 0.95), inset 0 1px 2px #ffffff !important;
     flex-shrink: 0;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+    position: relative;
+    touch-action: manipulation;
   }
 
-  .util-btn {
-    height: 36px;
-    padding: 0 10px;
-    font-size: 0.75rem;
-    flex: 0.8;
+  .mobile-corner-profile-btn:active {
+    transform: scale(0.92) !important;
+    background: linear-gradient(140deg, #ffe4e6 0%, #fecdd3 100%) !important;
+    border-color: #e11d48 !important;
+    box-shadow: 0 2px 6px rgba(244, 63, 94, 0.25), 0 0 0 2px #ffffff !important;
   }
 
-  #btnFullscreenToggle {
-    display: none; /* Desktop only feature */
+  .mobile-corner-avatar-ring {
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 50% !important;
+    background: transparent !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    position: relative !important;
+    box-shadow: none !important;
   }
 
-  .header-clock-pill {
-    width: 100%;
-    min-width: unset;
-    height: 32px;
-    padding: 2px 10px;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .clock-digits {
-    font-size: 0.88rem;
+  .mobile-corner-emoji {
+    font-size: 1.35rem !important;
     line-height: 1;
+    filter: drop-shadow(0 1px 2px rgba(225, 29, 72, 0.25));
   }
 
-  .clock-date {
-    font-size: 0.68rem;
-    margin-top: 0;
+  .mobile-corner-beacon {
+    position: absolute;
+    bottom: 1px;
+    right: 1px;
+    width: 10px;
+    height: 10px;
+    background: #10b981;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1.5px rgba(16, 185, 129, 0.45);
+  }
+
+  .mobile-corner-meta {
+    display: none !important; /* Remove all text, only icon */
+  }
+
+  .header-controls {
+    display: none !important; /* Live clock, sound toggle, and user details moved into top-corner Profile button */
+  }
+
+  /* Mobile: Tracking area & KPIs are housed inside the top-corner Profile button */
+  .daily-track-panel {
+    display: none !important;
+  }
+
+  .daily-kpi-grid {
+    display: none !important;
   }
 
   /* Mobile Section Switcher Tab Bar */
@@ -2560,80 +3793,14 @@ body {
     display: none !important;
   }
 
-  /* 2x2 Compact KPI Dashboard */
-  .daily-kpi-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 8px;
-    margin-bottom: 12px;
-  }
-
-  .kpi-card {
-    padding: 10px;
-    min-height: 62px;
-    gap: 8px;
-  }
-
-  .kpi-icon {
-    width: 34px;
-    height: 34px;
-    font-size: 1.15rem;
-    border-radius: 8px;
-  }
-
-  .kpi-title {
-    font-size: 0.68rem;
-  }
-
-  .kpi-val {
-    font-size: 1.05rem;
-  }
-
-  /* Horizontal Smooth Swipeable Filters */
+  /* =========================================================================
+     📱 Mobile Phone: Outside Elements Cleanup
+     Daily Sales KPIs, Date Tracker Panel, and Header Controls are completely
+     removed from the outside screen and housed inside the Top-Corner Profile Button.
+     ========================================================================= */
+  .daily-kpi-grid,
   .daily-track-panel {
-    padding: 8px 10px;
-    display: flex;
-    align-items: center;
-    overflow-x: auto;
-    flex-wrap: nowrap !important;
-    gap: 6px;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-
-  .daily-track-panel::-webkit-scrollbar {
-    display: none;
-  }
-
-  .date-pills-row {
-    display: flex;
-    align-items: center;
-    flex-wrap: nowrap !important;
-    gap: 5px;
-    flex-shrink: 0;
-  }
-
-  .date-pill-btn {
-    padding: 0 10px;
-    font-size: 0.72rem;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-
-  .date-picker-box {
-    flex-shrink: 0;
-    padding: 0 8px;
-    gap: 4px;
-  }
-
-  .date-picker-box input[type="date"] {
-    font-size: 0.72rem;
-  }
-
-  .active-context-badge {
-    flex-shrink: 0;
-    font-size: 0.68rem;
-    padding: 0 8px;
-    white-space: nowrap;
+    display: none !important;
   }
 
   /* Swipeable Category Filter Navigation */
@@ -2716,42 +3883,105 @@ body {
     border-radius: 14px;
   }
 
+  /* CRITICAL: Input font-size: 16px prevents iOS Safari from auto-zooming 150% and blowing up the entire screen size! */
+  input[type="text"],
+  input[type="tel"],
+  input[type="password"],
+  input[type="number"],
+  input[type="search"] {
+    font-size: 16px !important;
+  }
+
   .register-header {
-    padding: 10px 12px;
-    gap: 6px;
+    padding: 10px 14px;
+    gap: 8px;
+  }
+
+  .register-header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
   }
 
   .register-order-tag {
     font-size: 0.74rem;
-    padding: 4px 7px;
+    padding: 4px 8px;
+    width: auto !important;
   }
 
-  .order-type-btn {
-    font-size: 0.7rem;
-    padding: 4px 7px;
+  .register-terminal-badge {
+    font-size: 0.68rem;
+    padding: 2px 7px;
   }
 
-  /* Customer Mobile & Name */
+  .order-type-box-container {
+    width: 100%;
+    padding: 2px;
+  }
+
+  .order-box-btn {
+    font-size: 0.74rem;
+    padding: 6px 3px;
+    gap: 3px;
+  }
+
+  /* Customer Mobile & Name: Keep side-by-side on mobile to save vertical space */
   .register-customer-bar {
-    padding: 10px 12px;
+    padding: 10px 14px;
     gap: 8px;
   }
 
   .customer-input-row {
-    flex-direction: column;
-    gap: 6px;
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  .cust-input-wrap.mobile-wrap {
+    flex: 1.35;
+  }
+
+  .cust-input-wrap {
+    flex: 1;
   }
 
   .cust-input-wrap input {
-    height: 40px;
-    font-size: 0.88rem;
+    height: 38px;
+    padding: 6px 8px 6px 30px;
+    border-radius: 8px;
   }
 
-  /* Stepper Buttons for Touch */
+  /* Compact Cart Line Items on Phone */
+  .register-cart-container {
+    padding: 10px 14px;
+    max-height: 250px;
+  }
+
+  .cart-line-item {
+    padding: 8px 10px;
+    gap: 6px;
+    border-radius: 10px;
+  }
+
+  .cart-item-title {
+    font-size: 0.82rem;
+  }
+
+  .cart-item-sub {
+    font-size: 0.7rem;
+  }
+
+  .cart-stepper {
+    height: 28px;
+    border-radius: 6px;
+  }
+
   .cart-step-btn {
-    width: 36px;
-    height: 36px;
-    font-size: 1.15rem;
+    width: 26px;
+    height: 26px;
+    font-size: 0.95rem;
+    border-radius: 5px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -2759,43 +3989,62 @@ body {
   }
 
   .cart-qty-text {
-    min-width: 30px;
-    font-size: 0.95rem;
+    min-width: 22px;
+    font-size: 0.82rem;
+    padding: 0 4px;
+  }
+
+  .cart-item-total {
+    font-size: 0.86rem;
+    min-width: 52px;
   }
 
   .cart-remove-btn {
-    width: 36px;
-    height: 36px;
-    font-size: 1rem;
+    width: 26px;
+    height: 26px;
+    font-size: 0.82rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     -webkit-tap-highlight-color: transparent;
   }
 
-  .cart-stepper {
-    height: 36px;
+  /* Action Buttons: Compact Height & Dual-Row Layout */
+  .register-action-buttons {
+    padding: 10px 14px;
+    gap: 6px;
   }
 
-  .cart-line-item {
-    padding: 10px 12px;
-    gap: 8px;
-  }
-
-  /* Action Buttons Touch Height */
-  .btn-primary-action {
-    height: 46px;
-    font-size: 0.92rem;
-  }
-
-  .btn-checkout-print {
-    height: 44px;
+  .btn-whatsapp-bill {
+    height: 42px;
+    padding: 8px 12px;
     font-size: 0.88rem;
   }
 
-  .btn-reg-secondary {
+  .register-action-dual-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    width: 100%;
+  }
+
+  .btn-download-pdf,
+  .btn-checkout-print {
+    height: 38px;
+    padding: 6px 8px;
+    font-size: 0.76rem !important;
+    white-space: nowrap;
+  }
+
+  .btn-primary-action {
     height: 40px;
-    font-size: 0.76rem;
+    padding: 8px 12px;
+    font-size: 0.84rem;
+  }
+
+  .btn-reg-secondary {
+    height: 36px;
+    font-size: 0.72rem;
   }
 
   /* Floating Bottom Cart Bar */
@@ -2886,8 +4135,19 @@ body {
   }
 
   /* Thermal Receipt & Modals on Mobile */
+  body.mobile-modal-open {
+    overflow: hidden !important;
+    position: fixed !important;
+    width: 100% !important;
+    height: 100% !important;
+    touch-action: none !important;
+    overscroll-behavior: none !important;
+  }
+
   .modal-backdrop {
     padding: 8px;
+    overscroll-behavior: contain;
+    touch-action: none;
   }
 
   .modal-window-card {
@@ -2897,9 +4157,23 @@ body {
     margin: auto;
     border-radius: 14px;
     overflow: hidden;
+    overscroll-behavior: contain;
   }
 
-  /* History Modal on Mobile */
+  .modal-card-body,
+  .profile-modal-body,
+  .prof-orders-scroll-list,
+  #orderHistoryModalBody,
+  #dailyReportModalBody,
+  #bestSalesAnalyticsModalBody,
+  .receipt-preview-box {
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Best Sales Analytics & History Modals on Mobile */
+  #bestSalesAnalyticsModal .modal-window-card,
   #orderHistoryModal .modal-window-card {
     max-height: 94vh;
   }
@@ -3062,33 +4336,328 @@ body {
     padding: 2px 6px;
   }
 
+  .mobile-corner-profile-btn {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    padding: 0 !important;
+    margin: 0 0 0 auto !important;
+  }
+
+  .mobile-corner-emoji {
+    font-size: 1.25rem !important;
+  }
+
   .header-utility-btns {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 5px;
   }
 
-  .logged-user-pill {
-    width: 100%;
-    justify-content: space-between;
-  }
-
   .util-btn {
-    flex: 1;
-    height: 34px;
+    height: 30px;
+    font-size: 0.72rem;
+    padding: 0 8px;
   }
 
-  .daily-kpi-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
+  .daily-kpi-grid,
+  .daily-track-panel,
+  .header-controls {
+    display: none !important;
+  }
+
+  /* ==========================================================================
+     📱 MOBILE ONLY: Profile Button Full Dedicated Page View (Redirect Experience)
+     ========================================================================== */
+  #userProfileModal.modal-backdrop {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: 100vw !important;
+    max-height: 100vh !important;
+    background: #f8fafc !important; /* Solid opaque page background - NO POPUP BACKDROP */
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    z-index: 10020 !important;
+    animation: mobilePageSlideRight 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+    overflow: hidden !important;
+  }
+
+  @keyframes mobilePageSlideRight {
+    0% {
+      opacity: 0;
+      transform: translateX(36px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  #userProfileModal .profile-modal-window {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100vh !important;
+    min-height: 100vh !important;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    background: #f8fafc !important;
+    flex: 1 1 100% !important;
+  }
+
+  .btn-profile-nav-back {
+    display: inline-flex !important;
+    align-items: center;
     gap: 6px;
+    background: rgba(255, 255, 255, 0.22) !important;
+    border: 1px solid rgba(255, 255, 255, 0.40) !important;
+    color: #ffffff !important;
+    font-size: 0.82rem !important;
+    font-weight: 700 !important;
+    padding: 7px 14px !important;
+    min-height: 36px !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    -webkit-tap-highlight-color: transparent !important;
+    touch-action: manipulation !important;
+    user-select: none !important;
+    position: relative !important;
+    z-index: 25 !important;
   }
 
-  .kpi-card {
-    padding: 8px 10px;
-    min-height: 58px;
+  .btn-profile-nav-back:active {
+    transform: scale(0.92) !important;
+    background: rgba(255, 255, 255, 0.35) !important;
   }
 
-  .kpi-val {
-    font-size: 0.98rem;
+  .btn-profile-nav-back .nav-back-arrow {
+    font-size: 1.15rem !important;
+    line-height: 1 !important;
+    font-weight: 800 !important;
+  }
+
+  .profile-close-btn {
+    display: none !important; /* Mobile dedicated page uses ← Store nav button instead of popup X */
+  }
+
+  /* Dedicated Full Page View for Analytics Sub-Pages on Mobile */
+  #bestSalesAnalyticsModal.modal-backdrop,
+  #orderHistoryModal.modal-backdrop,
+  #dailyReportModal.modal-backdrop {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: 100vw !important;
+    max-height: 100vh !important;
+    background: #f8fafc !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    overflow: hidden !important;
+    z-index: 10035 !important;
+    animation: mobilePageSlideRight 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+  }
+
+  #bestSalesAnalyticsModal .modal-window-card,
+  #orderHistoryModal .modal-window-card,
+  #dailyReportModal .modal-window-card {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100vh !important;
+    min-height: 100vh !important;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    background: #f8fafc !important;
+    flex: 1 1 100% !important;
+  }
+
+  #bestSalesAnalyticsModal .modal-card-top,
+  #orderHistoryModal .modal-card-top,
+  #dailyReportModal .modal-card-top {
+    border-radius: 0 !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 20 !important;
+    padding: 12px 14px 10px !important;
+    flex-shrink: 0 !important;
+  }
+
+  #bestSalesAnalyticsModal .modal-card-bottom,
+  #orderHistoryModal .modal-card-bottom,
+  #dailyReportModal .modal-card-bottom {
+    border-radius: 0 !important;
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 20 !important;
+    padding: 10px 14px !important;
+    background: #ffffff !important;
+    border-top: 1px solid #e2e8f0 !important;
+    box-shadow: 0 -3px 12px rgba(0, 0, 0, 0.06) !important;
+    flex-shrink: 0 !important;
+  }
+
+  .profile-modal-header {
+    padding: max(12px, env(safe-area-inset-top)) 12px 10px !important;
+  }
+
+  .profile-modal-top-row {
+    margin-bottom: 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+    width: 100% !important;
+    position: relative !important;
+    z-index: 20 !important;
+  }
+
+  .profile-user-summary {
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+    overflow: hidden !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+  }
+
+  .profile-user-texts {
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .profile-user-title {
+    font-size: 0.86rem !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .profile-user-shift {
+    font-size: 0.64rem !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .prof-time-date-card {
+    padding: 6px 10px !important;
+  }
+
+  .prof-time-digits {
+    font-size: 1.08rem !important;
+  }
+
+  .prof-date-badge {
+    font-size: 0.68rem !important;
+    padding: 2px 6px !important;
+  }
+
+  .profile-modal-body {
+    padding: 10px 10px !important;
+    gap: 8px !important;
+  }
+
+  .prof-kpi-card {
+    padding: 6px 8px !important;
+    min-height: 60px !important;
+  }
+
+  .prof-kpi-label {
+    font-size: 0.58rem !important;
+  }
+
+  .prof-kpi-action-tag {
+    font-size: 0.52rem !important;
+    padding: 1px 3px !important;
+  }
+
+  .prof-kpi-val {
+    font-size: 1.00rem !important;
+  }
+
+  .prof-kpi-val.text-amber {
+    font-size: 0.82rem !important;
+  }
+
+  .prof-history-section {
+    padding: 8px 10px !important;
+  }
+
+  .prof-date-btn {
+    height: 30px !important;
+    font-size: 0.69rem !important;
+  }
+
+  .prof-custom-date-box {
+    height: 30px !important;
+  }
+
+  .prof-custom-date-box label {
+    font-size: 0.66rem !important;
+  }
+
+  .prof-custom-date-box input[type="date"] {
+    font-size: 0.69rem !important;
+  }
+
+  .prof-search-bar input {
+    height: 30px !important;
+    font-size: 0.72rem !important;
+  }
+
+  .prof-order-card {
+    padding: 7px 8px !important;
+  }
+
+  .prof-ticket-pill {
+    font-size: 0.70rem !important;
+  }
+
+  .prof-order-amount {
+    font-size: 0.90rem !important;
+  }
+
+  .prof-btn-action {
+    height: 24px !important;
+    font-size: 0.64rem !important;
+    padding: 0 6px !important;
+  }
+
+  .profile-modal-footer {
+    padding: 8px 10px max(10px, env(safe-area-inset-bottom)) !important;
+  }
+
+  .btn-profile-logout-sm,
+  .btn-profile-close {
+    height: 32px !important;
+    font-size: 0.72rem !important;
+    padding: 0 10px !important;
   }
 
   .product-touch-grid {
@@ -3133,18 +4702,39 @@ body {
     font-size: 0.74rem;
   }
 
-  .order-type-btn {
-    font-size: 0.68rem;
-    padding: 4px 6px;
+  .order-type-box-container {
+    min-width: 0;
+    width: 100%;
+    padding: 2px;
+  }
+
+  .order-box-btn {
+    font-size: 0.72rem;
+    padding: 6px 2px;
+    gap: 2px;
+  }
+
+  .register-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .register-header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
   }
 
   .register-order-tag {
     font-size: 0.72rem;
-    padding: 4px 6px;
+    padding: 4px 7px;
+    width: auto !important;
   }
 
   .total-due-amount {
-    font-size: 1.5rem;
+    font-size: 1.35rem;
   }
 
   .hist-order-actions button {
@@ -3628,20 +5218,30 @@ body {
        ========================================================================= -->
   <header class="pos-app-header">
     <div class="brand-section">
-      <div class="brand-avatar">🍰</div>
-      <div class="brand-details">
-        <h1>Sugar Cubes</h1>
-        <p class="brand-tagline">Artisanal Cake Shop & Bakery POS</p>
-        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 2px;">
-          <div class="brand-live-badge">
-            <span class="pulse-dot"></span>
-            <span>STORE OPEN • COUNTER #1</span>
-          </div>
-          <div style="display: inline-flex; align-items: center; gap: 4px; background: #fdf2f8; border: 1px solid #fbcfe8; color: #db2777; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; cursor: pointer;" onclick="promptEditInstagramHandle()" title="Click to edit Instagram Profile handle">
-            <span>📸</span> <span id="headerIgHandle">@sugarcubes_official</span> <span>✏️</span>
+      <div class="brand-identity-left">
+        <div class="brand-avatar">🍰</div>
+        <div class="brand-details">
+          <h1>Sugar Cubes</h1>
+          <p class="brand-tagline">Artisanal Cake Shop & Bakery POS</p>
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 2px;">
+            <div class="brand-live-badge">
+              <span class="pulse-dot"></span>
+              <span>STORE OPEN • COUNTER #1</span>
+            </div>
+            <div style="display: inline-flex; align-items: center; gap: 4px; background: #fdf2f8; border: 1px solid #fbcfe8; color: #db2777; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; cursor: pointer;" onclick="promptEditInstagramHandle()" title="Click to edit Instagram Profile handle">
+              <span>📸</span> <span id="headerIgHandle">@sugarcubes_official</span> <span>✏️</span>
+            </div>
           </div>
         </div>
       </div>
+
+      <!-- Mobile Top-Corner Cashier Profile Button (Icon-Only Executive Button) -->
+      <button type="button" class="mobile-corner-profile-btn" id="mobileCornerProfileBtn" onclick="openUserProfileModal()" title="Store Cashier Profile & Sales Cockpit" aria-label="Store Profile">
+        <div class="mobile-corner-avatar-ring">
+          <span class="mobile-corner-emoji">👤</span>
+          <span class="mobile-corner-beacon" title="Live Counter Shift Active"></span>
+        </div>
+      </button>
     </div>
 
     <div class="header-controls">
@@ -3718,7 +5318,7 @@ body {
         <div class="kpi-card kpi-top">
           <div class="kpi-icon">🏆</div>
           <div class="kpi-content">
-            <span class="kpi-title">Top Category</span>
+            <span class="kpi-title">Best Sale</span>
             <span class="kpi-val" id="kpiTopCatVal" style="font-size: 1.05rem;">--</span>
           </div>
         </div>
@@ -3811,11 +5411,26 @@ body {
 
         <!-- Register Header -->
         <div class="register-header">
-          <div class="register-order-tag" id="registerTicketNum" onclick="promptEditBillNumber()" title="Click to adjust starting Bill No"><span>BILL NO:</span> <strong>#SC-001</strong> <span style="font-size: 0.65rem; opacity: 0.7;">✏️</span></div>
-          <div class="order-type-pills">
-            <button type="button" class="order-type-btn active" onclick="setOrderType('Takeaway', this)">🛍️ Takeaway</button>
-            <button type="button" class="order-type-btn" onclick="setOrderType('Dine-In', this)">🍽️ Dine-In</button>
-            <button type="button" class="order-type-btn" onclick="setOrderType('Delivery', this)">🛵 Delivery</button>
+          <div class="register-header-top">
+            <div class="register-order-tag" id="registerTicketNum" onclick="promptEditBillNumber()" title="Click to adjust starting Bill No">
+              <span>BILL NO:</span> <strong>#SC-001</strong> <span style="font-size: 0.65rem; opacity: 0.7;">✏️</span>
+            </div>
+            <div class="register-terminal-badge">
+              <span class="live-dot-green"></span>
+              <span>Active POS</span>
+            </div>
+          </div>
+          <div class="order-type-box-container" id="orderTypeBoxContainer">
+            <div class="order-type-slide-glider" id="orderTypeGlider"></div>
+            <button type="button" class="order-box-btn active" data-type="Takeaway" data-index="0" onclick="setOrderType('Takeaway', this)">
+              <span>🛍️</span> <span>Takeaway</span>
+            </button>
+            <button type="button" class="order-box-btn" data-type="Dine-In" data-index="1" onclick="setOrderType('Dine-In', this)">
+              <span>🍽️</span> <span>Dine-In</span>
+            </button>
+            <button type="button" class="order-box-btn" data-type="Delivery" data-index="2" onclick="setOrderType('Delivery', this)">
+              <span>🛵</span> <span>Delivery</span>
+            </button>
           </div>
         </div>
 
@@ -3824,16 +5439,16 @@ body {
           <div class="customer-input-row">
             <div class="cust-input-wrap mobile-wrap">
               <span class="cust-input-icon">📱</span>
-              <input type="tel" id="custMobile" placeholder="Customer Mobile (10 Digits)" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+              <input type="tel" id="custMobile" placeholder="Customer Mobile (10 Digits)" maxlength="14" oninput="formatCustomerPhoneInput(this)">
             </div>
             <div class="cust-input-wrap">
               <span class="cust-input-icon">👤</span>
               <input type="text" id="custName" placeholder="Name (Optional)">
             </div>
           </div>
-          <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.72rem;">
-            <span style="color: #15803d; font-weight: 600;">💬 Send PDF Bill to WhatsApp with 1-click!</span>
-            <label style="display: inline-flex; align-items: center; gap: 4px; color: #0f172a; font-weight: 700; cursor: pointer;">
+          <div class="register-customer-subrow">
+            <span class="wa-oneclick-hint">💬 Send PDF Bill to WhatsApp with 1-click!</span>
+            <label class="auto-pdf-toggle-label">
               <input type="checkbox" id="autoDownloadPdfToggle" checked>
               <span>⚡ Auto PDF</span>
             </label>
@@ -3842,14 +5457,24 @@ body {
 
         <!-- Active Order Cart Items Container -->
         <div class="register-cart-container" id="cartContainer">
+          <div class="cart-section-header">
+            <div class="cart-title-wrap">
+              <span class="cart-title-text">🛒 Order Items</span>
+              <span class="cart-items-pill" id="cartItemsBadge">0</span>
+            </div>
+            <button type="button" class="cart-clear-link" onclick="clearCurrentCart()" title="Clear all items in cart" style="display: none;">🗑️ Clear</button>
+          </div>
+
           <ul class="cart-items-list" id="cartItemsList">
             <!-- Populated dynamically by script.js -->
           </ul>
 
           <div class="cart-empty-state" id="cartEmptyState">
-            <div class="cart-empty-icon">🍰</div>
-            <p><strong>Current Cart is Empty</strong></p>
-            <p style="color: #94a3b8; font-size: 0.78rem;">Tap any cake, pastry or dessert on the left to add items directly.</p>
+            <div class="cart-empty-icon-wrap">
+              <span class="cart-empty-icon">🍰</span>
+            </div>
+            <p class="cart-empty-title">Cart is Ready & Empty</p>
+            <p class="cart-empty-subtitle">Tap any delicacy from the left menu to add items directly to this order.</p>
           </div>
         </div>
 
@@ -3916,17 +5541,19 @@ body {
             <span>Send PDF Bill to WhatsApp</span>
           </button>
 
-          <!-- Direct Download Professional PDF Bill -->
-          <button type="button" class="btn-download-pdf" onclick="downloadPdfBill()" title="Generate and download official PDF tax invoice with Instagram QR">
-            <span style="font-size: 1.1rem;">📄</span>
-            <span>Download Official PDF Bill</span>
-          </button>
+          <div class="register-action-dual-row">
+            <!-- Direct Download Professional PDF Bill -->
+            <button type="button" class="btn-download-pdf" onclick="downloadPdfBill()" title="Generate and download official PDF tax invoice with Instagram QR">
+              <span style="font-size: 1.05rem;">📄</span>
+              <span>Download PDF</span>
+            </button>
 
-          <!-- Complete & Print Bill Button -->
-          <button type="button" class="btn-checkout-print" onclick="openBillModal()" title="View and print thermal receipt with Instagram QR">
-            <span style="font-size: 1.1rem;">🧾</span>
-            <span>View Thermal Bill</span>
-          </button>
+            <!-- Complete & Print Bill Button -->
+            <button type="button" class="btn-checkout-print" onclick="openBillModal()" title="View and print thermal receipt with Instagram QR">
+              <span style="font-size: 1.05rem;">🧾</span>
+              <span>Thermal Bill</span>
+            </button>
+          </div>
 
           <!-- Complete & New Sale Action -->
           <button type="button" class="btn-primary-action" style="background: #0f172a; padding: 11px; font-size: 0.88rem; width: 100%;" onclick="completeAndNewSale()" title="Record completed transaction and reset register for next customer">
@@ -4102,8 +5729,141 @@ body {
         <button type="button" class="btn-checkout-print" onclick="printThermalBill()">
           <span>🖨️</span> <span>Print Receipt / Thermal</span>
         </button>
-        <button type="button" class="btn-dismiss" onclick="closeBillModal()">
+        <button type="button" class="btn-dismiss" id="billModalCloseBtn" onclick="closeBillModal()">
           ✕ Close
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       Modal: Cashier Profile & Executive Sales Hub (Mobile Top-Corner Profile)
+       ========================================================================= -->
+  <div id="userProfileModal" class="modal-backdrop" style="display: none;" onclick="closeUserProfileModalOnBackdrop(event)">
+    <div class="modal-window-card profile-modal-window" onclick="event.stopPropagation()">
+      
+      <!-- Top Header Bar with Live Clock & Sound Toggle -->
+      <div class="profile-modal-header">
+        <div class="profile-modal-top-row">
+          <button type="button" class="btn-profile-nav-back" id="btnProfileNavBack" onclick="closeUserProfileModal()" title="Back to Store Menu">
+            <span class="nav-back-arrow">←</span> <span class="nav-back-text">Store</span>
+          </button>
+          <div class="profile-user-summary">
+            <span class="profile-avatar-emoji">👤</span>
+            <div class="profile-user-texts">
+              <span class="profile-user-title" id="profileModalFullName">Store Manager</span>
+              <span class="profile-user-shift"><span class="prof-beacon-dot"></span> Live Shift • Counter #1</span>
+            </div>
+          </div>
+          <div class="profile-header-actions">
+            <button type="button" class="prof-sound-toggle-btn" id="profSoundToggleBtn" onclick="toggleAudioSound()" title="Toggle POS sound effects">
+              🔔 Sound: ON
+            </button>
+            <button type="button" class="modal-close-x profile-close-btn" onclick="closeUserProfileModal()" title="Back to Store Menu">✕</button>
+          </div>
+        </div>
+
+        <!-- 🕒 Live Time & Date Display -->
+        <div class="prof-time-date-card">
+          <div class="prof-time-box">
+            <span class="prof-time-icon">🕒</span>
+            <span class="prof-time-digits" id="profLiveClock">--:--:-- --</span>
+          </div>
+          <div class="prof-date-badge" id="profLiveDate">
+            📅 Loading date...
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Body: Metrics & All Date Order History -->
+      <div class="profile-modal-body">
+        
+        <!-- 4 Key Sales Performance Metrics (Total Sales, Order, Best Sales, Ava Order) -->
+        <div class="prof-kpi-grid">
+          <div class="prof-kpi-card kpi-sales kpi-clickable" onclick="openAllTotalSalesPageFromProfile()" title="Tap to view All Total Sales Statement & Audit Page">
+            <div class="prof-kpi-header">
+              <div class="prof-kpi-title-wrap">
+                <span class="prof-kpi-icon">💰</span>
+                <span class="prof-kpi-label">TOTAL SALES</span>
+              </div>
+              <span class="prof-kpi-action-tag">All Sales ➔</span>
+            </div>
+            <div class="prof-kpi-val text-emerald" id="profKpiTotalSales">₹0.00</div>
+          </div>
+
+          <div class="prof-kpi-card kpi-orders kpi-clickable" onclick="openAllOrdersHistoryFromProfile()" title="Tap to view All Orders Page History">
+            <div class="prof-kpi-header">
+              <div class="prof-kpi-title-wrap">
+                <span class="prof-kpi-icon">📦</span>
+                <span class="prof-kpi-label">ORDERS</span>
+              </div>
+              <span class="prof-kpi-action-tag">History ➔</span>
+            </div>
+            <div class="prof-kpi-val text-blue" id="profKpiOrders">0</div>
+          </div>
+
+          <div class="prof-kpi-card kpi-best kpi-clickable" onclick="openBestSalesAnalyticsFromProfile()" title="Tap to view which food items are most ordered & popular">
+            <div class="prof-kpi-header">
+              <div class="prof-kpi-title-wrap">
+                <span class="prof-kpi-icon">🏆</span>
+                <span class="prof-kpi-label">BEST SALES</span>
+              </div>
+              <span class="prof-kpi-action-tag">Top Foods ➔</span>
+            </div>
+            <div class="prof-kpi-val text-amber" id="profKpiBestSales">--</div>
+          </div>
+
+          <div class="prof-kpi-card kpi-aov kpi-clickable" onclick="openBestSalesAnalyticsFromProfile()" title="Tap to view Average Sales & Order Economics">
+            <div class="prof-kpi-header">
+              <div class="prof-kpi-title-wrap">
+                <span class="prof-kpi-icon">📊</span>
+                <span class="prof-kpi-label">AVA ORDER</span>
+              </div>
+              <span class="prof-kpi-action-tag">Avg Stats ➔</span>
+            </div>
+            <div class="prof-kpi-val text-purple" id="profKpiAvgOrder">₹0.00</div>
+          </div>
+        </div>
+
+        <!-- 📋 History of All the Date Orders -->
+        <div class="prof-history-section">
+          <div class="prof-history-title-row">
+            <span class="prof-history-title">📋 Orders History by Date</span>
+            <span class="prof-history-count-badge" id="profHistCountBadge">0 Orders</span>
+          </div>
+
+          <!-- Date Filter Segmented Tabs & Date Picker -->
+          <div class="prof-date-filter-bar">
+            <button type="button" class="prof-date-btn active" id="profHistBtnToday" onclick="setProfHistoryFilter('today')">🌟 Today</button>
+            <button type="button" class="prof-date-btn" id="profHistBtnYesterday" onclick="setProfHistoryFilter('yesterday')">⏪ Yesterday</button>
+            <button type="button" class="prof-date-btn" id="profHistBtnAll" onclick="setProfHistoryFilter('all')">🗓️ All Records</button>
+            <div class="prof-custom-date-box">
+              <label for="profHistDatePicker">📅 Pick:</label>
+              <input type="date" id="profHistDatePicker" onchange="setProfHistoryFilter('custom', this.value)">
+            </div>
+          </div>
+
+          <!-- Search Filter Input -->
+          <div class="prof-search-bar">
+            <input type="text" id="profHistSearchInput" placeholder="🔍 Search bill #, phone or cake..." oninput="renderProfOrdersHistory()">
+          </div>
+
+          <!-- Orders List Container -->
+          <div class="prof-orders-scroll-list" id="profModalOrdersList">
+            <!-- Dynamic order rows rendered by script.js -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="profile-modal-footer">
+        <button type="button" class="btn-profile-logout-sm" onclick="closeUserProfileModal(); logoutUser();" title="Lock Register & Logout">
+          <span>🔒</span> <span>Lock Register</span>
+        </button>
+        <button type="button" class="btn-profile-close" onclick="closeUserProfileModal()">
+          ← Back to Store Menu
         </button>
       </div>
 
@@ -4155,13 +5915,13 @@ body {
       </div>
 
       <!-- Modal Footer -->
-      <div class="modal-card-bottom" style="padding: 12px 18px; background: #ffffff; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+      <div class="modal-card-bottom" id="orderHistoryModalBottom" style="padding: 12px 18px; background: #ffffff; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
         <button type="button" class="btn-reg-secondary" onclick="exportToExcel()" title="Export all sales to CSV">
           📈 Export CSV
         </button>
-        <div style="display: flex; gap: 8px;">
-          <button type="button" class="btn-primary-action" style="padding: 8px 14px; font-size: 0.84rem;" onclick="openDailyReportModal()">
-            📊 Daily Summary Report
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;" id="orderHistoryModalActionBtns">
+          <button type="button" class="btn-primary-action" style="padding: 8px 14px; font-size: 0.84rem;" onclick="openDailyReportModal('all')">
+            📊 Total Sales Report
           </button>
           <button type="button" class="btn-dismiss" style="padding: 8px 14px; font-size: 0.84rem;" onclick="closeOrderHistoryModal()">
             Close
@@ -4177,15 +5937,65 @@ body {
   <div id="dailyReportModal" class="modal-backdrop" style="display: none;" onclick="closeDailyReportModalOnBackdrop(event)">
     <div class="modal-window-card" style="max-width: 580px;" onclick="event.stopPropagation()">
       <div class="modal-card-top">
-        <h3>📊 Daily Sales Closing Audit Statement</h3>
+        <h3 id="dailyReportModalTitle">📊 Daily Sales Closing Audit Statement</h3>
         <button type="button" class="modal-close-x" onclick="closeDailyReportModal()">✕</button>
       </div>
       <div class="modal-card-body" id="dailyReportModalBody">
         <!-- Rendered dynamically by script.js -->
       </div>
-      <div class="modal-card-bottom">
+      <div class="modal-card-bottom" id="dailyReportModalBottom">
         <button type="button" class="btn-dismiss" onclick="closeDailyReportModal()">Close</button>
         <button type="button" class="btn-primary-action" onclick="printDailyReport()">🖨️ Print Statement</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       Modal: Best Selling Foods & Average Sales Analytics (Rankings & Leaderboard)
+       ========================================================================= -->
+  <div id="bestSalesAnalyticsModal" class="modal-backdrop" style="display: none; z-index: 10035;" onclick="closeBestSalesAnalyticsModalOnBackdrop(event)">
+    <div class="modal-window-card" style="max-width: 640px; width: 95%; max-height: 92vh; display: flex; flex-direction: column;" onclick="event.stopPropagation()">
+      <div class="modal-card-top" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #fff; padding: 14px 18px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.4rem;">🏆</span>
+          <div>
+            <h3 style="margin: 0; font-size: 1.08rem; font-weight: 800; color: #fff;">Best Selling Foods & Sales Analytics</h3>
+            <p style="margin: 2px 0 0; font-size: 0.76rem; color: #94a3b8;" id="bestSalesSubtitle">Showing most ordered foods and average sales performance</p>
+          </div>
+        </div>
+        <button type="button" class="modal-close-x" style="color: #fff;" onclick="closeBestSalesAnalyticsModal()">✕</button>
+      </div>
+
+      <!-- Segmented Date Filter Bar -->
+      <div class="best-sales-filter-bar" style="background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 10px 14px; display: flex; gap: 6px; align-items: center; justify-content: space-between;">
+        <div style="display: flex; gap: 6px; align-items: center;">
+          <button type="button" class="best-filter-btn active" id="bestFilterToday" onclick="setBestSalesFilter('today')">🌟 Today</button>
+          <button type="button" class="best-filter-btn" id="bestFilterYest" onclick="setBestSalesFilter('yesterday')">⏪ Yesterday</button>
+          <button type="button" class="best-filter-btn" id="bestFilterAll" onclick="setBestSalesFilter('all')">🗓️ All Time</button>
+        </div>
+        <span class="best-sales-count-badge" id="bestFoodsCountBadge">0 Foods Sold</span>
+      </div>
+
+      <!-- Average Sales Metric Ribbon -->
+      <div class="best-sales-kpi-ribbon" id="bestSalesKpiRibbon" style="background: #ffffff; border-bottom: 1px solid #f1f5f9; padding: 10px 14px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+        <!-- Injected dynamically by script.js -->
+      </div>
+
+      <!-- Scrollable Food Leaderboard Body ("Which food is more order") -->
+      <div class="modal-card-body" id="bestSalesAnalyticsModalBody" style="padding: 12px 14px; overflow-y: auto; flex: 1; min-height: 250px; background: #f8fafc;">
+        <div id="bestFoodsRankList" style="display: flex; flex-direction: column; gap: 8px;">
+          <!-- Injected dynamically by script.js -->
+        </div>
+      </div>
+
+      <!-- Modal Bottom Actions -->
+      <div class="modal-card-bottom" id="bestSalesAnalyticsModalBottom" style="padding: 10px 14px; background: #ffffff; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+        <button type="button" class="btn-reg-secondary" style="padding: 8px 14px; font-size: 0.84rem;" onclick="closeBestSalesAnalyticsModal()">
+          ← Back to Profile
+        </button>
+        <button type="button" class="btn-primary-action" style="padding: 8px 14px; font-size: 0.84rem;" onclick="closeBestSalesAnalyticsModal(); openDailyReportModal('all', true);">
+          📊 Full Sales Audit
+        </button>
       </div>
     </div>
   </div>
@@ -4204,7 +6014,7 @@ body {
             <h2>Sugar Cubes Bakery</h2>
             <p><strong>Artisanal Cakes, Fine Pastries & Confectionery</strong></p>
             <p>No. 24, Baker's Avenue, 100 Feet Road, Indiranagar, Bengaluru - 560038</p>
-            <p>📞 +91 98765 43210 • ✉️ orders@sugarcubesbakery.com • 🌐 www.sugarcubes.in</p>
+            <p>📞 +91 98765 43210 • ✉️ orders@sugarcubesbakery.com • www.sugarcubes.in</p>
             <p><strong>GSTIN:</strong> 29AABCS1429K1ZT &nbsp;|&nbsp; <strong>FSSAI Lic No:</strong> 11223344556677</p>
           </div>
         </div>
@@ -4317,7 +6127,7 @@ body {
           </div>
           <div class="pdf-ig-handle" id="pdfIgHandleDisplay">@sugarcubes_official</div>
           <div class="pdf-ig-sub">Tag your birthday & celebration cakes with <strong>#SugarCubesBakes</strong> to get featured on our page!</div>
-          <div class="pdf-ig-link" id="pdfIgUrlDisplay">🌐 instagram.com/sugarcubes_official/</div>
+          <div class="pdf-ig-link" id="pdfIgUrlDisplay">instagram.com/sugarcubes_official/</div>
         </div>
         <div class="pdf-ig-qr-container">
           <div class="pdf-qr-frame" id="pdfInstagramQr">
@@ -4555,10 +6365,14 @@ document.addEventListener('DOMContentLoaded', () => {
   initDatePickerDefaults();
   renderPreloadedCatalog();
   renderCart();
+  setOrderType('Takeaway');
   refreshDailySalesAnalytics();
   renderInstagramQRs();
   if (window.innerWidth <= 768) {
     switchMobileView('menu');
+    setTimeout(() => {
+      handleMobileHashRouting();
+    }, 80);
   }
 });
 
@@ -4651,6 +6465,12 @@ function startLiveClock() {
 
     if (clockEl) clockEl.textContent = timeStr;
     if (dateEl) dateEl.textContent = `📅 ${dateStr}`;
+
+    // Real-time update for Mobile Profile Dashboard clock & date
+    const profClockEl = document.getElementById('profLiveClock');
+    const profDateEl = document.getElementById('profLiveDate');
+    if (profClockEl) profClockEl.textContent = timeStr;
+    if (profDateEl) profDateEl.textContent = `📅 ${dateStr}`;
   }
 
   updateTime();
@@ -4722,6 +6542,10 @@ function toggleAudioSound() {
   if (btn) {
     btn.innerHTML = soundEnabled ? '🔔 Sound: ON' : '🔕 Sound: OFF';
     btn.style.color = soundEnabled ? 'var(--text-main)' : '#94a3b8';
+  }
+  const profBtn = document.getElementById('profSoundToggleBtn');
+  if (profBtn) {
+    profBtn.innerHTML = soundEnabled ? '🔔 Sound: ON' : '🔕 Sound: OFF';
   }
   showToast(soundEnabled ? '🔔 Register sound enabled' : '🔕 Register sound muted');
 }
@@ -4985,8 +6809,26 @@ function clearCurrentCart() {
 
 function setOrderType(type, btnEl) {
   activeOrderType = type;
-  document.querySelectorAll('.order-type-btn').forEach(b => b.classList.remove('active'));
-  if (btnEl) btnEl.classList.add('active');
+  const container = document.getElementById('orderTypeBoxContainer');
+  const glider = document.getElementById('orderTypeGlider');
+  const buttons = container ? container.querySelectorAll('.order-box-btn') : document.querySelectorAll('.order-type-btn');
+
+  let targetIdx = 0;
+  buttons.forEach((b, idx) => {
+    const btnType = b.getAttribute('data-type') || b.textContent;
+    const isTarget = b === btnEl || (btnType && btnType.toLowerCase().includes(type.toLowerCase()));
+    if (isTarget) {
+      b.classList.add('active');
+      const bIdx = b.getAttribute('data-index');
+      targetIdx = (bIdx !== null && bIdx !== undefined) ? parseInt(bIdx, 10) : idx;
+    } else {
+      b.classList.remove('active');
+    }
+  });
+
+  if (glider && !isNaN(targetIdx)) {
+    glider.style.transform = `translateX(${targetIdx * 100}%)`;
+  }
 }
 
 function setPaymentMode(mode, btnEl) {
@@ -5096,6 +6938,10 @@ function renderCart() {
   const discVal = document.getElementById('cartDiscountVal');
 
   if (countEl) countEl.textContent = totalUnits;
+  const badgeEl = document.getElementById('cartItemsBadge');
+  if (badgeEl) badgeEl.textContent = totalUnits;
+  const clearBtn = document.querySelector('.cart-clear-link');
+  if (clearBtn) clearBtn.style.display = activeCart.length > 0 ? 'inline-flex' : 'none';
   if (subtotalEl) subtotalEl.textContent = '₹' + subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 });
   if (taxEl) taxEl.textContent = (isGstTaxEnabled ? '+₹' : '₹') + gstAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 });
   if (grandEl) {
@@ -5154,10 +7000,20 @@ function getCustomerDetails() {
   const mobileInput = document.getElementById('custMobile');
   const nameInput = document.getElementById('custName');
 
-  const mobile = mobileInput ? mobileInput.value.trim().replace(/\D/g, '') : '';
+  let raw = mobileInput ? mobileInput.value.trim() : '';
+  const digits = raw.replace(/\D/g, '');
+  // Cleanly extract the 10-digit mobile number from the end (e.g. from 919876543210, +91-9876543210 or 09876543210)
+  const mobile = digits.length >= 10 ? digits.slice(-10) : digits;
   const name = nameInput && nameInput.value.trim() ? nameInput.value.trim() : 'Valued Customer';
 
   return { mobile, name };
+}
+
+function formatCustomerPhoneInput(input) {
+  if (!input) return;
+  // Allow digits and optional leading +
+  let val = input.value.replace(/[^\d+ -]/g, '');
+  input.value = val;
 }
 
 // ==========================================================================
@@ -5247,11 +7103,15 @@ function renderInstagramQRs() {
   const pdfHandleEl = document.getElementById('pdfIgHandleDisplay');
   const pdfUrlEl = document.getElementById('pdfIgUrlDisplay');
   if (pdfHandleEl) pdfHandleEl.textContent = displayHandle;
-  if (pdfUrlEl) pdfUrlEl.textContent = `🌐 ${igUrl.replace(/^https?:\/\//, '')}`;
+  if (pdfUrlEl) pdfUrlEl.textContent = `${igUrl.replace(/^https?:\/\//, '')}`;
 
   // Thermal Receipt Handle display
   const thermalHandleEl = document.getElementById('thermalIgHandleText');
   if (thermalHandleEl) thermalHandleEl.textContent = displayHandle;
+
+  // Cashier Profile Modal Handle display
+  const profIgEl = document.getElementById('profileModalIgHandle');
+  if (profIgEl) profIgEl.innerHTML = `${displayHandle} ✏️`;
 
   // Render QR into PDF Container (#pdfInstagramQr)
   const pdfQrEl = document.getElementById('pdfInstagramQr');
@@ -5696,16 +7556,280 @@ function sendBillSms() {
 }
 
 // ==========================================================================
+// 📱 Mobile Modal Navigation Stack & Background Scroll Lock Manager (Mobile ONLY)
+// ==========================================================================
+
+const mobileModalStack = [];
+let mobileScrollY = 0;
+let isPoppingFromScript = false;
+
+function isMobileViewport() {
+  return window.innerWidth <= 768;
+}
+
+function updateMobileScrollLock() {
+  if (isMobileViewport() && mobileModalStack.length > 0) {
+    if (!document.body.classList.contains('mobile-modal-open')) {
+      mobileScrollY = window.scrollY || window.pageYOffset || 0;
+      document.body.style.top = `-${mobileScrollY}px`;
+      document.body.classList.add('mobile-modal-open');
+    }
+  } else {
+    if (document.body.classList.contains('mobile-modal-open')) {
+      document.body.classList.remove('mobile-modal-open');
+      const restoreY = Math.abs(parseInt(document.body.style.top || '0', 10)) || mobileScrollY;
+      document.body.style.top = '';
+      window.scrollTo(0, restoreY);
+    }
+  }
+}
+
+// Safety net: Prevent touchmove outside modal scrollable containers from dragging the background page
+function handleMobileModalTouchMove(e) {
+  if (!document.body.classList.contains('mobile-modal-open')) return;
+  let target = e.target;
+  let isScrollable = false;
+  while (target && target !== document.body && target !== document.documentElement) {
+    if (
+      target.classList && (
+        target.classList.contains('profile-modal-body') ||
+        target.classList.contains('prof-orders-scroll-list') ||
+        target.classList.contains('modal-card-body') ||
+        target.classList.contains('receipt-preview-box') ||
+        target.classList.contains('thermal-paper-receipt') ||
+        target.id === 'orderHistoryModalBody' ||
+        target.id === 'dailyReportModalBody' ||
+        target.id === 'bestSalesAnalyticsModalBody' ||
+        target.scrollHeight > target.clientHeight
+      )
+    ) {
+      isScrollable = true;
+      break;
+    }
+    target = target.parentElement;
+  }
+  if (!isScrollable) {
+    e.preventDefault();
+  }
+}
+document.addEventListener('touchmove', handleMobileModalTouchMove, { passive: false });
+window.addEventListener('resize', updateMobileScrollLock);
+
+// Mobile Page Hash Route Identifiers
+const MOBILE_PAGE_HASH_MAP = {
+  'userProfileModal': '#profile',
+  'bestSalesAnalyticsModal': '#best-sales',
+  'orderHistoryModal': '#order-history',
+  'dailyReportModal': '#daily-report',
+  'billModal': '#bill',
+  'customOrderModal': '#custom-cake'
+};
+
+/**
+ * Pushes a modal onto the navigation stack (Mobile only).
+ * If another modal was open underneath, cleanly hides it so only ONE modal is active.
+ * Updates the browser URL hash to simulate a true mobile page redirect.
+ */
+function pushMobileModalState(modalId, options = {}) {
+  if (!isMobileViewport()) return;
+
+  // Don't push if already the active top modal
+  if (mobileModalStack.length > 0 && mobileModalStack[mobileModalStack.length - 1].id === modalId) {
+    return;
+  }
+
+  // Hide the previous modal to prevent multi-modal touch collision
+  if (mobileModalStack.length > 0) {
+    const prev = mobileModalStack[mobileModalStack.length - 1];
+    const prevEl = document.getElementById(prev.id);
+    if (prevEl) prevEl.style.display = 'none';
+  }
+
+  const targetHash = options.hash || MOBILE_PAGE_HASH_MAP[modalId] || ('#' + modalId);
+
+  mobileModalStack.push({
+    id: modalId,
+    mode: options.mode || null,
+    fromProfile: options.fromProfile || false,
+    restoreFn: options.restoreFn || null,
+    title: options.title || modalId,
+    hash: targetHash
+  });
+
+  try {
+    history.pushState({ mobileModalNav: true, depth: mobileModalStack.length, modalId: modalId, hash: targetHash }, '', targetHash);
+  } catch (err) {}
+
+  updateMobileScrollLock();
+}
+
+/**
+ * Pops the top modal and moves one-by-one back.
+ * Restores the previous modal underneath if one exists and synchronizes the URL hash.
+ */
+function popMobileModalState(fromPopstate = false) {
+  if (!isMobileViewport()) return false;
+  if (mobileModalStack.length === 0) {
+    const profModal = document.getElementById('userProfileModal');
+    if (profModal) profModal.style.display = 'none';
+    if (isMobileViewport()) switchMobileView('menu');
+    updateMobileScrollLock();
+    return false;
+  }
+
+  const popped = mobileModalStack.pop();
+  const poppedEl = document.getElementById(popped.id);
+  if (poppedEl) {
+    poppedEl.style.display = 'none';
+  }
+  if (popped.id === 'billModal') {
+    currentlyViewingHistoricalSale = null;
+    populatePdfTemplateData();
+  }
+
+  isPoppingFromScript = true;
+
+  // If there is a previous modal in the stack, restore it!
+  if (mobileModalStack.length > 0) {
+    const prev = mobileModalStack[mobileModalStack.length - 1];
+    const prevEl = document.getElementById(prev.id);
+    if (prevEl) {
+      prevEl.style.display = 'flex';
+      if (typeof prev.restoreFn === 'function') {
+        prev.restoreFn();
+      }
+    }
+    const prevHash = prev.hash || MOBILE_PAGE_HASH_MAP[prev.id] || '#';
+    try {
+      if (window.location.hash !== prevHash) {
+        history.replaceState({ mobileModalNav: true, depth: mobileModalStack.length, modalId: prev.id, hash: prevHash }, '', prevHash);
+      }
+    } catch (e) {}
+  } else {
+    // Return to store menu
+    try {
+      if (window.location.hash && window.location.hash !== '#' && window.location.hash !== '#menu') {
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+    } catch (e) {}
+    if (isMobileViewport()) {
+      switchMobileView('menu');
+    }
+  }
+
+  updateMobileScrollLock();
+
+  setTimeout(() => {
+    isPoppingFromScript = false;
+  }, 500);
+
+  return true;
+}
+
+function clearMobileModalStack() {
+  while (mobileModalStack.length > 0) {
+    const item = mobileModalStack.pop();
+    const el = document.getElementById(item.id);
+    if (el) el.style.display = 'none';
+  }
+  const profModal = document.getElementById('userProfileModal');
+  if (profModal) profModal.style.display = 'none';
+  try {
+    if (window.location.hash && window.location.hash !== '#' && window.location.hash !== '#menu') {
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+  } catch (e) {}
+  updateMobileScrollLock();
+  if (isMobileViewport()) {
+    switchMobileView('menu');
+  }
+}
+
+/**
+ * Mobile URL Hash Page Router:
+ * Automatically opens dedicated mobile pages when navigated to via URL hash or direct link.
+ */
+function handleMobileHashRouting() {
+  if (isPoppingFromScript) return;
+  if (!isMobileViewport()) return;
+  const hash = (window.location.hash || '').toLowerCase();
+  if (!hash || hash === '#' || hash === '#menu' || hash === '#store') {
+    return;
+  }
+  if (hash === '#profile') {
+    const profModal = document.getElementById('userProfileModal');
+    if (!profModal || profModal.style.display === 'none' || !profModal.style.display) {
+      openUserProfileModal();
+    }
+  } else if (hash === '#best-sales' || hash === '#bestsales') {
+    const bsModal = document.getElementById('bestSalesAnalyticsModal');
+    if (!bsModal || bsModal.style.display === 'none' || !bsModal.style.display) {
+      openBestSalesAnalyticsModal('all', false);
+    }
+  } else if (hash === '#order-history' || hash === '#orders') {
+    const ohModal = document.getElementById('orderHistoryModal');
+    if (!ohModal || ohModal.style.display === 'none' || !ohModal.style.display) {
+      openOrderHistoryModal('all', false);
+    }
+  } else if (hash === '#daily-report' || hash === '#totalsales') {
+    const drModal = document.getElementById('dailyReportModal');
+    if (!drModal || drModal.style.display === 'none' || !drModal.style.display) {
+      openDailyReportModal('all', false);
+    }
+  } else if (hash === '#bill') {
+    const bModal = document.getElementById('billModal');
+    if (!bModal || bModal.style.display === 'none' || !bModal.style.display) {
+      openBillModal();
+    }
+  }
+}
+
+// Window popstate event: Handle device hardware back button / swipe back gesture
+window.addEventListener('popstate', (e) => {
+  if (isPoppingFromScript) {
+    return;
+  }
+  if (isMobileViewport()) {
+    if (mobileModalStack.length > 0) {
+      popMobileModalState(true);
+    } else {
+      const profModal = document.getElementById('userProfileModal');
+      if (profModal) profModal.style.display = 'none';
+      clearMobileModalStack();
+      switchMobileView('menu');
+    }
+  }
+});
+
+// Window hashchange event: Handle anchor changes & direct links
+window.addEventListener('hashchange', () => {
+  if (isPoppingFromScript) return;
+  if (!isMobileViewport()) return;
+  const hash = (window.location.hash || '').toLowerCase();
+  if (!hash || hash === '#' || hash === '#menu' || hash === '#store') {
+    clearMobileModalStack();
+    const profModal = document.getElementById('userProfileModal');
+    if (profModal) profModal.style.display = 'none';
+    switchMobileView('menu');
+  } else {
+    const activeTop = mobileModalStack.length > 0 ? mobileModalStack[mobileModalStack.length - 1].hash : '';
+    if (activeTop !== hash) {
+      handleMobileHashRouting();
+    }
+  }
+});
+
+// ==========================================================================
 // Thermal Bill Modal & Printing
 // ==========================================================================
 
 let currentlyViewingHistoricalSale = null;
 
-function openBillModal(sale = null) {
-  currentlyViewingHistoricalSale = sale;
+function openBillModal(sale = null, fromRestore = false) {
   let mobile, name, subtotal, discountAmount, gstAmount, grandTotal, totalUnits, dateStr, timeStr, ticketNum, orderType, payMode, items;
 
   if (sale) {
+    currentlyViewingHistoricalSale = sale;
     mobile = sale.customerMobile || '';
     name = sale.customerName || 'Walk-In Customer';
     subtotal = Number(sale.subtotal || sale.grandTotal || sale.amount || 0);
@@ -5713,16 +7837,21 @@ function openBillModal(sale = null) {
     gstAmount = Number(sale.gst || 0);
     grandTotal = Number(sale.grandTotal || sale.amount || 0);
     items = Array.isArray(sale.items) ? sale.items : [];
-    totalUnits = Number(sale.totalUnits || items.reduce((s, it) => s + (it.quantity || 1), 0));
+    totalUnits = Number(sale.totalUnits || items.reduce((s, it) => s + (Number(it.quantity) || 1), 0));
     dateStr = sale.date || sale.isoDate || '';
     timeStr = sale.time || '';
-    ticketNum = sale.ticketNumber || '#01';
+    ticketNum = sale.ticketNumber || '#SC-01';
     orderType = sale.orderType || 'Takeaway';
     payMode = sale.paymentMode || 'Cash';
   } else {
     if (activeCart.length === 0) {
-      return alert('⚠️ No items in active cart to print a bill. Tap an item on the left to add it first!');
+      const allRecorded = getRecordedSales();
+      if (allRecorded.length > 0) {
+        return openBillModal(allRecorded[0], fromRestore);
+      }
+      return alert('⚠️ No items in active cart or past orders to view a bill. Please add items from the menu first!');
     }
+    currentlyViewingHistoricalSale = null;
     const cust = getCustomerDetails();
     mobile = cust.mobile;
     name = cust.name;
@@ -5733,12 +7862,29 @@ function openBillModal(sale = null) {
     grandTotal = calc.grandTotal;
     totalUnits = calc.totalUnits;
     const now = new Date();
-    dateStr = now.toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
-    timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+    dateStr = now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
     ticketNum = currentTicketNumber;
     orderType = activeOrderType;
     payMode = activePaymentMode;
     items = activeCart;
+  }
+
+  // Graceful fallback for single-item or legacy sales
+  if (items.length === 0 && sale) {
+    const fallbackName = sale.cakeName || sale.category || 'Artisanal Cake / Bakes';
+    const fallbackQty = Number(sale.quantity) || 1;
+    const fallbackAmount = Number(grandTotal || subtotal || 0);
+    items = [{
+      name: fallbackName,
+      quantity: fallbackQty,
+      unitPrice: fallbackQty > 0 ? (fallbackAmount / fallbackQty) : fallbackAmount,
+      amount: fallbackAmount
+    }];
+  }
+
+  if (!totalUnits || totalUnits === 0) {
+    totalUnits = items.reduce((s, it) => s + (Number(it.quantity) || 1), 0);
   }
 
   const billNumEl = document.getElementById('billNumber');
@@ -5750,31 +7896,36 @@ function openBillModal(sale = null) {
   const billPayMode = document.getElementById('billPaymentMode');
 
   if (billNumEl) billNumEl.textContent = ticketNum;
-  if (billDateEl) billDateEl.textContent = dateStr;
-  if (billTimeEl) billTimeEl.textContent = timeStr;
-  if (billOrderTypeTag) billOrderTypeTag.textContent = orderType.toUpperCase();
-  if (billCustName) billCustName.textContent = name;
+  if (billDateEl) billDateEl.textContent = dateStr || 'Today';
+  if (billTimeEl) billTimeEl.textContent = timeStr || '';
+  if (billOrderTypeTag) billOrderTypeTag.textContent = (orderType || 'TAKEAWAY').toUpperCase();
+  if (billCustName) billCustName.textContent = name || 'Walk-In Customer';
   if (billCustPhone) billCustPhone.textContent = mobile ? maskMobileNumber(mobile) : 'Walk-In';
-  if (billPayMode) billPayMode.textContent = payMode;
+  if (billPayMode) billPayMode.textContent = payMode || 'Cash';
 
   const tbody = document.getElementById('billItemsBody');
   if (tbody) {
     tbody.innerHTML = '';
-    items.forEach((item, idx) => {
-      const tr = document.createElement('tr');
-      const unitPr = Number(item.unitPrice || 0);
-      const amt = Number(item.amount || (unitPr * (item.quantity || 1)));
-      tr.innerHTML = `
-        <td style="text-align: center;">${idx + 1}</td>
-        <td>
-          <div style="font-weight: 700;">${escapeHtml(item.name)}</div>
-          <div style="font-size: 0.7rem; color: #64748b;">@ ₹${unitPr.toFixed(2)}</div>
-        </td>
-        <td style="text-align: center; font-weight: 700;">${item.quantity || 1}</td>
-        <td style="text-align: right; font-weight: 700;">₹${amt.toFixed(2)}</td>
-      `;
-      tbody.appendChild(tr);
-    });
+    if (items.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #94a3b8; padding: 12px;">No items recorded</td></tr>';
+    } else {
+      items.forEach((item, idx) => {
+        const tr = document.createElement('tr');
+        const unitPr = Number(item.unitPrice || item.price || 0);
+        const qty = Number(item.quantity || 1);
+        const amt = Number(item.amount || (unitPr * qty));
+        tr.innerHTML = `
+          <td style="text-align: center;">${idx + 1}</td>
+          <td>
+            <div style="font-weight: 700;">${escapeHtml(item.name || 'Bakery Item')}</div>
+            <div style="font-size: 0.7rem; color: #64748b;">@ ₹${unitPr.toFixed(2)}</div>
+          </td>
+          <td style="text-align: center; font-weight: 700;">${qty}</td>
+          <td style="text-align: right; font-weight: 700;">₹${amt.toFixed(2)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
   }
 
   const billTotalItems = document.getElementById('billTotalItems');
@@ -5784,8 +7935,8 @@ function openBillModal(sale = null) {
   const billGstVal = document.getElementById('billGstVal');
   const billGrandTotal = document.getElementById('billGrandTotal');
 
-  if (billTotalItems) billTotalItems.textContent = `${items.length} lines (${totalUnits} pcs)`;
-  if (billSubtotal) billSubtotal.textContent = '₹' + subtotal.toFixed(2);
+  if (billTotalItems) billTotalItems.textContent = totalUnits;
+  if (billSubtotal) billSubtotal.textContent = '₹' + Number(subtotal).toFixed(2);
 
   if (billDiscountLine && billDiscountVal) {
     if (discountAmount > 0) {
@@ -5797,23 +7948,61 @@ function openBillModal(sale = null) {
   }
 
   if (billGstVal) billGstVal.textContent = (gstAmount > 0) ? `₹${gstAmount.toFixed(2)} (5%)` : '₹0.00 (Exempt)';
-  if (billGrandTotal) billGrandTotal.textContent = '₹' + grandTotal.toFixed(2);
+  if (billGrandTotal) billGrandTotal.textContent = '₹' + Number(grandTotal).toFixed(2);
 
   // Render Instagram QR Code and handle into Thermal receipt downside
-  renderInstagramQRs();
+  try {
+    renderInstagramQRs();
+  } catch (err) {
+    console.warn('Instagram QR render notice:', err);
+  }
 
   const modal = document.getElementById('billModal');
   if (modal) {
     modal.style.display = 'flex';
     modal.style.zIndex = '10050'; // Always in front of all other modals
   }
+
+  // Update Close button label if opened on mobile with a previous modal in stack
+  const billCloseBtn = document.getElementById('billModalCloseBtn');
+  if (billCloseBtn) {
+    if (isMobileViewport() && mobileModalStack.length > 0) {
+      const prev = mobileModalStack[mobileModalStack.length - 1];
+      if (prev.id === 'orderHistoryModal') {
+        billCloseBtn.innerHTML = '← Back to Orders';
+      } else if (prev.id === 'userProfileModal') {
+        billCloseBtn.innerHTML = '← Back to Profile';
+      } else {
+        billCloseBtn.innerHTML = '✕ Close';
+      }
+    } else {
+      billCloseBtn.innerHTML = '✕ Close';
+    }
+  }
+
+  if (!fromRestore) {
+    pushMobileModalState('billModal', {
+      restoreFn: () => { openBillModal(sale, true); }
+    });
+  } else {
+    updateMobileScrollLock();
+  }
 }
 
 function closeBillModal() {
+  currentlyViewingHistoricalSale = null;
+  try {
+    populatePdfTemplateData(); // Restore PDF template to active cart
+  } catch (e) {}
+
   const modal = document.getElementById('billModal');
   if (modal) modal.style.display = 'none';
-  currentlyViewingHistoricalSale = null;
-  populatePdfTemplateData(); // Restore PDF template to active cart
+
+  if (isMobileViewport() && mobileModalStack.length > 0) {
+    popMobileModalState(false);
+    return;
+  }
+  updateMobileScrollLock();
 }
 
 function closeBillModalOnBackdrop(e) {
@@ -5959,6 +8148,12 @@ function finalizeCurrentOrder(downloadPdf = false) {
     renderHistoryOrdersList();
   }
 
+  // Refresh Mobile Profile Dashboard in real time if open
+  const profModal = document.getElementById('userProfileModal');
+  if (profModal && profModal.style.display === 'flex') {
+    renderProfOrdersHistory();
+  }
+
   if (window.innerWidth <= 768) {
     switchMobileView('menu');
   }
@@ -5990,21 +8185,34 @@ function setDateFilter(mode, customVal) {
   document.getElementById('btnDateAll').classList.remove('active');
 
   const contextEl = document.getElementById('activeDateContext');
+  const revLabelEl = document.getElementById('kpiRevenueLabel');
 
   if (mode === 'today') {
     document.getElementById('btnDateToday').classList.add('active');
     if (contextEl) contextEl.innerHTML = `Showing: <strong>Today's Sales</strong> (${getTodayIso()})`;
+    if (revLabelEl) revLabelEl.textContent = "Today's Sales";
   } else if (mode === 'yesterday') {
     document.getElementById('btnDateYesterday').classList.add('active');
     if (contextEl) contextEl.innerHTML = `Showing: <strong>Yesterday's Sales</strong> (${getYesterdayIso()})`;
+    if (revLabelEl) revLabelEl.textContent = "Yesterday's Sales";
   } else if (mode === 'all') {
     document.getElementById('btnDateAll').classList.add('active');
     if (contextEl) contextEl.innerHTML = `Showing: <strong>All Recorded Sales</strong>`;
+    if (revLabelEl) revLabelEl.textContent = "All Recorded Sales";
   } else if (mode === 'custom') {
     if (contextEl) contextEl.innerHTML = `Showing Sales for Date: <strong>${selectedCustomDate || 'None'}</strong>`;
+    if (revLabelEl) revLabelEl.textContent = `Sales (${selectedCustomDate || 'Custom'})`;
   }
 
   refreshDailySalesAnalytics();
+
+  // Subtle tactile highlight on hero revenue number
+  const revValEl = document.getElementById('kpiRevenueVal');
+  if (revValEl) {
+    revValEl.style.transition = 'transform 0.2s ease';
+    revValEl.style.transform = 'scale(1.05)';
+    setTimeout(() => { if (revValEl) revValEl.style.transform = 'scale(1)'; }, 200);
+  }
 }
 
 function isSaleMatchingDateFilter(sale) {
@@ -6072,7 +8280,7 @@ function refreshDailySalesAnalytics() {
 let historyDateFilterMode = 'today';
 let historyCustomDate = '';
 
-function openOrderHistoryModal(mode = null) {
+function openOrderHistoryModal(mode = null, fromProfile = false, fromRestore = false) {
   if (mode) {
     historyDateFilterMode = mode;
   } else {
@@ -6084,13 +8292,52 @@ function openOrderHistoryModal(mode = null) {
   updateHistoryFilterPillsUi();
   renderHistoryOrdersList();
 
+  const actionBtnsEl = document.getElementById('orderHistoryModalActionBtns');
+  if (actionBtnsEl) {
+    const isMobile = isMobileViewport();
+    // Dynamic back label: if mobileModalStack has userProfileModal, say "← Back to Profile"
+    let backLabel = '← Back';
+    const prev = mobileModalStack.length > 0 ? mobileModalStack[mobileModalStack.length - 1] : null;
+    if (fromProfile || (prev && prev.id === 'userProfileModal')) {
+      backLabel = '← Back to Profile';
+    } else if (isMobile) {
+      backLabel = '← Back to Home';
+    }
+
+    const showBack = fromProfile || isMobile || (mobileModalStack.length > 0);
+    actionBtnsEl.innerHTML = `
+      ${showBack ? `<button type="button" class="btn-reg-secondary" style="padding: 8px 14px; font-size: 0.84rem;" onclick="closeOrderHistoryModal();">${backLabel}</button>` : ''}
+      <button type="button" class="btn-primary-action" style="padding: 8px 14px; font-size: 0.84rem;" onclick="openDailyReportModal('all', ${showBack})">
+        📊 Total Sales Report
+      </button>
+      <button type="button" class="btn-dismiss" style="padding: 8px 14px; font-size: 0.84rem;" onclick="closeOrderHistoryModal()">
+        Close
+      </button>
+    `;
+  }
+
   const modal = document.getElementById('orderHistoryModal');
   if (modal) modal.style.display = 'flex';
+
+  if (!fromRestore) {
+    pushMobileModalState('orderHistoryModal', {
+      mode: mode,
+      fromProfile: fromProfile,
+      restoreFn: () => { openOrderHistoryModal(mode, fromProfile, true); }
+    });
+  } else {
+    updateMobileScrollLock();
+  }
 }
 
 function closeOrderHistoryModal() {
+  if (isMobileViewport() && mobileModalStack.length > 0) {
+    popMobileModalState(false);
+    return;
+  }
   const modal = document.getElementById('orderHistoryModal');
   if (modal) modal.style.display = 'none';
+  updateMobileScrollLock();
 }
 
 function closeOrderHistoryModalOnBackdrop(e) {
@@ -6435,89 +8682,149 @@ async function whatsappHistoryOrder(ticketNumber) {
 // Daily Closing Audit Statement Modal
 // ==========================================================================
 
-function openDailyReportModal() {
+function openDailyReportModal(mode = null, fromProfile = false, fromRestore = false) {
   const allSales = getRecordedSales();
-  const filtered = allSales.filter(isSaleMatchingDateFilter);
+  const isAllMode = (mode === 'all');
+  const filtered = isAllMode ? allSales : allSales.filter(isSaleMatchingDateFilter);
 
-  if (filtered.length === 0) {
-    return alert('No sales records found for this date selection to generate an audit report.');
+  const titleEl = document.getElementById('dailyReportModalTitle');
+  if (titleEl) {
+    titleEl.textContent = isAllMode ? '📈 All Total Sales & Revenue Audit Statement' : '📊 Daily Sales Closing Audit Statement';
   }
-
-  let totalRevenue = 0;
-  let totalUnits = 0;
-  let payModeBreakdown = { Cash: 0, UPI: 0, Card: 0 };
-  let catBreakdown = { Cakes: 0, Pastries: 0, Cupcakes: 0, Desserts: 0, Beverages: 0 };
-
-  filtered.forEach(sale => {
-    const rev = Number(sale.grandTotal || sale.amount || 0);
-    totalRevenue += rev;
-    totalUnits += (sale.totalUnits || 1);
-
-    const mode = sale.paymentMode || 'Cash';
-    payModeBreakdown[mode] = (payModeBreakdown[mode] || 0) + rev;
-
-    if (Array.isArray(sale.items)) {
-      sale.items.forEach(it => {
-        const cat = it.category || 'Cakes';
-        catBreakdown[cat] = (catBreakdown[cat] || 0) + Number(it.amount || 0);
-      });
-    } else if (sale.category) {
-      catBreakdown[sale.category] = (catBreakdown[sale.category] || 0) + rev;
-    }
-  });
 
   const modalBody = document.getElementById('dailyReportModalBody');
   if (modalBody) {
-    modalBody.innerHTML = `
-      <div style="background: #f8fafc; padding: 14px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 14px;">
-        <h4 style="font-size: 0.95rem; margin-bottom: 8px;">🍰 SUGAR CUBES - End of Day Closing Summary</h4>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.82rem;">
-          <div>📅 <strong>Date Context:</strong> ${currentDateFilterMode.toUpperCase()}</div>
-          <div>📦 <strong>Total Invoices:</strong> ${filtered.length}</div>
-          <div>💰 <strong>Total Sales:</strong> <span style="font-size: 1.05rem; font-weight: 800; color: #059669;">₹${totalRevenue.toFixed(2)}</span></div>
-          <div>📈 <strong>Avg Bill:</strong> ₹${(totalRevenue / filtered.length).toFixed(2)}</div>
+    if (filtered.length === 0) {
+      modalBody.innerHTML = `
+        <div style="text-align: center; padding: 40px 16px; color: #64748b;">
+          <div style="font-size: 2.8rem; margin-bottom: 10px;">📦</div>
+          <h4 style="font-size: 1.05rem; color: #1e293b; margin-bottom: 6px; font-weight: 700;">
+            ${isAllMode ? 'No Sales Recorded Yet' : 'No Sales Records for Selected Date'}
+          </h4>
+          <p style="font-size: 0.84rem; color: #94a3b8; margin: 0;">
+            Completed register sales will automatically generate commercial turnover statistics here.
+          </p>
         </div>
-      </div>
+      `;
+    } else {
+      let totalRevenue = 0;
+      let totalUnits = 0;
+      let payModeBreakdown = { Cash: 0, UPI: 0, Card: 0 };
+      let catBreakdown = { Cakes: 0, Pastries: 0, Cupcakes: 0, Desserts: 0, Beverages: 0 };
 
-      <h5 style="font-size: 0.85rem; text-transform: uppercase; margin-bottom: 6px; color: #475569;">Revenue by Category</h5>
-      <table class="receipt-table" style="margin-bottom: 14px;">
-        <thead>
-          <tr><th>Category</th><th style="text-align: right;">Amount (₹)</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>🎂 Cakes</td><td style="text-align: right; font-weight: 700;">₹${(catBreakdown.Cakes || 0).toFixed(2)}</td></tr>
-          <tr><td>🍰 Pastries</td><td style="text-align: right; font-weight: 700;">₹${(catBreakdown.Pastries || 0).toFixed(2)}</td></tr>
-          <tr><td>🧁 Cupcakes</td><td style="text-align: right; font-weight: 700;">₹${(catBreakdown.Cupcakes || 0).toFixed(2)}</td></tr>
-          <tr><td>🍪 Desserts</td><td style="text-align: right; font-weight: 700;">₹${(catBreakdown.Desserts || 0).toFixed(2)}</td></tr>
-          <tr><td>☕ Beverages</td><td style="text-align: right; font-weight: 700;">₹${(catBreakdown.Beverages || 0).toFixed(2)}</td></tr>
-        </tbody>
-      </table>
+      filtered.forEach(sale => {
+        const rev = Number(sale.grandTotal || sale.amount || 0);
+        totalRevenue += rev;
+        totalUnits += (sale.totalUnits || (Array.isArray(sale.items) ? sale.items.length : 1));
 
-      <h5 style="font-size: 0.85rem; text-transform: uppercase; margin-bottom: 6px; color: #475569;">Payment Collection Breakdown</h5>
-      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 0.82rem; text-align: center;">
-        <div style="background: #ffffff; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px;">
-          <div>💵 Cash</div>
-          <strong style="color: #0f172a;">₹${(payModeBreakdown.Cash || 0).toFixed(2)}</strong>
+        const pMode = (sale.paymentMode || 'Cash').toUpperCase();
+        if (pMode.includes('CASH')) payModeBreakdown.Cash += rev;
+        else if (pMode.includes('UPI') || pMode.includes('QR')) payModeBreakdown.UPI += rev;
+        else if (pMode.includes('CARD')) payModeBreakdown.Card += rev;
+
+        if (Array.isArray(sale.items)) {
+          sale.items.forEach(it => {
+            const cat = it.category || 'Cakes';
+            catBreakdown[cat] = (catBreakdown[cat] || 0) + Number(it.amount || 0);
+          });
+        } else if (sale.category) {
+          catBreakdown[sale.category] = (catBreakdown[sale.category] || 0) + rev;
+        }
+      });
+
+      const avgBill = filtered.length > 0 ? (totalRevenue / filtered.length).toFixed(2) : '0.00';
+      const scopeLabel = isAllMode ? 'ALL RECORDED SALES (LIFETIME)' : currentDateFilterMode.toUpperCase();
+
+      modalBody.innerHTML = `
+        <div style="background: #f8fafc; padding: 14px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 14px;">
+          <h4 style="font-size: 0.95rem; margin-bottom: 8px;">🍰 SUGAR CUBES - ${isAllMode ? 'All Total Sales Summary' : 'End of Day Closing Summary'}</h4>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.82rem;">
+            <div>📅 <strong>Scope:</strong> ${scopeLabel}</div>
+            <div>📦 <strong>Total Invoices:</strong> ${filtered.length}</div>
+            <div>💰 <strong>Total Sales:</strong> <span style="font-size: 1.05rem; font-weight: 800; color: #059669;">₹${totalRevenue.toFixed(2)}</span></div>
+            <div>📈 <strong>Avg Bill:</strong> ₹${avgBill}</div>
+            <div>🎂 <strong>Total Units:</strong> ${totalUnits} pcs</div>
+            <div>👥 <strong>Cashier:</strong> ${activeUser ? escapeHtml(activeUser.name) : 'Store Manager'}</div>
+          </div>
         </div>
-        <div style="background: #ffffff; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px;">
-          <div>📱 UPI / QR</div>
-          <strong style="color: #2563eb;">₹${(payModeBreakdown.UPI || 0).toFixed(2)}</strong>
+
+        <h5 style="font-size: 0.85rem; text-transform: uppercase; margin-bottom: 6px; color: #475569;">Revenue by Category</h5>
+        <table class="receipt-table" style="margin-bottom: 14px;">
+          <thead>
+            <tr><th>Category</th><th style="text-align: right;">Amount (₹)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>🎂 Cakes</td><td style="text-align: right; font-weight: 700;">₹${(catBreakdown.Cakes || 0).toFixed(2)}</td></tr>
+            <tr><td>🍰 Pastries</td><td style="text-align: right; font-weight: 700;">₹${(catBreakdown.Pastries || 0).toFixed(2)}</td></tr>
+            <tr><td>🧁 Cupcakes</td><td style="text-align: right; font-weight: 700;">₹${(catBreakdown.Cupcakes || 0).toFixed(2)}</td></tr>
+            <tr><td>🍪 Desserts</td><td style="text-align: right; font-weight: 700;">₹${(catBreakdown.Desserts || 0).toFixed(2)}</td></tr>
+            <tr><td>☕ Beverages</td><td style="text-align: right; font-weight: 700;">₹${(catBreakdown.Beverages || 0).toFixed(2)}</td></tr>
+          </tbody>
+        </table>
+
+        <h5 style="font-size: 0.85rem; text-transform: uppercase; margin-bottom: 6px; color: #475569;">Payment Collection Breakdown</h5>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 0.82rem; text-align: center;">
+          <div style="background: #ffffff; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px;">
+            <div>💵 Cash</div>
+            <strong style="color: #0f172a;">₹${(payModeBreakdown.Cash || 0).toFixed(2)}</strong>
+          </div>
+          <div style="background: #ffffff; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px;">
+            <div>📱 UPI / QR</div>
+            <strong style="color: #2563eb;">₹${(payModeBreakdown.UPI || 0).toFixed(2)}</strong>
+          </div>
+          <div style="background: #ffffff; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px;">
+            <div>💳 Card</div>
+            <strong style="color: #7c3aed;">₹${(payModeBreakdown.Card || 0).toFixed(2)}</strong>
+          </div>
         </div>
-        <div style="background: #ffffff; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px;">
-          <div>💳 Card</div>
-          <strong style="color: #7c3aed;">₹${(payModeBreakdown.Card || 0).toFixed(2)}</strong>
-        </div>
-      </div>
+      `;
+    }
+  }
+
+  const bottomEl = document.getElementById('dailyReportModalBottom');
+  if (bottomEl) {
+    const isMobile = isMobileViewport();
+    // Dynamic back label based on what is underneath in the stack
+    let backLabel = '← Back';
+    const prev = mobileModalStack.length > 0 ? mobileModalStack[mobileModalStack.length - 1] : null;
+    if (prev && prev.id === 'orderHistoryModal') {
+      backLabel = '← Back to Orders';
+    } else if (fromProfile || (prev && prev.id === 'userProfileModal')) {
+      backLabel = '← Back to Profile';
+    } else if (isMobile) {
+      backLabel = '← Back to Home';
+    }
+
+    const showBack = fromProfile || isMobile || (mobileModalStack.length > 0);
+    bottomEl.innerHTML = `
+      ${showBack ? `<button type="button" class="btn-reg-secondary" style="padding: 8px 14px; font-size: 0.84rem;" onclick="closeDailyReportModal();">${backLabel}</button>` : ''}
+      <button type="button" class="btn-dismiss" onclick="closeDailyReportModal()">Close</button>
+      <button type="button" class="btn-primary-action" onclick="printDailyReport()">🖨️ Print Statement</button>
     `;
   }
 
   const modal = document.getElementById('dailyReportModal');
   if (modal) modal.style.display = 'flex';
+
+  if (!fromRestore) {
+    pushMobileModalState('dailyReportModal', {
+      mode: mode,
+      fromProfile: fromProfile,
+      restoreFn: () => { openDailyReportModal(mode, fromProfile, true); }
+    });
+  } else {
+    updateMobileScrollLock();
+  }
 }
 
 function closeDailyReportModal() {
+  if (isMobileViewport() && mobileModalStack.length > 0) {
+    popMobileModalState(false);
+    return;
+  }
   const modal = document.getElementById('dailyReportModal');
   if (modal) modal.style.display = 'none';
+  updateMobileScrollLock();
 }
 
 function closeDailyReportModalOnBackdrop(e) {
@@ -6529,20 +8836,277 @@ function printDailyReport() {
 }
 
 // ==========================================================================
+// 🏆 Best Selling Foods & Average Sales Analytics Modal (Mobile ONLY)
+// ==========================================================================
+
+let bestSalesFilterMode = 'all';
+
+function setBestSalesFilter(mode) {
+  bestSalesFilterMode = mode;
+  
+  const btnToday = document.getElementById('bestFilterToday');
+  const btnYest = document.getElementById('bestFilterYest');
+  const btnAll = document.getElementById('bestFilterAll');
+
+  if (btnToday) btnToday.className = (mode === 'today') ? 'best-filter-btn active' : 'best-filter-btn';
+  if (btnYest) btnYest.className = (mode === 'yesterday') ? 'best-filter-btn active' : 'best-filter-btn';
+  if (btnAll) btnAll.className = (mode === 'all') ? 'best-filter-btn active' : 'best-filter-btn';
+
+  renderBestSalesAnalytics(mode);
+}
+
+function renderBestSalesAnalytics(filterMode = 'all') {
+  const allSales = getRecordedSales();
+  let filtered = allSales;
+  if (filterMode === 'today') {
+    filtered = allSales.filter(s => {
+      const iso = s.isoDate || (s.timestamp ? new Date(s.timestamp.split('•')[0].trim()).toISOString().slice(0, 10) : '');
+      return iso === getTodayIso();
+    });
+  } else if (filterMode === 'yesterday') {
+    filtered = allSales.filter(s => {
+      const iso = s.isoDate || (s.timestamp ? new Date(s.timestamp.split('•')[0].trim()).toISOString().slice(0, 10) : '');
+      return iso === getYesterdayIso();
+    });
+  }
+
+  // Calculate Average Sales and Aggregate Turnover
+  let totalRevenue = 0;
+  let totalOrders = filtered.length;
+  let totalUnits = 0;
+  const foodMap = {};
+
+  filtered.forEach(sale => {
+    const rev = Number(sale.grandTotal || sale.amount || 0);
+    totalRevenue += rev;
+    const units = Number(sale.totalUnits || (Array.isArray(sale.items) ? sale.items.reduce((s, it) => s + (it.quantity || 1), 0) : 1));
+    totalUnits += units;
+
+    if (Array.isArray(sale.items)) {
+      sale.items.forEach(it => {
+        const name = (it.name || 'Artisanal Item').trim();
+        if (!foodMap[name]) {
+          foodMap[name] = {
+            name: name,
+            category: it.category || 'Cakes',
+            variant: it.variant || '',
+            totalQty: 0,
+            ordersCount: 0,
+            totalRevenue: 0
+          };
+        }
+        foodMap[name].totalQty += Number(it.quantity || 1);
+        foodMap[name].ordersCount += 1;
+        foodMap[name].totalRevenue += Number(it.amount || ((it.price || 0) * (it.quantity || 1)));
+      });
+    } else if (sale.category) {
+      const name = sale.cakeName || sale.category;
+      if (!foodMap[name]) {
+        foodMap[name] = {
+          name: name,
+          category: sale.category || 'Cakes',
+          variant: '',
+          totalQty: 0,
+          ordersCount: 0,
+          totalRevenue: 0
+        };
+      }
+      foodMap[name].totalQty += units;
+      foodMap[name].ordersCount += 1;
+      foodMap[name].totalRevenue += rev;
+    }
+  });
+
+  const avgOrder = totalOrders > 0 ? (totalRevenue / totalOrders) : 0;
+  const avgUnits = totalOrders > 0 ? (totalUnits / totalOrders) : 0;
+
+  // Render Average Sales KPI Ribbon
+  const ribbonEl = document.getElementById('bestSalesKpiRibbon');
+  if (ribbonEl) {
+    ribbonEl.innerHTML = `
+      <div class="best-kpi-box purple">
+        <span class="best-kpi-label">📊 Average Order (AOV)</span>
+        <span class="best-kpi-val">₹${avgOrder.toFixed(2)}</span>
+      </div>
+      <div class="best-kpi-box sky">
+        <span class="best-kpi-label">🎂 Avg Items / Bill</span>
+        <span class="best-kpi-val">${avgUnits.toFixed(1)} pcs</span>
+      </div>
+      <div class="best-kpi-box emerald">
+        <span class="best-kpi-label">💰 Food Turnover</span>
+        <span class="best-kpi-val">₹${totalRevenue.toFixed(2)}</span>
+      </div>
+      <div class="best-kpi-box amber">
+        <span class="best-kpi-label">📦 Total Invoices</span>
+        <span class="best-kpi-val">${totalOrders} Orders</span>
+      </div>
+    `;
+  }
+
+  // Count badge
+  const countBadge = document.getElementById('bestFoodsCountBadge');
+  const rankedList = Object.values(foodMap).sort((a, b) => {
+    if (b.totalQty !== a.totalQty) return b.totalQty - a.totalQty;
+    return b.totalRevenue - a.totalRevenue;
+  });
+
+  if (countBadge) {
+    countBadge.textContent = `${rankedList.length} Foods Sold`;
+  }
+
+  // Subtitle
+  const subTitle = document.getElementById('bestSalesSubtitle');
+  if (subTitle) {
+    const scopeName = (filterMode === 'today') ? "Today's" : (filterMode === 'yesterday') ? "Yesterday's" : "All Time";
+    subTitle.textContent = `Showing ${scopeName} most ordered food ranking & average sales analytics`;
+  }
+
+  // Render Food Leaderboard List ("which food is more order show in this page")
+  const rankListEl = document.getElementById('bestFoodsRankList');
+  if (rankListEl) {
+    if (rankedList.length === 0) {
+      rankListEl.innerHTML = `
+        <div style="text-align: center; padding: 40px 16px; color: #64748b;">
+          <div style="font-size: 2.8rem; margin-bottom: 10px;">🍰</div>
+          <h4 style="font-size: 1.05rem; color: #1e293b; margin-bottom: 6px; font-weight: 700;">No Food Orders Found</h4>
+          <p style="font-size: 0.84rem; color: #94a3b8; margin: 0;">
+            Recorded customer orders will rank the most popular cakes and pastries here.
+          </p>
+        </div>
+      `;
+    } else {
+      const topMaxQty = rankedList[0].totalQty || 1;
+      let html = '';
+      rankedList.forEach((food, idx) => {
+        let rankClass = '';
+        let medalHtml = '';
+        if (idx === 0) {
+          rankClass = 'rank-1';
+          medalHtml = `<span class="food-rank-medal">🥇 #1 Most Ordered</span>`;
+        } else if (idx === 1) {
+          rankClass = 'rank-2';
+          medalHtml = `<span class="food-rank-medal">🥈 #2 Most Ordered</span>`;
+        } else if (idx === 2) {
+          rankClass = 'rank-3';
+          medalHtml = `<span class="food-rank-medal">🥉 #3 Most Ordered</span>`;
+        } else {
+          medalHtml = `<span class="food-rank-medal-default">#${idx + 1}</span>`;
+        }
+
+        const barPct = Math.min(100, Math.round((food.totalQty / topMaxQty) * 100));
+        const volumeSharePct = totalUnits > 0 ? Math.round((food.totalQty / totalUnits) * 100) : 0;
+        const avgUnitPrice = food.totalQty > 0 ? (food.totalRevenue / food.totalQty) : 0;
+
+        html += `
+          <div class="food-rank-card ${rankClass}">
+            <div class="food-rank-top">
+              <div class="food-rank-left">
+                ${medalHtml}
+                <div class="food-rank-info">
+                  <div class="food-rank-name" title="${escapeHtml(food.name)}">${escapeHtml(food.name)}</div>
+                  <div class="food-rank-cat">🏷️ ${escapeHtml(food.category)} ${food.variant ? `• ${escapeHtml(food.variant)}` : ''}</div>
+                </div>
+              </div>
+              <div class="food-rank-right">
+                <span class="food-rank-qty-tag">🔥 ${food.totalQty} pcs sold</span>
+                <span class="food-rank-rev-tag">₹${food.totalRevenue.toFixed(2)}</span>
+              </div>
+            </div>
+
+            <!-- Visual Popularity Progress Bar -->
+            <div class="food-popularity-track" title="${barPct}% of top seller volume">
+              <div class="food-popularity-fill" style="width: ${barPct}%;"></div>
+            </div>
+
+            <div class="food-rank-meta-row">
+              <span>📦 In <strong>${food.ordersCount}</strong> bills</span>
+              <span>Avg <strong>₹${avgUnitPrice.toFixed(2)}</strong> / pc</span>
+              <span><strong>${volumeSharePct}%</strong> volume share</span>
+            </div>
+          </div>
+        `;
+      });
+      rankListEl.innerHTML = html;
+    }
+  }
+}
+
+function openBestSalesAnalyticsModal(mode = 'all', fromProfile = false, fromRestore = false) {
+  bestSalesFilterMode = mode || 'all';
+
+  // Sync button classes
+  const btnToday = document.getElementById('bestFilterToday');
+  const btnYest = document.getElementById('bestFilterYest');
+  const btnAll = document.getElementById('bestFilterAll');
+  if (btnToday) btnToday.className = (bestSalesFilterMode === 'today') ? 'best-filter-btn active' : 'best-filter-btn';
+  if (btnYest) btnYest.className = (bestSalesFilterMode === 'yesterday') ? 'best-filter-btn active' : 'best-filter-btn';
+  if (btnAll) btnAll.className = (bestSalesFilterMode === 'all') ? 'best-filter-btn active' : 'best-filter-btn';
+
+  renderBestSalesAnalytics(bestSalesFilterMode);
+
+  const modal = document.getElementById('bestSalesAnalyticsModal');
+  if (modal) modal.style.display = 'flex';
+
+  if (!fromRestore) {
+    pushMobileModalState('bestSalesAnalyticsModal', {
+      mode: mode,
+      fromProfile: fromProfile,
+      restoreFn: () => { openBestSalesAnalyticsModal(mode, fromProfile, true); }
+    });
+  } else {
+    updateMobileScrollLock();
+  }
+}
+
+function closeBestSalesAnalyticsModal() {
+  if (isMobileViewport() && mobileModalStack.length > 0) {
+    popMobileModalState(false);
+    return;
+  }
+  const modal = document.getElementById('bestSalesAnalyticsModal');
+  if (modal) modal.style.display = 'none';
+  updateMobileScrollLock();
+}
+
+function closeBestSalesAnalyticsModalOnBackdrop(e) {
+  if (e && e.target && e.target.id === 'bestSalesAnalyticsModal') {
+    closeBestSalesAnalyticsModal();
+  }
+}
+
+function openBestSalesAnalyticsFromProfile() {
+  openBestSalesAnalyticsModal('all', true);
+}
+
+// ==========================================================================
 // Custom Cake / Off-Menu Order Modal
 // ==========================================================================
 
-function openCustomOrderModal() {
+function openCustomOrderModal(fromRestore = false) {
   const modal = document.getElementById('customOrderModal');
   if (modal) {
     modal.style.display = 'flex';
-    document.getElementById('customItemName').focus();
+    const nameInput = document.getElementById('customItemName');
+    if (nameInput) nameInput.focus();
+  }
+
+  if (!fromRestore) {
+    pushMobileModalState('customOrderModal', {
+      restoreFn: () => { openCustomOrderModal(true); }
+    });
+  } else {
+    updateMobileScrollLock();
   }
 }
 
 function closeCustomOrderModal() {
+  if (isMobileViewport() && mobileModalStack.length > 0) {
+    popMobileModalState(false);
+    return;
+  }
   const modal = document.getElementById('customOrderModal');
   if (modal) modal.style.display = 'none';
+  updateMobileScrollLock();
 }
 
 function closeCustomOrderModalOnBackdrop(e) {
@@ -6711,6 +9275,12 @@ function applyAuthenticatedState(user) {
   if (nameEl) nameEl.textContent = user.name || user.id;
   if (roleEl) roleEl.textContent = user.role || 'Cashier';
 
+  // Sync mobile top-corner profile button
+  const mobileNameEl = document.getElementById('mobileCornerUserName');
+  if (mobileNameEl) {
+    mobileNameEl.textContent = user.name ? user.name.split(' ')[0] : (user.id || 'Admin');
+  }
+
   if (window.innerWidth <= 768) {
     switchMobileView('menu');
   }
@@ -6729,6 +9299,10 @@ function showAuthScreen() {
 
   const userPill = document.getElementById('loggedUserPill');
   if (userPill) userPill.style.display = 'none';
+
+  const mobileNameEl = document.getElementById('mobileCornerUserName');
+  if (mobileNameEl) mobileNameEl.textContent = 'Login';
+  closeUserProfileModal();
 
   switchAuthTab('signin');
   clearAuthAlert();
@@ -6916,6 +9490,7 @@ function quickDemoLogin() {
 
 function logoutUser() {
   if (confirm('🔒 Lock POS Register and Logout?')) {
+    clearMobileModalStack();
     activeUser = null;
     localStorage.removeItem('sugarCubesActiveUser');
     sessionStorage.removeItem('sugarCubesActiveUser');
@@ -6934,6 +9509,272 @@ function togglePasswordVisibility(inputId, btnEl) {
     input.type = 'password';
     if (btnEl) btnEl.textContent = '👁️';
   }
+}
+
+// ==========================================================================
+// Cashier & User Profile Modal Handlers (Opened from Mobile Top-Corner Button)
+// Shows Live Time/Date, Total Sales, Orders, Best Sales, Ava Order, & History
+// ==========================================================================
+
+let profHistoryFilterMode = 'today';
+let profHistoryCustomDate = '';
+
+function openUserProfileModal(fromRestore = false) {
+  const modal = document.getElementById('userProfileModal');
+  if (!modal) return;
+
+  const currentU = activeUser || { name: 'Store Manager', role: 'Store Manager', id: 'admin' };
+  const fullNameEl = document.getElementById('profileModalFullName');
+  if (fullNameEl) fullNameEl.textContent = currentU.name || currentU.id || 'Store Manager';
+
+  // Sync sound toggle button inside profile modal
+  const profSoundBtn = document.getElementById('profSoundToggleBtn');
+  if (profSoundBtn) {
+    profSoundBtn.innerHTML = soundEnabled ? '🔔 Sound: ON' : '🔕 Sound: OFF';
+  }
+
+  // Populate sales KPIs and render date orders history
+  setProfHistoryFilter(profHistoryFilterMode || 'today');
+
+  modal.style.display = 'flex';
+  // SILENT OPEN: No audio beep when clicking the profile button, as requested
+
+  if (!fromRestore) {
+    pushMobileModalState('userProfileModal', {
+      restoreFn: () => { openUserProfileModal(true); }
+    });
+  } else {
+    updateMobileScrollLock();
+  }
+}
+
+function closeUserProfileModal() {
+  // 1. Unconditionally hide the profile modal window immediately
+  const modal = document.getElementById('userProfileModal');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+
+  // 2. Remove userProfileModal from mobile navigation stack
+  const idx = mobileModalStack.findIndex(m => m.id === 'userProfileModal');
+  if (idx !== -1) {
+    mobileModalStack.splice(idx, 1);
+  }
+
+  // 3. Set debounce lock to prevent router event bounce-back
+  isPoppingFromScript = true;
+
+  // 4. Safely clean URL hash without pushing extra history states
+  try {
+    if (window.location.hash && (window.location.hash.toLowerCase() === '#profile' || window.location.hash.toLowerCase() === '#store' || window.location.hash.toLowerCase() === '#menu')) {
+      history.replaceState(null, document.title, window.location.pathname + window.location.search);
+    }
+  } catch (err) {}
+
+  // 5. Unlock scroll
+  updateMobileScrollLock();
+
+  // 6. Ensure mobile view switches to the store catalog menu
+  if (isMobileViewport()) {
+    switchMobileView('menu');
+  }
+
+  setTimeout(() => {
+    isPoppingFromScript = false;
+  }, 500);
+}
+
+function closeUserProfileModalOnBackdrop(e) {
+  if (e && e.target && e.target.id === 'userProfileModal') {
+    closeUserProfileModal();
+  }
+}
+
+/**
+ * Mobile Profile Cockpit KPI Navigation Handlers:
+ * Moves user from inside profile button directly to All Total Sales page
+ * or All Orders page history.
+ */
+function openAllTotalSalesPageFromProfile() {
+  openDailyReportModal('all', true);
+}
+
+function openAllOrdersHistoryFromProfile() {
+  openOrderHistoryModal('all', true);
+}
+
+function setProfHistoryFilter(mode, val) {
+  profHistoryFilterMode = mode;
+  profHistoryCustomDate = val || '';
+
+  const btnToday = document.getElementById('profHistBtnToday');
+  const btnYest = document.getElementById('profHistBtnYesterday');
+  const btnAll = document.getElementById('profHistBtnAll');
+  const datePicker = document.getElementById('profHistDatePicker');
+
+  if (btnToday) btnToday.classList.toggle('active', mode === 'today');
+  if (btnYest) btnYest.classList.toggle('active', mode === 'yesterday');
+  if (btnAll) btnAll.classList.toggle('active', mode === 'all');
+  if (datePicker) {
+    if (mode === 'custom' && val) {
+      datePicker.value = val;
+    } else if (mode === 'today') {
+      datePicker.value = getTodayIso();
+    }
+  }
+
+  renderProfOrdersHistory();
+}
+
+function renderProfOrdersHistory() {
+  const allSales = getRecordedSales();
+  const searchInput = document.getElementById('profHistSearchInput');
+  const query = (searchInput ? searchInput.value : '').toLowerCase().trim();
+
+  // 1. Filter sales by date
+  let filtered = allSales.filter(sale => {
+    let saleIso = sale.isoDate;
+    if (!saleIso && sale.timestamp) {
+      try {
+        const parsed = new Date(sale.timestamp.split('•')[0].trim());
+        if (!isNaN(parsed.getTime())) saleIso = parsed.toISOString().slice(0, 10);
+      } catch (e) {}
+    }
+    if (profHistoryFilterMode === 'today') return saleIso === getTodayIso();
+    if (profHistoryFilterMode === 'yesterday') return saleIso === getYesterdayIso();
+    if (profHistoryFilterMode === 'custom') return saleIso === profHistoryCustomDate;
+    return true; // 'all'
+  });
+
+  // 2. Filter by search query if entered
+  if (query) {
+    filtered = filtered.filter(sale => {
+      const tick = (sale.ticketNumber || '').toLowerCase();
+      const name = (sale.customerName || '').toLowerCase();
+      const mob = (sale.customerMobile || '').toLowerCase();
+      const itemsMatch = Array.isArray(sale.items) && sale.items.some(it => (it.name || '').toLowerCase().includes(query));
+      return tick.includes(query) || name.includes(query) || mob.includes(query) || itemsMatch;
+    });
+  }
+
+  // 3. Compute Metrics for this filtered view
+  let totalRev = 0;
+  let orderCount = filtered.length;
+  let categoryRevenueMap = {};
+
+  filtered.forEach(sale => {
+    const amt = Number(sale.grandTotal || sale.amount || 0);
+    totalRev += amt;
+    if (Array.isArray(sale.items)) {
+      sale.items.forEach(it => {
+        const cat = it.category || 'Cakes';
+        categoryRevenueMap[cat] = (categoryRevenueMap[cat] || 0) + Number(it.amount || 0);
+      });
+    } else if (sale.category) {
+      categoryRevenueMap[sale.category] = (categoryRevenueMap[sale.category] || 0) + Number(sale.amount || 0);
+    }
+  });
+
+  let bestCat = '--';
+  let maxCatRev = 0;
+  for (const cat in categoryRevenueMap) {
+    if (categoryRevenueMap[cat] > maxCatRev) {
+      maxCatRev = categoryRevenueMap[cat];
+      bestCat = cat;
+    }
+  }
+
+  const aov = orderCount > 0 ? (totalRev / orderCount) : 0;
+
+  // 4. Update the 4 KPI cards inside the Profile Modal
+  const salesEl = document.getElementById('profKpiTotalSales');
+  const ordEl = document.getElementById('profKpiOrders');
+  const bestEl = document.getElementById('profKpiBestSales');
+  const aovEl = document.getElementById('profKpiAvgOrder');
+  const countBadge = document.getElementById('profHistCountBadge');
+
+  if (salesEl) salesEl.textContent = '₹' + totalRev.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+  if (ordEl) ordEl.textContent = orderCount + (orderCount === 1 ? ' Order' : ' Orders');
+  if (bestEl) bestEl.textContent = bestCat;
+  if (aovEl) aovEl.textContent = '₹' + aov.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+  if (countBadge) countBadge.textContent = `${orderCount} Orders • ₹${totalRev.toFixed(2)}`;
+
+  // 5. Render Orders List HTML
+  const listEl = document.getElementById('profModalOrdersList');
+  if (!listEl) return;
+
+  if (filtered.length === 0) {
+    listEl.innerHTML = `
+      <div style="text-align: center; padding: 28px 12px; color: #64748b;">
+        <div style="font-size: 2.2rem; margin-bottom: 6px;">📦</div>
+        <h5 style="margin: 0 0 4px; font-size: 0.95rem; font-weight: 700; color: #1e293b;">No Orders Recorded</h5>
+        <p style="margin: 0; font-size: 0.76rem; color: #94a3b8;">No transactions found for the selected date filter.</p>
+      </div>
+    `;
+    return;
+  }
+
+  let html = '';
+  filtered.forEach(sale => {
+    const itemsList = Array.isArray(sale.items) ? sale.items : [];
+    const itemsSummary = itemsList.map(it => `${it.quantity || 1}x ${it.name}`).join(', ') || 'Bakery Items';
+    const cleanNum = (sale.ticketNumber || '01').replace('#', '');
+    const dateFormatted = sale.date || sale.isoDate || 'Today';
+    const timeFormatted = sale.time || '';
+    const grand = Number(sale.grandTotal || sale.amount || 0).toFixed(2);
+    const payMode = sale.paymentMode || 'Cash';
+
+    let payBadgeBg = '#f1f5f9';
+    let payBadgeColor = '#475569';
+    if (payMode.toUpperCase().includes('UPI')) {
+      payBadgeBg = '#eff6ff';
+      payBadgeColor = '#1d4ed8';
+    } else if (payMode.toUpperCase().includes('CARD')) {
+      payBadgeBg = '#faf5ff';
+      payBadgeColor = '#7e22ce';
+    } else if (payMode.toUpperCase().includes('CASH')) {
+      payBadgeBg = '#ecfdf5';
+      payBadgeColor = '#047857';
+    }
+
+    const maskedPhone = maskMobileNumber(sale.customerMobile);
+
+    html += `
+      <div class="prof-order-card">
+        <div class="prof-order-card-top">
+          <div class="prof-order-badge-row">
+            <span class="prof-ticket-pill">${sale.ticketNumber || ('#SC-' + cleanNum)}</span>
+            <span class="prof-order-date-pill">📅 ${dateFormatted}${timeFormatted ? ` • ⏰ ${timeFormatted}` : ''}</span>
+          </div>
+          <span class="prof-order-amount">₹${grand}</span>
+        </div>
+
+        <div class="prof-order-meta-row">
+          <span class="prof-pay-badge" style="background: ${payBadgeBg}; color: ${payBadgeColor};">${payMode}</span>
+          <span class="prof-type-badge">${sale.orderType || 'Takeaway'}</span>
+          <span class="prof-cust-text">👤 ${escapeHtml(sale.customerName || 'Customer')}${maskedPhone ? ` (${maskedPhone})` : ''}</span>
+        </div>
+
+        <div class="prof-order-items-text">
+          🍰 ${escapeHtml(itemsSummary)}
+        </div>
+
+        <div class="prof-order-actions-row">
+          <button type="button" class="prof-btn-action" onclick="viewHistoryOrderReceipt('${escapeHtml(sale.ticketNumber)}')" title="View Receipt">
+            🧾 View Bill
+          </button>
+          <button type="button" class="prof-btn-action" onclick="downloadHistoryOrderPdf('${escapeHtml(sale.ticketNumber)}')" title="Download PDF">
+            📄 PDF
+          </button>
+          <button type="button" class="prof-btn-action wa" onclick="whatsappHistoryOrder('${escapeHtml(sale.ticketNumber)}')" title="Send WhatsApp">
+            📲 WhatsApp
+          </button>
+        </div>
+      </div>
+    `;
+  });
+
+  listEl.innerHTML = html;
 }
 
 // ==========================================================================
@@ -7000,6 +9841,22 @@ window.addEventListener('resize', () => {
 
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' || e.key === 'Esc' || e.keyCode === 27) {
+    // Mobile Stack: Step-by-step back one modal at a time
+    if (isMobileViewport() && mobileModalStack.length > 0) {
+      e.preventDefault();
+      popMobileModalState(false);
+      return;
+    }
+
+    // Desktop: Dismiss topmost modal
+    // 0. Cashier / User Profile Modal (Top-Corner Profile)
+    const userProfileModal = document.getElementById('userProfileModal');
+    if (userProfileModal && userProfileModal.style.display && userProfileModal.style.display !== 'none') {
+      e.preventDefault();
+      closeUserProfileModal();
+      return;
+    }
+
     // 1. Bill Receipt Modal (Topmost priority)
     const billModal = document.getElementById('billModal');
     if (billModal && billModal.style.display && billModal.style.display !== 'none') {
@@ -7013,6 +9870,14 @@ document.addEventListener('keydown', (e) => {
     if (dailyReportModal && dailyReportModal.style.display && dailyReportModal.style.display !== 'none') {
       e.preventDefault();
       closeDailyReportModal();
+      return;
+    }
+
+    // 2.5. Best Selling Foods & Average Sales Analytics Modal
+    const bestSalesModal = document.getElementById('bestSalesAnalyticsModal');
+    if (bestSalesModal && bestSalesModal.style.display && bestSalesModal.style.display !== 'none') {
+      e.preventDefault();
+      closeBestSalesAnalyticsModal();
       return;
     }
 

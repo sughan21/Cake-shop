@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>🍰 Sugar Cubes | Artisanal Cake Shop POS & Daily Sales Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Sugar Cubes | Artisanal Cake Shop POS & Daily Sales Tracker</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍰</text></svg>">
   <link rel="stylesheet" href="style.css">
   <!-- Client-Side High-Fidelity PDF Engine -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -17,20 +18,30 @@
        ========================================================================= -->
   <header class="pos-app-header">
     <div class="brand-section">
-      <div class="brand-avatar">🍰</div>
-      <div class="brand-details">
-        <h1>Sugar Cubes</h1>
-        <p class="brand-tagline">Artisanal Cake Shop & Bakery POS</p>
-        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 2px;">
-          <div class="brand-live-badge">
-            <span class="pulse-dot"></span>
-            <span>STORE OPEN • COUNTER #1</span>
-          </div>
-          <div style="display: inline-flex; align-items: center; gap: 4px; background: #fdf2f8; border: 1px solid #fbcfe8; color: #db2777; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; cursor: pointer;" onclick="promptEditInstagramHandle()" title="Click to edit Instagram Profile handle">
-            <span>📸</span> <span id="headerIgHandle">@sugarcubes_official</span> <span>✏️</span>
+      <div class="brand-identity-left">
+        <div class="brand-avatar">🍰</div>
+        <div class="brand-details">
+          <h1>Sugar Cubes</h1>
+          <p class="brand-tagline">Artisanal Cake Shop & Bakery POS</p>
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 2px;">
+            <div class="brand-live-badge">
+              <span class="pulse-dot"></span>
+              <span>STORE OPEN • COUNTER #1</span>
+            </div>
+            <div style="display: inline-flex; align-items: center; gap: 4px; background: #fdf2f8; border: 1px solid #fbcfe8; color: #db2777; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; cursor: pointer;" onclick="promptEditInstagramHandle()" title="Click to edit Instagram Profile handle">
+              <span>📸</span> <span id="headerIgHandle">@sugarcubes_official</span> <span>✏️</span>
+            </div>
           </div>
         </div>
       </div>
+
+      <!-- Mobile Top-Corner Cashier Profile Button (Icon-Only Executive Button) -->
+      <button type="button" class="mobile-corner-profile-btn" id="mobileCornerProfileBtn" onclick="openUserProfileModal()" title="Store Cashier Profile & Sales Cockpit" aria-label="Store Profile">
+        <div class="mobile-corner-avatar-ring">
+          <span class="mobile-corner-emoji">👤</span>
+          <span class="mobile-corner-beacon" title="Live Counter Shift Active"></span>
+        </div>
+      </button>
     </div>
 
     <div class="header-controls">
@@ -107,7 +118,7 @@
         <div class="kpi-card kpi-top">
           <div class="kpi-icon">🏆</div>
           <div class="kpi-content">
-            <span class="kpi-title">Top Category</span>
+            <span class="kpi-title">Best Sale</span>
             <span class="kpi-val" id="kpiTopCatVal" style="font-size: 1.05rem;">--</span>
           </div>
         </div>
@@ -200,11 +211,26 @@
 
         <!-- Register Header -->
         <div class="register-header">
-          <div class="register-order-tag" id="registerTicketNum" onclick="promptEditBillNumber()" title="Click to adjust starting Bill No"><span>BILL NO:</span> <strong>#SC-001</strong> <span style="font-size: 0.65rem; opacity: 0.7;">✏️</span></div>
-          <div class="order-type-pills">
-            <button type="button" class="order-type-btn active" onclick="setOrderType('Takeaway', this)">🛍️ Takeaway</button>
-            <button type="button" class="order-type-btn" onclick="setOrderType('Dine-In', this)">🍽️ Dine-In</button>
-            <button type="button" class="order-type-btn" onclick="setOrderType('Delivery', this)">🛵 Delivery</button>
+          <div class="register-header-top">
+            <div class="register-order-tag" id="registerTicketNum" onclick="promptEditBillNumber()" title="Click to adjust starting Bill No">
+              <span>BILL NO:</span> <strong>#SC-001</strong> <span style="font-size: 0.65rem; opacity: 0.7;">✏️</span>
+            </div>
+            <div class="register-terminal-badge">
+              <span class="live-dot-green"></span>
+              <span>Active POS</span>
+            </div>
+          </div>
+          <div class="order-type-box-container" id="orderTypeBoxContainer">
+            <div class="order-type-slide-glider" id="orderTypeGlider"></div>
+            <button type="button" class="order-box-btn active" data-type="Takeaway" data-index="0" onclick="setOrderType('Takeaway', this)">
+              <span>🛍️</span> <span>Takeaway</span>
+            </button>
+            <button type="button" class="order-box-btn" data-type="Dine-In" data-index="1" onclick="setOrderType('Dine-In', this)">
+              <span>🍽️</span> <span>Dine-In</span>
+            </button>
+            <button type="button" class="order-box-btn" data-type="Delivery" data-index="2" onclick="setOrderType('Delivery', this)">
+              <span>🛵</span> <span>Delivery</span>
+            </button>
           </div>
         </div>
 
@@ -213,16 +239,16 @@
           <div class="customer-input-row">
             <div class="cust-input-wrap mobile-wrap">
               <span class="cust-input-icon">📱</span>
-              <input type="tel" id="custMobile" placeholder="Customer Mobile (10 Digits)" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+              <input type="tel" id="custMobile" placeholder="Customer Mobile (10 Digits)" maxlength="14" oninput="formatCustomerPhoneInput(this)">
             </div>
             <div class="cust-input-wrap">
               <span class="cust-input-icon">👤</span>
               <input type="text" id="custName" placeholder="Name (Optional)">
             </div>
           </div>
-          <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.72rem;">
-            <span style="color: #15803d; font-weight: 600;">💬 Send PDF Bill to WhatsApp with 1-click!</span>
-            <label style="display: inline-flex; align-items: center; gap: 4px; color: #0f172a; font-weight: 700; cursor: pointer;">
+          <div class="register-customer-subrow">
+            <span class="wa-oneclick-hint">💬 Send PDF Bill to WhatsApp with 1-click!</span>
+            <label class="auto-pdf-toggle-label">
               <input type="checkbox" id="autoDownloadPdfToggle" checked>
               <span>⚡ Auto PDF</span>
             </label>
@@ -231,14 +257,24 @@
 
         <!-- Active Order Cart Items Container -->
         <div class="register-cart-container" id="cartContainer">
+          <div class="cart-section-header">
+            <div class="cart-title-wrap">
+              <span class="cart-title-text">🛒 Order Items</span>
+              <span class="cart-items-pill" id="cartItemsBadge">0</span>
+            </div>
+            <button type="button" class="cart-clear-link" onclick="clearCurrentCart()" title="Clear all items in cart" style="display: none;">🗑️ Clear</button>
+          </div>
+
           <ul class="cart-items-list" id="cartItemsList">
             <!-- Populated dynamically by script.js -->
           </ul>
 
           <div class="cart-empty-state" id="cartEmptyState">
-            <div class="cart-empty-icon">🍰</div>
-            <p><strong>Current Cart is Empty</strong></p>
-            <p style="color: #94a3b8; font-size: 0.78rem;">Tap any cake, pastry or dessert on the left to add items directly.</p>
+            <div class="cart-empty-icon-wrap">
+              <span class="cart-empty-icon">🍰</span>
+            </div>
+            <p class="cart-empty-title">Cart is Ready & Empty</p>
+            <p class="cart-empty-subtitle">Tap any delicacy from the left menu to add items directly to this order.</p>
           </div>
         </div>
 
@@ -305,17 +341,19 @@
             <span>Send PDF Bill to WhatsApp</span>
           </button>
 
-          <!-- Direct Download Professional PDF Bill -->
-          <button type="button" class="btn-download-pdf" onclick="downloadPdfBill()" title="Generate and download official PDF tax invoice with Instagram QR">
-            <span style="font-size: 1.1rem;">📄</span>
-            <span>Download Official PDF Bill</span>
-          </button>
+          <div class="register-action-dual-row">
+            <!-- Direct Download Professional PDF Bill -->
+            <button type="button" class="btn-download-pdf" onclick="downloadPdfBill()" title="Generate and download official PDF tax invoice with Instagram QR">
+              <span style="font-size: 1.05rem;">📄</span>
+              <span>Download PDF</span>
+            </button>
 
-          <!-- Complete & Print Bill Button -->
-          <button type="button" class="btn-checkout-print" onclick="openBillModal()" title="View and print thermal receipt with Instagram QR">
-            <span style="font-size: 1.1rem;">🧾</span>
-            <span>View Thermal Bill</span>
-          </button>
+            <!-- Complete & Print Bill Button -->
+            <button type="button" class="btn-checkout-print" onclick="openBillModal()" title="View and print thermal receipt with Instagram QR">
+              <span style="font-size: 1.05rem;">🧾</span>
+              <span>Thermal Bill</span>
+            </button>
+          </div>
 
           <!-- Complete & New Sale Action -->
           <button type="button" class="btn-primary-action" style="background: #0f172a; padding: 11px; font-size: 0.88rem; width: 100%;" onclick="completeAndNewSale()" title="Record completed transaction and reset register for next customer">
@@ -491,8 +529,141 @@
         <button type="button" class="btn-checkout-print" onclick="printThermalBill()">
           <span>🖨️</span> <span>Print Receipt / Thermal</span>
         </button>
-        <button type="button" class="btn-dismiss" onclick="closeBillModal()">
+        <button type="button" class="btn-dismiss" id="billModalCloseBtn" onclick="closeBillModal()">
           ✕ Close
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       Modal: Cashier Profile & Executive Sales Hub (Mobile Top-Corner Profile)
+       ========================================================================= -->
+  <div id="userProfileModal" class="modal-backdrop" style="display: none;" onclick="closeUserProfileModalOnBackdrop(event)">
+    <div class="modal-window-card profile-modal-window" onclick="event.stopPropagation()">
+      
+      <!-- Top Header Bar with Live Clock & Sound Toggle -->
+      <div class="profile-modal-header">
+        <div class="profile-modal-top-row">
+          <button type="button" class="btn-profile-nav-back" id="btnProfileNavBack" onclick="closeUserProfileModal()" title="Back to Store Menu">
+            <span class="nav-back-arrow">←</span> <span class="nav-back-text">Store</span>
+          </button>
+          <div class="profile-user-summary">
+            <span class="profile-avatar-emoji">👤</span>
+            <div class="profile-user-texts">
+              <span class="profile-user-title" id="profileModalFullName">Store Manager</span>
+              <span class="profile-user-shift"><span class="prof-beacon-dot"></span> Live Shift • Counter #1</span>
+            </div>
+          </div>
+          <div class="profile-header-actions">
+            <button type="button" class="prof-sound-toggle-btn" id="profSoundToggleBtn" onclick="toggleAudioSound()" title="Toggle POS sound effects">
+              🔔 Sound: ON
+            </button>
+            <button type="button" class="modal-close-x profile-close-btn" onclick="closeUserProfileModal()" title="Back to Store Menu">✕</button>
+          </div>
+        </div>
+
+        <!-- 🕒 Live Time & Date Display -->
+        <div class="prof-time-date-card">
+          <div class="prof-time-box">
+            <span class="prof-time-icon">🕒</span>
+            <span class="prof-time-digits" id="profLiveClock">--:--:-- --</span>
+          </div>
+          <div class="prof-date-badge" id="profLiveDate">
+            📅 Loading date...
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Body: Metrics & All Date Order History -->
+      <div class="profile-modal-body">
+        
+        <!-- 4 Key Sales Performance Metrics (Total Sales, Order, Best Sales, Ava Order) -->
+        <div class="prof-kpi-grid">
+          <div class="prof-kpi-card kpi-sales kpi-clickable" onclick="openAllTotalSalesPageFromProfile()" title="Tap to view All Total Sales Statement & Audit Page">
+            <div class="prof-kpi-header">
+              <div class="prof-kpi-title-wrap">
+                <span class="prof-kpi-icon">💰</span>
+                <span class="prof-kpi-label">TOTAL SALES</span>
+              </div>
+              <span class="prof-kpi-action-tag">All Sales ➔</span>
+            </div>
+            <div class="prof-kpi-val text-emerald" id="profKpiTotalSales">₹0.00</div>
+          </div>
+
+          <div class="prof-kpi-card kpi-orders kpi-clickable" onclick="openAllOrdersHistoryFromProfile()" title="Tap to view All Orders Page History">
+            <div class="prof-kpi-header">
+              <div class="prof-kpi-title-wrap">
+                <span class="prof-kpi-icon">📦</span>
+                <span class="prof-kpi-label">ORDERS</span>
+              </div>
+              <span class="prof-kpi-action-tag">History ➔</span>
+            </div>
+            <div class="prof-kpi-val text-blue" id="profKpiOrders">0</div>
+          </div>
+
+          <div class="prof-kpi-card kpi-best kpi-clickable" onclick="openBestSalesAnalyticsFromProfile()" title="Tap to view which food items are most ordered & popular">
+            <div class="prof-kpi-header">
+              <div class="prof-kpi-title-wrap">
+                <span class="prof-kpi-icon">🏆</span>
+                <span class="prof-kpi-label">BEST SALES</span>
+              </div>
+              <span class="prof-kpi-action-tag">Top Foods ➔</span>
+            </div>
+            <div class="prof-kpi-val text-amber" id="profKpiBestSales">--</div>
+          </div>
+
+          <div class="prof-kpi-card kpi-aov kpi-clickable" onclick="openBestSalesAnalyticsFromProfile()" title="Tap to view Average Sales & Order Economics">
+            <div class="prof-kpi-header">
+              <div class="prof-kpi-title-wrap">
+                <span class="prof-kpi-icon">📊</span>
+                <span class="prof-kpi-label">AVA ORDER</span>
+              </div>
+              <span class="prof-kpi-action-tag">Avg Stats ➔</span>
+            </div>
+            <div class="prof-kpi-val text-purple" id="profKpiAvgOrder">₹0.00</div>
+          </div>
+        </div>
+
+        <!-- 📋 History of All the Date Orders -->
+        <div class="prof-history-section">
+          <div class="prof-history-title-row">
+            <span class="prof-history-title">📋 Orders History by Date</span>
+            <span class="prof-history-count-badge" id="profHistCountBadge">0 Orders</span>
+          </div>
+
+          <!-- Date Filter Segmented Tabs & Date Picker -->
+          <div class="prof-date-filter-bar">
+            <button type="button" class="prof-date-btn active" id="profHistBtnToday" onclick="setProfHistoryFilter('today')">🌟 Today</button>
+            <button type="button" class="prof-date-btn" id="profHistBtnYesterday" onclick="setProfHistoryFilter('yesterday')">⏪ Yesterday</button>
+            <button type="button" class="prof-date-btn" id="profHistBtnAll" onclick="setProfHistoryFilter('all')">🗓️ All Records</button>
+            <div class="prof-custom-date-box">
+              <label for="profHistDatePicker">📅 Pick:</label>
+              <input type="date" id="profHistDatePicker" onchange="setProfHistoryFilter('custom', this.value)">
+            </div>
+          </div>
+
+          <!-- Search Filter Input -->
+          <div class="prof-search-bar">
+            <input type="text" id="profHistSearchInput" placeholder="🔍 Search bill #, phone or cake..." oninput="renderProfOrdersHistory()">
+          </div>
+
+          <!-- Orders List Container -->
+          <div class="prof-orders-scroll-list" id="profModalOrdersList">
+            <!-- Dynamic order rows rendered by script.js -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="profile-modal-footer">
+        <button type="button" class="btn-profile-logout-sm" onclick="closeUserProfileModal(); logoutUser();" title="Lock Register & Logout">
+          <span>🔒</span> <span>Lock Register</span>
+        </button>
+        <button type="button" class="btn-profile-close" onclick="closeUserProfileModal()">
+          ← Back to Store Menu
         </button>
       </div>
 
@@ -544,13 +715,13 @@
       </div>
 
       <!-- Modal Footer -->
-      <div class="modal-card-bottom" style="padding: 12px 18px; background: #ffffff; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+      <div class="modal-card-bottom" id="orderHistoryModalBottom" style="padding: 12px 18px; background: #ffffff; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
         <button type="button" class="btn-reg-secondary" onclick="exportToExcel()" title="Export all sales to CSV">
           📈 Export CSV
         </button>
-        <div style="display: flex; gap: 8px;">
-          <button type="button" class="btn-primary-action" style="padding: 8px 14px; font-size: 0.84rem;" onclick="openDailyReportModal()">
-            📊 Daily Summary Report
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;" id="orderHistoryModalActionBtns">
+          <button type="button" class="btn-primary-action" style="padding: 8px 14px; font-size: 0.84rem;" onclick="openDailyReportModal('all')">
+            📊 Total Sales Report
           </button>
           <button type="button" class="btn-dismiss" style="padding: 8px 14px; font-size: 0.84rem;" onclick="closeOrderHistoryModal()">
             Close
@@ -566,15 +737,65 @@
   <div id="dailyReportModal" class="modal-backdrop" style="display: none;" onclick="closeDailyReportModalOnBackdrop(event)">
     <div class="modal-window-card" style="max-width: 580px;" onclick="event.stopPropagation()">
       <div class="modal-card-top">
-        <h3>📊 Daily Sales Closing Audit Statement</h3>
+        <h3 id="dailyReportModalTitle">📊 Daily Sales Closing Audit Statement</h3>
         <button type="button" class="modal-close-x" onclick="closeDailyReportModal()">✕</button>
       </div>
       <div class="modal-card-body" id="dailyReportModalBody">
         <!-- Rendered dynamically by script.js -->
       </div>
-      <div class="modal-card-bottom">
+      <div class="modal-card-bottom" id="dailyReportModalBottom">
         <button type="button" class="btn-dismiss" onclick="closeDailyReportModal()">Close</button>
         <button type="button" class="btn-primary-action" onclick="printDailyReport()">🖨️ Print Statement</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       Modal: Best Selling Foods & Average Sales Analytics (Rankings & Leaderboard)
+       ========================================================================= -->
+  <div id="bestSalesAnalyticsModal" class="modal-backdrop" style="display: none; z-index: 10035;" onclick="closeBestSalesAnalyticsModalOnBackdrop(event)">
+    <div class="modal-window-card" style="max-width: 640px; width: 95%; max-height: 92vh; display: flex; flex-direction: column;" onclick="event.stopPropagation()">
+      <div class="modal-card-top" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #fff; padding: 14px 18px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.4rem;">🏆</span>
+          <div>
+            <h3 style="margin: 0; font-size: 1.08rem; font-weight: 800; color: #fff;">Best Selling Foods & Sales Analytics</h3>
+            <p style="margin: 2px 0 0; font-size: 0.76rem; color: #94a3b8;" id="bestSalesSubtitle">Showing most ordered foods and average sales performance</p>
+          </div>
+        </div>
+        <button type="button" class="modal-close-x" style="color: #fff;" onclick="closeBestSalesAnalyticsModal()">✕</button>
+      </div>
+
+      <!-- Segmented Date Filter Bar -->
+      <div class="best-sales-filter-bar" style="background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 10px 14px; display: flex; gap: 6px; align-items: center; justify-content: space-between;">
+        <div style="display: flex; gap: 6px; align-items: center;">
+          <button type="button" class="best-filter-btn active" id="bestFilterToday" onclick="setBestSalesFilter('today')">🌟 Today</button>
+          <button type="button" class="best-filter-btn" id="bestFilterYest" onclick="setBestSalesFilter('yesterday')">⏪ Yesterday</button>
+          <button type="button" class="best-filter-btn" id="bestFilterAll" onclick="setBestSalesFilter('all')">🗓️ All Time</button>
+        </div>
+        <span class="best-sales-count-badge" id="bestFoodsCountBadge">0 Foods Sold</span>
+      </div>
+
+      <!-- Average Sales Metric Ribbon -->
+      <div class="best-sales-kpi-ribbon" id="bestSalesKpiRibbon" style="background: #ffffff; border-bottom: 1px solid #f1f5f9; padding: 10px 14px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+        <!-- Injected dynamically by script.js -->
+      </div>
+
+      <!-- Scrollable Food Leaderboard Body ("Which food is more order") -->
+      <div class="modal-card-body" id="bestSalesAnalyticsModalBody" style="padding: 12px 14px; overflow-y: auto; flex: 1; min-height: 250px; background: #f8fafc;">
+        <div id="bestFoodsRankList" style="display: flex; flex-direction: column; gap: 8px;">
+          <!-- Injected dynamically by script.js -->
+        </div>
+      </div>
+
+      <!-- Modal Bottom Actions -->
+      <div class="modal-card-bottom" id="bestSalesAnalyticsModalBottom" style="padding: 10px 14px; background: #ffffff; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+        <button type="button" class="btn-reg-secondary" style="padding: 8px 14px; font-size: 0.84rem;" onclick="closeBestSalesAnalyticsModal()">
+          ← Back to Profile
+        </button>
+        <button type="button" class="btn-primary-action" style="padding: 8px 14px; font-size: 0.84rem;" onclick="closeBestSalesAnalyticsModal(); openDailyReportModal('all', true);">
+          📊 Full Sales Audit
+        </button>
       </div>
     </div>
   </div>
@@ -593,7 +814,7 @@
             <h2>Sugar Cubes Bakery</h2>
             <p><strong>Artisanal Cakes, Fine Pastries & Confectionery</strong></p>
             <p>No. 24, Baker's Avenue, 100 Feet Road, Indiranagar, Bengaluru - 560038</p>
-            <p>📞 +91 98765 43210 • ✉️ orders@sugarcubesbakery.com • 🌐 www.sugarcubes.in</p>
+            <p>📞 +91 98765 43210 • ✉️ orders@sugarcubesbakery.com • www.sugarcubes.in</p>
             <p><strong>GSTIN:</strong> 29AABCS1429K1ZT &nbsp;|&nbsp; <strong>FSSAI Lic No:</strong> 11223344556677</p>
           </div>
         </div>
@@ -706,7 +927,7 @@
           </div>
           <div class="pdf-ig-handle" id="pdfIgHandleDisplay">@sugarcubes_official</div>
           <div class="pdf-ig-sub">Tag your birthday & celebration cakes with <strong>#SugarCubesBakes</strong> to get featured on our page!</div>
-          <div class="pdf-ig-link" id="pdfIgUrlDisplay">🌐 instagram.com/sugarcubes_official/</div>
+          <div class="pdf-ig-link" id="pdfIgUrlDisplay">instagram.com/sugarcubes_official/</div>
         </div>
         <div class="pdf-ig-qr-container">
           <div class="pdf-qr-frame" id="pdfInstagramQr">

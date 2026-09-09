@@ -76,10 +76,14 @@ document.addEventListener('DOMContentLoaded', () => {
   initDatePickerDefaults();
   renderPreloadedCatalog();
   renderCart();
+  setOrderType('Takeaway');
   refreshDailySalesAnalytics();
   renderInstagramQRs();
   if (window.innerWidth <= 768) {
     switchMobileView('menu');
+    setTimeout(() => {
+      handleMobileHashRouting();
+    }, 80);
   }
 });
 
@@ -172,6 +176,12 @@ function startLiveClock() {
 
     if (clockEl) clockEl.textContent = timeStr;
     if (dateEl) dateEl.textContent = `📅 ${dateStr}`;
+
+    // Real-time update for Mobile Profile Dashboard clock & date
+    const profClockEl = document.getElementById('profLiveClock');
+    const profDateEl = document.getElementById('profLiveDate');
+    if (profClockEl) profClockEl.textContent = timeStr;
+    if (profDateEl) profDateEl.textContent = `📅 ${dateStr}`;
   }
 
   updateTime();
@@ -243,6 +253,10 @@ function toggleAudioSound() {
   if (btn) {
     btn.innerHTML = soundEnabled ? '🔔 Sound: ON' : '🔕 Sound: OFF';
     btn.style.color = soundEnabled ? 'var(--text-main)' : '#94a3b8';
+  }
+  const profBtn = document.getElementById('profSoundToggleBtn');
+  if (profBtn) {
+    profBtn.innerHTML = soundEnabled ? '🔔 Sound: ON' : '🔕 Sound: OFF';
   }
   showToast(soundEnabled ? '🔔 Register sound enabled' : '🔕 Register sound muted');
 }
@@ -506,8 +520,26 @@ function clearCurrentCart() {
 
 function setOrderType(type, btnEl) {
   activeOrderType = type;
-  document.querySelectorAll('.order-type-btn').forEach(b => b.classList.remove('active'));
-  if (btnEl) btnEl.classList.add('active');
+  const container = document.getElementById('orderTypeBoxContainer');
+  const glider = document.getElementById('orderTypeGlider');
+  const buttons = container ? container.querySelectorAll('.order-box-btn') : document.querySelectorAll('.order-type-btn');
+
+  let targetIdx = 0;
+  buttons.forEach((b, idx) => {
+    const btnType = b.getAttribute('data-type') || b.textContent;
+    const isTarget = b === btnEl || (btnType && btnType.toLowerCase().includes(type.toLowerCase()));
+    if (isTarget) {
+      b.classList.add('active');
+      const bIdx = b.getAttribute('data-index');
+      targetIdx = (bIdx !== null && bIdx !== undefined) ? parseInt(bIdx, 10) : idx;
+    } else {
+      b.classList.remove('active');
+    }
+  });
+
+  if (glider && !isNaN(targetIdx)) {
+    glider.style.transform = `translateX(${targetIdx * 100}%)`;
+  }
 }
 
 function setPaymentMode(mode, btnEl) {
@@ -617,6 +649,10 @@ function renderCart() {
   const discVal = document.getElementById('cartDiscountVal');
 
   if (countEl) countEl.textContent = totalUnits;
+  const badgeEl = document.getElementById('cartItemsBadge');
+  if (badgeEl) badgeEl.textContent = totalUnits;
+  const clearBtn = document.querySelector('.cart-clear-link');
+  if (clearBtn) clearBtn.style.display = activeCart.length > 0 ? 'inline-flex' : 'none';
   if (subtotalEl) subtotalEl.textContent = '₹' + subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 });
   if (taxEl) taxEl.textContent = (isGstTaxEnabled ? '+₹' : '₹') + gstAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 });
   if (grandEl) {
@@ -675,10 +711,20 @@ function getCustomerDetails() {
   const mobileInput = document.getElementById('custMobile');
   const nameInput = document.getElementById('custName');
 
-  const mobile = mobileInput ? mobileInput.value.trim().replace(/\D/g, '') : '';
+  let raw = mobileInput ? mobileInput.value.trim() : '';
+  const digits = raw.replace(/\D/g, '');
+  // Cleanly extract the 10-digit mobile number from the end (e.g. from 919876543210, +91-9876543210 or 09876543210)
+  const mobile = digits.length >= 10 ? digits.slice(-10) : digits;
   const name = nameInput && nameInput.value.trim() ? nameInput.value.trim() : 'Valued Customer';
 
   return { mobile, name };
+}
+
+function formatCustomerPhoneInput(input) {
+  if (!input) return;
+  // Allow digits and optional leading +
+  let val = input.value.replace(/[^\d+ -]/g, '');
+  input.value = val;
 }
 
 // ==========================================================================
@@ -768,11 +814,15 @@ function renderInstagramQRs() {
   const pdfHandleEl = document.getElementById('pdfIgHandleDisplay');
   const pdfUrlEl = document.getElementById('pdfIgUrlDisplay');
   if (pdfHandleEl) pdfHandleEl.textContent = displayHandle;
-  if (pdfUrlEl) pdfUrlEl.textContent = `🌐 ${igUrl.replace(/^https?:\/\//, '')}`;
+  if (pdfUrlEl) pdfUrlEl.textContent = `${igUrl.replace(/^https?:\/\//, '')}`;
 
   // Thermal Receipt Handle display
   const thermalHandleEl = document.getElementById('thermalIgHandleText');
   if (thermalHandleEl) thermalHandleEl.textContent = displayHandle;
+
+  // Cashier Profile Modal Handle display
+  const profIgEl = document.getElementById('profileModalIgHandle');
+  if (profIgEl) profIgEl.innerHTML = `${displayHandle} ✏️`;
 
   // Render QR into PDF Container (#pdfInstagramQr)
   const pdfQrEl = document.getElementById('pdfInstagramQr');
@@ -1217,16 +1267,280 @@ function sendBillSms() {
 }
 
 // ==========================================================================
+// 📱 Mobile Modal Navigation Stack & Background Scroll Lock Manager (Mobile ONLY)
+// ==========================================================================
+
+const mobileModalStack = [];
+let mobileScrollY = 0;
+let isPoppingFromScript = false;
+
+function isMobileViewport() {
+  return window.innerWidth <= 768;
+}
+
+function updateMobileScrollLock() {
+  if (isMobileViewport() && mobileModalStack.length > 0) {
+    if (!document.body.classList.contains('mobile-modal-open')) {
+      mobileScrollY = window.scrollY || window.pageYOffset || 0;
+      document.body.style.top = `-${mobileScrollY}px`;
+      document.body.classList.add('mobile-modal-open');
+    }
+  } else {
+    if (document.body.classList.contains('mobile-modal-open')) {
+      document.body.classList.remove('mobile-modal-open');
+      const restoreY = Math.abs(parseInt(document.body.style.top || '0', 10)) || mobileScrollY;
+      document.body.style.top = '';
+      window.scrollTo(0, restoreY);
+    }
+  }
+}
+
+// Safety net: Prevent touchmove outside modal scrollable containers from dragging the background page
+function handleMobileModalTouchMove(e) {
+  if (!document.body.classList.contains('mobile-modal-open')) return;
+  let target = e.target;
+  let isScrollable = false;
+  while (target && target !== document.body && target !== document.documentElement) {
+    if (
+      target.classList && (
+        target.classList.contains('profile-modal-body') ||
+        target.classList.contains('prof-orders-scroll-list') ||
+        target.classList.contains('modal-card-body') ||
+        target.classList.contains('receipt-preview-box') ||
+        target.classList.contains('thermal-paper-receipt') ||
+        target.id === 'orderHistoryModalBody' ||
+        target.id === 'dailyReportModalBody' ||
+        target.id === 'bestSalesAnalyticsModalBody' ||
+        target.scrollHeight > target.clientHeight
+      )
+    ) {
+      isScrollable = true;
+      break;
+    }
+    target = target.parentElement;
+  }
+  if (!isScrollable) {
+    e.preventDefault();
+  }
+}
+document.addEventListener('touchmove', handleMobileModalTouchMove, { passive: false });
+window.addEventListener('resize', updateMobileScrollLock);
+
+// Mobile Page Hash Route Identifiers
+const MOBILE_PAGE_HASH_MAP = {
+  'userProfileModal': '#profile',
+  'bestSalesAnalyticsModal': '#best-sales',
+  'orderHistoryModal': '#order-history',
+  'dailyReportModal': '#daily-report',
+  'billModal': '#bill',
+  'customOrderModal': '#custom-cake'
+};
+
+/**
+ * Pushes a modal onto the navigation stack (Mobile only).
+ * If another modal was open underneath, cleanly hides it so only ONE modal is active.
+ * Updates the browser URL hash to simulate a true mobile page redirect.
+ */
+function pushMobileModalState(modalId, options = {}) {
+  if (!isMobileViewport()) return;
+
+  // Don't push if already the active top modal
+  if (mobileModalStack.length > 0 && mobileModalStack[mobileModalStack.length - 1].id === modalId) {
+    return;
+  }
+
+  // Hide the previous modal to prevent multi-modal touch collision
+  if (mobileModalStack.length > 0) {
+    const prev = mobileModalStack[mobileModalStack.length - 1];
+    const prevEl = document.getElementById(prev.id);
+    if (prevEl) prevEl.style.display = 'none';
+  }
+
+  const targetHash = options.hash || MOBILE_PAGE_HASH_MAP[modalId] || ('#' + modalId);
+
+  mobileModalStack.push({
+    id: modalId,
+    mode: options.mode || null,
+    fromProfile: options.fromProfile || false,
+    restoreFn: options.restoreFn || null,
+    title: options.title || modalId,
+    hash: targetHash
+  });
+
+  try {
+    history.pushState({ mobileModalNav: true, depth: mobileModalStack.length, modalId: modalId, hash: targetHash }, '', targetHash);
+  } catch (err) {}
+
+  updateMobileScrollLock();
+}
+
+/**
+ * Pops the top modal and moves one-by-one back.
+ * Restores the previous modal underneath if one exists and synchronizes the URL hash.
+ */
+function popMobileModalState(fromPopstate = false) {
+  if (!isMobileViewport()) return false;
+  if (mobileModalStack.length === 0) {
+    const profModal = document.getElementById('userProfileModal');
+    if (profModal) profModal.style.display = 'none';
+    if (isMobileViewport()) switchMobileView('menu');
+    updateMobileScrollLock();
+    return false;
+  }
+
+  const popped = mobileModalStack.pop();
+  const poppedEl = document.getElementById(popped.id);
+  if (poppedEl) {
+    poppedEl.style.display = 'none';
+  }
+  if (popped.id === 'billModal') {
+    currentlyViewingHistoricalSale = null;
+    populatePdfTemplateData();
+  }
+
+  isPoppingFromScript = true;
+
+  // If there is a previous modal in the stack, restore it!
+  if (mobileModalStack.length > 0) {
+    const prev = mobileModalStack[mobileModalStack.length - 1];
+    const prevEl = document.getElementById(prev.id);
+    if (prevEl) {
+      prevEl.style.display = 'flex';
+      if (typeof prev.restoreFn === 'function') {
+        prev.restoreFn();
+      }
+    }
+    const prevHash = prev.hash || MOBILE_PAGE_HASH_MAP[prev.id] || '#';
+    try {
+      if (window.location.hash !== prevHash) {
+        history.replaceState({ mobileModalNav: true, depth: mobileModalStack.length, modalId: prev.id, hash: prevHash }, '', prevHash);
+      }
+    } catch (e) {}
+  } else {
+    // Return to store menu
+    try {
+      if (window.location.hash && window.location.hash !== '#' && window.location.hash !== '#menu') {
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+    } catch (e) {}
+    if (isMobileViewport()) {
+      switchMobileView('menu');
+    }
+  }
+
+  updateMobileScrollLock();
+
+  setTimeout(() => {
+    isPoppingFromScript = false;
+  }, 500);
+
+  return true;
+}
+
+function clearMobileModalStack() {
+  while (mobileModalStack.length > 0) {
+    const item = mobileModalStack.pop();
+    const el = document.getElementById(item.id);
+    if (el) el.style.display = 'none';
+  }
+  const profModal = document.getElementById('userProfileModal');
+  if (profModal) profModal.style.display = 'none';
+  try {
+    if (window.location.hash && window.location.hash !== '#' && window.location.hash !== '#menu') {
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+  } catch (e) {}
+  updateMobileScrollLock();
+  if (isMobileViewport()) {
+    switchMobileView('menu');
+  }
+}
+
+/**
+ * Mobile URL Hash Page Router:
+ * Automatically opens dedicated mobile pages when navigated to via URL hash or direct link.
+ */
+function handleMobileHashRouting() {
+  if (isPoppingFromScript) return;
+  if (!isMobileViewport()) return;
+  const hash = (window.location.hash || '').toLowerCase();
+  if (!hash || hash === '#' || hash === '#menu' || hash === '#store') {
+    return;
+  }
+  if (hash === '#profile') {
+    const profModal = document.getElementById('userProfileModal');
+    if (!profModal || profModal.style.display === 'none' || !profModal.style.display) {
+      openUserProfileModal();
+    }
+  } else if (hash === '#best-sales' || hash === '#bestsales') {
+    const bsModal = document.getElementById('bestSalesAnalyticsModal');
+    if (!bsModal || bsModal.style.display === 'none' || !bsModal.style.display) {
+      openBestSalesAnalyticsModal('all', false);
+    }
+  } else if (hash === '#order-history' || hash === '#orders') {
+    const ohModal = document.getElementById('orderHistoryModal');
+    if (!ohModal || ohModal.style.display === 'none' || !ohModal.style.display) {
+      openOrderHistoryModal('all', false);
+    }
+  } else if (hash === '#daily-report' || hash === '#totalsales') {
+    const drModal = document.getElementById('dailyReportModal');
+    if (!drModal || drModal.style.display === 'none' || !drModal.style.display) {
+      openDailyReportModal('all', false);
+    }
+  } else if (hash === '#bill') {
+    const bModal = document.getElementById('billModal');
+    if (!bModal || bModal.style.display === 'none' || !bModal.style.display) {
+      openBillModal();
+    }
+  }
+}
+
+// Window popstate event: Handle device hardware back button / swipe back gesture
+window.addEventListener('popstate', (e) => {
+  if (isPoppingFromScript) {
+    return;
+  }
+  if (isMobileViewport()) {
+    if (mobileModalStack.length > 0) {
+      popMobileModalState(true);
+    } else {
+      const profModal = document.getElementById('userProfileModal');
+      if (profModal) profModal.style.display = 'none';
+      clearMobileModalStack();
+      switchMobileView('menu');
+    }
+  }
+});
+
+// Window hashchange event: Handle anchor changes & direct links
+window.addEventListener('hashchange', () => {
+  if (isPoppingFromScript) return;
+  if (!isMobileViewport()) return;
+  const hash = (window.location.hash || '').toLowerCase();
+  if (!hash || hash === '#' || hash === '#menu' || hash === '#store') {
+    clearMobileModalStack();
+    const profModal = document.getElementById('userProfileModal');
+    if (profModal) profModal.style.display = 'none';
+    switchMobileView('menu');
+  } else {
+    const activeTop = mobileModalStack.length > 0 ? mobileModalStack[mobileModalStack.length - 1].hash : '';
+    if (activeTop !== hash) {
+      handleMobileHashRouting();
+    }
+  }
+});
+
+// ==========================================================================
 // Thermal Bill Modal & Printing
 // ==========================================================================
 
 let currentlyViewingHistoricalSale = null;
 
-function openBillModal(sale = null) {
-  currentlyViewingHistoricalSale = sale;
+function openBillModal(sale = null, fromRestore = false) {
   let mobile, name, subtotal, discountAmount, gstAmount, grandTotal, totalUnits, dateStr, timeStr, ticketNum, orderType, payMode, items;
 
   if (sale) {
+    currentlyViewingHistoricalSale = sale;
     mobile = sale.customerMobile || '';
     name = sale.customerName || 'Walk-In Customer';
     subtotal = Number(sale.subtotal || sale.grandTotal || sale.amount || 0);
@@ -1234,16 +1548,21 @@ function openBillModal(sale = null) {
     gstAmount = Number(sale.gst || 0);
     grandTotal = Number(sale.grandTotal || sale.amount || 0);
     items = Array.isArray(sale.items) ? sale.items : [];
-    totalUnits = Number(sale.totalUnits || items.reduce((s, it) => s + (it.quantity || 1), 0));
+    totalUnits = Number(sale.totalUnits || items.reduce((s, it) => s + (Number(it.quantity) || 1), 0));
     dateStr = sale.date || sale.isoDate || '';
     timeStr = sale.time || '';
-    ticketNum = sale.ticketNumber || '#01';
+    ticketNum = sale.ticketNumber || '#SC-01';
     orderType = sale.orderType || 'Takeaway';
     payMode = sale.paymentMode || 'Cash';
   } else {
     if (activeCart.length === 0) {
-      return alert('⚠️ No items in active cart to print a bill. Tap an item on the left to add it first!');
+      const allRecorded = getRecordedSales();
+      if (allRecorded.length > 0) {
+        return openBillModal(allRecorded[0], fromRestore);
+      }
+      return alert('⚠️ No items in active cart or past orders to view a bill. Please add items from the menu first!');
     }
+    currentlyViewingHistoricalSale = null;
     const cust = getCustomerDetails();
     mobile = cust.mobile;
     name = cust.name;
@@ -1254,12 +1573,29 @@ function openBillModal(sale = null) {
     grandTotal = calc.grandTotal;
     totalUnits = calc.totalUnits;
     const now = new Date();
-    dateStr = now.toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
-    timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+    dateStr = now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
     ticketNum = currentTicketNumber;
     orderType = activeOrderType;
     payMode = activePaymentMode;
     items = activeCart;
+  }
+
+  // Graceful fallback for single-item or legacy sales
+  if (items.length === 0 && sale) {
+    const fallbackName = sale.cakeName || sale.category || 'Artisanal Cake / Bakes';
+    const fallbackQty = Number(sale.quantity) || 1;
+    const fallbackAmount = Number(grandTotal || subtotal || 0);
+    items = [{
+      name: fallbackName,
+      quantity: fallbackQty,
+      unitPrice: fallbackQty > 0 ? (fallbackAmount / fallbackQty) : fallbackAmount,
+      amount: fallbackAmount
+    }];
+  }
+
+  if (!totalUnits || totalUnits === 0) {
+    totalUnits = items.reduce((s, it) => s + (Number(it.quantity) || 1), 0);
   }
 
   const billNumEl = document.getElementById('billNumber');
@@ -1271,31 +1607,36 @@ function openBillModal(sale = null) {
   const billPayMode = document.getElementById('billPaymentMode');
 
   if (billNumEl) billNumEl.textContent = ticketNum;
-  if (billDateEl) billDateEl.textContent = dateStr;
-  if (billTimeEl) billTimeEl.textContent = timeStr;
-  if (billOrderTypeTag) billOrderTypeTag.textContent = orderType.toUpperCase();
-  if (billCustName) billCustName.textContent = name;
+  if (billDateEl) billDateEl.textContent = dateStr || 'Today';
+  if (billTimeEl) billTimeEl.textContent = timeStr || '';
+  if (billOrderTypeTag) billOrderTypeTag.textContent = (orderType || 'TAKEAWAY').toUpperCase();
+  if (billCustName) billCustName.textContent = name || 'Walk-In Customer';
   if (billCustPhone) billCustPhone.textContent = mobile ? maskMobileNumber(mobile) : 'Walk-In';
-  if (billPayMode) billPayMode.textContent = payMode;
+  if (billPayMode) billPayMode.textContent = payMode || 'Cash';
 
   const tbody = document.getElementById('billItemsBody');
   if (tbody) {
     tbody.innerHTML = '';
-    items.forEach((item, idx) => {
-      const tr = document.createElement('tr');
-      const unitPr = Number(item.unitPrice || 0);
-      const amt = Number(item.amount || (unitPr * (item.quantity || 1)));
-      tr.innerHTML = `
-        <td style="text-align: center;">${idx + 1}</td>
-        <td>
-          <div style="font-weight: 700;">${escapeHtml(item.name)}</div>
-          <div style="font-size: 0.7rem; color: #64748b;">@ ₹${unitPr.toFixed(2)}</div>
-        </td>
-        <td style="text-align: center; font-weight: 700;">${item.quantity || 1}</td>
-        <td style="text-align: right; font-weight: 700;">₹${amt.toFixed(2)}</td>
-      `;
-      tbody.appendChild(tr);
-    });
+    if (items.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #94a3b8; padding: 12px;">No items recorded</td></tr>';
+    } else {
+      items.forEach((item, idx) => {
+        const tr = document.createElement('tr');
+        const unitPr = Number(item.unitPrice || item.price || 0);
+        const qty = Number(item.quantity || 1);
+        const amt = Number(item.amount || (unitPr * qty));
+        tr.innerHTML = `
+          <td style="text-align: center;">${idx + 1}</td>
+          <td>
+            <div style="font-weight: 700;">${escapeHtml(item.name || 'Bakery Item')}</div>
+            <div style="font-size: 0.7rem; color: #64748b;">@ ₹${unitPr.toFixed(2)}</div>
+          </td>
+          <td style="text-align: center; font-weight: 700;">${qty}</td>
+          <td style="text-align: right; font-weight: 700;">₹${amt.toFixed(2)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
   }
 
   const billTotalItems = document.getElementById('billTotalItems');
@@ -1305,8 +1646,8 @@ function openBillModal(sale = null) {
   const billGstVal = document.getElementById('billGstVal');
   const billGrandTotal = document.getElementById('billGrandTotal');
 
-  if (billTotalItems) billTotalItems.textContent = `${items.length} lines (${totalUnits} pcs)`;
-  if (billSubtotal) billSubtotal.textContent = '₹' + subtotal.toFixed(2);
+  if (billTotalItems) billTotalItems.textContent = totalUnits;
+  if (billSubtotal) billSubtotal.textContent = '₹' + Number(subtotal).toFixed(2);
 
   if (billDiscountLine && billDiscountVal) {
     if (discountAmount > 0) {
@@ -1318,23 +1659,61 @@ function openBillModal(sale = null) {
   }
 
   if (billGstVal) billGstVal.textContent = (gstAmount > 0) ? `₹${gstAmount.toFixed(2)} (5%)` : '₹0.00 (Exempt)';
-  if (billGrandTotal) billGrandTotal.textContent = '₹' + grandTotal.toFixed(2);
+  if (billGrandTotal) billGrandTotal.textContent = '₹' + Number(grandTotal).toFixed(2);
 
   // Render Instagram QR Code and handle into Thermal receipt downside
-  renderInstagramQRs();
+  try {
+    renderInstagramQRs();
+  } catch (err) {
+    console.warn('Instagram QR render notice:', err);
+  }
 
   const modal = document.getElementById('billModal');
   if (modal) {
     modal.style.display = 'flex';
     modal.style.zIndex = '10050'; // Always in front of all other modals
   }
+
+  // Update Close button label if opened on mobile with a previous modal in stack
+  const billCloseBtn = document.getElementById('billModalCloseBtn');
+  if (billCloseBtn) {
+    if (isMobileViewport() && mobileModalStack.length > 0) {
+      const prev = mobileModalStack[mobileModalStack.length - 1];
+      if (prev.id === 'orderHistoryModal') {
+        billCloseBtn.innerHTML = '← Back to Orders';
+      } else if (prev.id === 'userProfileModal') {
+        billCloseBtn.innerHTML = '← Back to Profile';
+      } else {
+        billCloseBtn.innerHTML = '✕ Close';
+      }
+    } else {
+      billCloseBtn.innerHTML = '✕ Close';
+    }
+  }
+
+  if (!fromRestore) {
+    pushMobileModalState('billModal', {
+      restoreFn: () => { openBillModal(sale, true); }
+    });
+  } else {
+    updateMobileScrollLock();
+  }
 }
 
 function closeBillModal() {
+  currentlyViewingHistoricalSale = null;
+  try {
+    populatePdfTemplateData(); // Restore PDF template to active cart
+  } catch (e) {}
+
   const modal = document.getElementById('billModal');
   if (modal) modal.style.display = 'none';
-  currentlyViewingHistoricalSale = null;
-  populatePdfTemplateData(); // Restore PDF template to active cart
+
+  if (isMobileViewport() && mobileModalStack.length > 0) {
+    popMobileModalState(false);
+    return;
+  }
+  updateMobileScrollLock();
 }
 
 function closeBillModalOnBackdrop(e) {
@@ -1480,6 +1859,12 @@ function finalizeCurrentOrder(downloadPdf = false) {
     renderHistoryOrdersList();
   }
 
+  // Refresh Mobile Profile Dashboard in real time if open
+  const profModal = document.getElementById('userProfileModal');
+  if (profModal && profModal.style.display === 'flex') {
+    renderProfOrdersHistory();
+  }
+
   if (window.innerWidth <= 768) {
     switchMobileView('menu');
   }
@@ -1511,21 +1896,34 @@ function setDateFilter(mode, customVal) {
   document.getElementById('btnDateAll').classList.remove('active');
 
   const contextEl = document.getElementById('activeDateContext');
+  const revLabelEl = document.getElementById('kpiRevenueLabel');
 
   if (mode === 'today') {
     document.getElementById('btnDateToday').classList.add('active');
     if (contextEl) contextEl.innerHTML = `Showing: <strong>Today's Sales</strong> (${getTodayIso()})`;
+    if (revLabelEl) revLabelEl.textContent = "Today's Sales";
   } else if (mode === 'yesterday') {
     document.getElementById('btnDateYesterday').classList.add('active');
     if (contextEl) contextEl.innerHTML = `Showing: <strong>Yesterday's Sales</strong> (${getYesterdayIso()})`;
+    if (revLabelEl) revLabelEl.textContent = "Yesterday's Sales";
   } else if (mode === 'all') {
     document.getElementById('btnDateAll').classList.add('active');
     if (contextEl) contextEl.innerHTML = `Showing: <strong>All Recorded Sales</strong>`;
+    if (revLabelEl) revLabelEl.textContent = "All Recorded Sales";
   } else if (mode === 'custom') {
     if (contextEl) contextEl.innerHTML = `Showing Sales for Date: <strong>${selectedCustomDate || 'None'}</strong>`;
+    if (revLabelEl) revLabelEl.textContent = `Sales (${selectedCustomDate || 'Custom'})`;
   }
 
   refreshDailySalesAnalytics();
+
+  // Subtle tactile highlight on hero revenue number
+  const revValEl = document.getElementById('kpiRevenueVal');
+  if (revValEl) {
+    revValEl.style.transition = 'transform 0.2s ease';
+    revValEl.style.transform = 'scale(1.05)';
+    setTimeout(() => { if (revValEl) revValEl.style.transform = 'scale(1)'; }, 200);
+  }
 }
 
 function isSaleMatchingDateFilter(sale) {
@@ -1593,7 +1991,7 @@ function refreshDailySalesAnalytics() {
 let historyDateFilterMode = 'today';
 let historyCustomDate = '';
 
-function openOrderHistoryModal(mode = null) {
+function openOrderHistoryModal(mode = null, fromProfile = false, fromRestore = false) {
   if (mode) {
     historyDateFilterMode = mode;
   } else {
@@ -1605,13 +2003,52 @@ function openOrderHistoryModal(mode = null) {
   updateHistoryFilterPillsUi();
   renderHistoryOrdersList();
 
+  const actionBtnsEl = document.getElementById('orderHistoryModalActionBtns');
+  if (actionBtnsEl) {
+    const isMobile = isMobileViewport();
+    // Dynamic back label: if mobileModalStack has userProfileModal, say "← Back to Profile"
+    let backLabel = '← Back';
+    const prev = mobileModalStack.length > 0 ? mobileModalStack[mobileModalStack.length - 1] : null;
+    if (fromProfile || (prev && prev.id === 'userProfileModal')) {
+      backLabel = '← Back to Profile';
+    } else if (isMobile) {
+      backLabel = '← Back to Home';
+    }
+
+    const showBack = fromProfile || isMobile || (mobileModalStack.length > 0);
+    actionBtnsEl.innerHTML = `
+      ${showBack ? `<button type="button" class="btn-reg-secondary" style="padding: 8px 14px; font-size: 0.84rem;" onclick="closeOrderHistoryModal();">${backLabel}</button>` : ''}
+      <button type="button" class="btn-primary-action" style="padding: 8px 14px; font-size: 0.84rem;" onclick="openDailyReportModal('all', ${showBack})">
+        📊 Total Sales Report
+      </button>
+      <button type="button" class="btn-dismiss" style="padding: 8px 14px; font-size: 0.84rem;" onclick="closeOrderHistoryModal()">
+        Close
+      </button>
+    `;
+  }
+
   const modal = document.getElementById('orderHistoryModal');
   if (modal) modal.style.display = 'flex';
+
+  if (!fromRestore) {
+    pushMobileModalState('orderHistoryModal', {
+      mode: mode,
+      fromProfile: fromProfile,
+      restoreFn: () => { openOrderHistoryModal(mode, fromProfile, true); }
+    });
+  } else {
+    updateMobileScrollLock();
+  }
 }
 
 function closeOrderHistoryModal() {
+  if (isMobileViewport() && mobileModalStack.length > 0) {
+    popMobileModalState(false);
+    return;
+  }
   const modal = document.getElementById('orderHistoryModal');
   if (modal) modal.style.display = 'none';
+  updateMobileScrollLock();
 }
 
 function closeOrderHistoryModalOnBackdrop(e) {
@@ -1956,89 +2393,149 @@ async function whatsappHistoryOrder(ticketNumber) {
 // Daily Closing Audit Statement Modal
 // ==========================================================================
 
-function openDailyReportModal() {
+function openDailyReportModal(mode = null, fromProfile = false, fromRestore = false) {
   const allSales = getRecordedSales();
-  const filtered = allSales.filter(isSaleMatchingDateFilter);
+  const isAllMode = (mode === 'all');
+  const filtered = isAllMode ? allSales : allSales.filter(isSaleMatchingDateFilter);
 
-  if (filtered.length === 0) {
-    return alert('No sales records found for this date selection to generate an audit report.');
+  const titleEl = document.getElementById('dailyReportModalTitle');
+  if (titleEl) {
+    titleEl.textContent = isAllMode ? '📈 All Total Sales & Revenue Audit Statement' : '📊 Daily Sales Closing Audit Statement';
   }
-
-  let totalRevenue = 0;
-  let totalUnits = 0;
-  let payModeBreakdown = { Cash: 0, UPI: 0, Card: 0 };
-  let catBreakdown = { Cakes: 0, Pastries: 0, Cupcakes: 0, Desserts: 0, Beverages: 0 };
-
-  filtered.forEach(sale => {
-    const rev = Number(sale.grandTotal || sale.amount || 0);
-    totalRevenue += rev;
-    totalUnits += (sale.totalUnits || 1);
-
-    const mode = sale.paymentMode || 'Cash';
-    payModeBreakdown[mode] = (payModeBreakdown[mode] || 0) + rev;
-
-    if (Array.isArray(sale.items)) {
-      sale.items.forEach(it => {
-        const cat = it.category || 'Cakes';
-        catBreakdown[cat] = (catBreakdown[cat] || 0) + Number(it.amount || 0);
-      });
-    } else if (sale.category) {
-      catBreakdown[sale.category] = (catBreakdown[sale.category] || 0) + rev;
-    }
-  });
 
   const modalBody = document.getElementById('dailyReportModalBody');
   if (modalBody) {
-    modalBody.innerHTML = `
-      <div style="background: #f8fafc; padding: 14px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 14px;">
-        <h4 style="font-size: 0.95rem; margin-bottom: 8px;">🍰 SUGAR CUBES - End of Day Closing Summary</h4>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.82rem;">
-          <div>📅 <strong>Date Context:</strong> ${currentDateFilterMode.toUpperCase()}</div>
-          <div>📦 <strong>Total Invoices:</strong> ${filtered.length}</div>
-          <div>💰 <strong>Total Sales:</strong> <span style="font-size: 1.05rem; font-weight: 800; color: #059669;">₹${totalRevenue.toFixed(2)}</span></div>
-          <div>📈 <strong>Avg Bill:</strong> ₹${(totalRevenue / filtered.length).toFixed(2)}</div>
+    if (filtered.length === 0) {
+      modalBody.innerHTML = `
+        <div style="text-align: center; padding: 40px 16px; color: #64748b;">
+          <div style="font-size: 2.8rem; margin-bottom: 10px;">📦</div>
+          <h4 style="font-size: 1.05rem; color: #1e293b; margin-bottom: 6px; font-weight: 700;">
+            ${isAllMode ? 'No Sales Recorded Yet' : 'No Sales Records for Selected Date'}
+          </h4>
+          <p style="font-size: 0.84rem; color: #94a3b8; margin: 0;">
+            Completed register sales will automatically generate commercial turnover statistics here.
+          </p>
         </div>
-      </div>
+      `;
+    } else {
+      let totalRevenue = 0;
+      let totalUnits = 0;
+      let payModeBreakdown = { Cash: 0, UPI: 0, Card: 0 };
+      let catBreakdown = { Cakes: 0, Pastries: 0, Cupcakes: 0, Desserts: 0, Beverages: 0 };
 
-      <h5 style="font-size: 0.85rem; text-transform: uppercase; margin-bottom: 6px; color: #475569;">Revenue by Category</h5>
-      <table class="receipt-table" style="margin-bottom: 14px;">
-        <thead>
-          <tr><th>Category</th><th style="text-align: right;">Amount (₹)</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>🎂 Cakes</td><td style="text-align: right; font-weight: 700;">₹${(catBreakdown.Cakes || 0).toFixed(2)}</td></tr>
-          <tr><td>🍰 Pastries</td><td style="text-align: right; font-weight: 700;">₹${(catBreakdown.Pastries || 0).toFixed(2)}</td></tr>
-          <tr><td>🧁 Cupcakes</td><td style="text-align: right; font-weight: 700;">₹${(catBreakdown.Cupcakes || 0).toFixed(2)}</td></tr>
-          <tr><td>🍪 Desserts</td><td style="text-align: right; font-weight: 700;">₹${(catBreakdown.Desserts || 0).toFixed(2)}</td></tr>
-          <tr><td>☕ Beverages</td><td style="text-align: right; font-weight: 700;">₹${(catBreakdown.Beverages || 0).toFixed(2)}</td></tr>
-        </tbody>
-      </table>
+      filtered.forEach(sale => {
+        const rev = Number(sale.grandTotal || sale.amount || 0);
+        totalRevenue += rev;
+        totalUnits += (sale.totalUnits || (Array.isArray(sale.items) ? sale.items.length : 1));
 
-      <h5 style="font-size: 0.85rem; text-transform: uppercase; margin-bottom: 6px; color: #475569;">Payment Collection Breakdown</h5>
-      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 0.82rem; text-align: center;">
-        <div style="background: #ffffff; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px;">
-          <div>💵 Cash</div>
-          <strong style="color: #0f172a;">₹${(payModeBreakdown.Cash || 0).toFixed(2)}</strong>
+        const pMode = (sale.paymentMode || 'Cash').toUpperCase();
+        if (pMode.includes('CASH')) payModeBreakdown.Cash += rev;
+        else if (pMode.includes('UPI') || pMode.includes('QR')) payModeBreakdown.UPI += rev;
+        else if (pMode.includes('CARD')) payModeBreakdown.Card += rev;
+
+        if (Array.isArray(sale.items)) {
+          sale.items.forEach(it => {
+            const cat = it.category || 'Cakes';
+            catBreakdown[cat] = (catBreakdown[cat] || 0) + Number(it.amount || 0);
+          });
+        } else if (sale.category) {
+          catBreakdown[sale.category] = (catBreakdown[sale.category] || 0) + rev;
+        }
+      });
+
+      const avgBill = filtered.length > 0 ? (totalRevenue / filtered.length).toFixed(2) : '0.00';
+      const scopeLabel = isAllMode ? 'ALL RECORDED SALES (LIFETIME)' : currentDateFilterMode.toUpperCase();
+
+      modalBody.innerHTML = `
+        <div style="background: #f8fafc; padding: 14px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 14px;">
+          <h4 style="font-size: 0.95rem; margin-bottom: 8px;">🍰 SUGAR CUBES - ${isAllMode ? 'All Total Sales Summary' : 'End of Day Closing Summary'}</h4>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.82rem;">
+            <div>📅 <strong>Scope:</strong> ${scopeLabel}</div>
+            <div>📦 <strong>Total Invoices:</strong> ${filtered.length}</div>
+            <div>💰 <strong>Total Sales:</strong> <span style="font-size: 1.05rem; font-weight: 800; color: #059669;">₹${totalRevenue.toFixed(2)}</span></div>
+            <div>📈 <strong>Avg Bill:</strong> ₹${avgBill}</div>
+            <div>🎂 <strong>Total Units:</strong> ${totalUnits} pcs</div>
+            <div>👥 <strong>Cashier:</strong> ${activeUser ? escapeHtml(activeUser.name) : 'Store Manager'}</div>
+          </div>
         </div>
-        <div style="background: #ffffff; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px;">
-          <div>📱 UPI / QR</div>
-          <strong style="color: #2563eb;">₹${(payModeBreakdown.UPI || 0).toFixed(2)}</strong>
+
+        <h5 style="font-size: 0.85rem; text-transform: uppercase; margin-bottom: 6px; color: #475569;">Revenue by Category</h5>
+        <table class="receipt-table" style="margin-bottom: 14px;">
+          <thead>
+            <tr><th>Category</th><th style="text-align: right;">Amount (₹)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>🎂 Cakes</td><td style="text-align: right; font-weight: 700;">₹${(catBreakdown.Cakes || 0).toFixed(2)}</td></tr>
+            <tr><td>🍰 Pastries</td><td style="text-align: right; font-weight: 700;">₹${(catBreakdown.Pastries || 0).toFixed(2)}</td></tr>
+            <tr><td>🧁 Cupcakes</td><td style="text-align: right; font-weight: 700;">₹${(catBreakdown.Cupcakes || 0).toFixed(2)}</td></tr>
+            <tr><td>🍪 Desserts</td><td style="text-align: right; font-weight: 700;">₹${(catBreakdown.Desserts || 0).toFixed(2)}</td></tr>
+            <tr><td>☕ Beverages</td><td style="text-align: right; font-weight: 700;">₹${(catBreakdown.Beverages || 0).toFixed(2)}</td></tr>
+          </tbody>
+        </table>
+
+        <h5 style="font-size: 0.85rem; text-transform: uppercase; margin-bottom: 6px; color: #475569;">Payment Collection Breakdown</h5>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 0.82rem; text-align: center;">
+          <div style="background: #ffffff; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px;">
+            <div>💵 Cash</div>
+            <strong style="color: #0f172a;">₹${(payModeBreakdown.Cash || 0).toFixed(2)}</strong>
+          </div>
+          <div style="background: #ffffff; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px;">
+            <div>📱 UPI / QR</div>
+            <strong style="color: #2563eb;">₹${(payModeBreakdown.UPI || 0).toFixed(2)}</strong>
+          </div>
+          <div style="background: #ffffff; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px;">
+            <div>💳 Card</div>
+            <strong style="color: #7c3aed;">₹${(payModeBreakdown.Card || 0).toFixed(2)}</strong>
+          </div>
         </div>
-        <div style="background: #ffffff; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px;">
-          <div>💳 Card</div>
-          <strong style="color: #7c3aed;">₹${(payModeBreakdown.Card || 0).toFixed(2)}</strong>
-        </div>
-      </div>
+      `;
+    }
+  }
+
+  const bottomEl = document.getElementById('dailyReportModalBottom');
+  if (bottomEl) {
+    const isMobile = isMobileViewport();
+    // Dynamic back label based on what is underneath in the stack
+    let backLabel = '← Back';
+    const prev = mobileModalStack.length > 0 ? mobileModalStack[mobileModalStack.length - 1] : null;
+    if (prev && prev.id === 'orderHistoryModal') {
+      backLabel = '← Back to Orders';
+    } else if (fromProfile || (prev && prev.id === 'userProfileModal')) {
+      backLabel = '← Back to Profile';
+    } else if (isMobile) {
+      backLabel = '← Back to Home';
+    }
+
+    const showBack = fromProfile || isMobile || (mobileModalStack.length > 0);
+    bottomEl.innerHTML = `
+      ${showBack ? `<button type="button" class="btn-reg-secondary" style="padding: 8px 14px; font-size: 0.84rem;" onclick="closeDailyReportModal();">${backLabel}</button>` : ''}
+      <button type="button" class="btn-dismiss" onclick="closeDailyReportModal()">Close</button>
+      <button type="button" class="btn-primary-action" onclick="printDailyReport()">🖨️ Print Statement</button>
     `;
   }
 
   const modal = document.getElementById('dailyReportModal');
   if (modal) modal.style.display = 'flex';
+
+  if (!fromRestore) {
+    pushMobileModalState('dailyReportModal', {
+      mode: mode,
+      fromProfile: fromProfile,
+      restoreFn: () => { openDailyReportModal(mode, fromProfile, true); }
+    });
+  } else {
+    updateMobileScrollLock();
+  }
 }
 
 function closeDailyReportModal() {
+  if (isMobileViewport() && mobileModalStack.length > 0) {
+    popMobileModalState(false);
+    return;
+  }
   const modal = document.getElementById('dailyReportModal');
   if (modal) modal.style.display = 'none';
+  updateMobileScrollLock();
 }
 
 function closeDailyReportModalOnBackdrop(e) {
@@ -2050,20 +2547,277 @@ function printDailyReport() {
 }
 
 // ==========================================================================
+// 🏆 Best Selling Foods & Average Sales Analytics Modal (Mobile ONLY)
+// ==========================================================================
+
+let bestSalesFilterMode = 'all';
+
+function setBestSalesFilter(mode) {
+  bestSalesFilterMode = mode;
+  
+  const btnToday = document.getElementById('bestFilterToday');
+  const btnYest = document.getElementById('bestFilterYest');
+  const btnAll = document.getElementById('bestFilterAll');
+
+  if (btnToday) btnToday.className = (mode === 'today') ? 'best-filter-btn active' : 'best-filter-btn';
+  if (btnYest) btnYest.className = (mode === 'yesterday') ? 'best-filter-btn active' : 'best-filter-btn';
+  if (btnAll) btnAll.className = (mode === 'all') ? 'best-filter-btn active' : 'best-filter-btn';
+
+  renderBestSalesAnalytics(mode);
+}
+
+function renderBestSalesAnalytics(filterMode = 'all') {
+  const allSales = getRecordedSales();
+  let filtered = allSales;
+  if (filterMode === 'today') {
+    filtered = allSales.filter(s => {
+      const iso = s.isoDate || (s.timestamp ? new Date(s.timestamp.split('•')[0].trim()).toISOString().slice(0, 10) : '');
+      return iso === getTodayIso();
+    });
+  } else if (filterMode === 'yesterday') {
+    filtered = allSales.filter(s => {
+      const iso = s.isoDate || (s.timestamp ? new Date(s.timestamp.split('•')[0].trim()).toISOString().slice(0, 10) : '');
+      return iso === getYesterdayIso();
+    });
+  }
+
+  // Calculate Average Sales and Aggregate Turnover
+  let totalRevenue = 0;
+  let totalOrders = filtered.length;
+  let totalUnits = 0;
+  const foodMap = {};
+
+  filtered.forEach(sale => {
+    const rev = Number(sale.grandTotal || sale.amount || 0);
+    totalRevenue += rev;
+    const units = Number(sale.totalUnits || (Array.isArray(sale.items) ? sale.items.reduce((s, it) => s + (it.quantity || 1), 0) : 1));
+    totalUnits += units;
+
+    if (Array.isArray(sale.items)) {
+      sale.items.forEach(it => {
+        const name = (it.name || 'Artisanal Item').trim();
+        if (!foodMap[name]) {
+          foodMap[name] = {
+            name: name,
+            category: it.category || 'Cakes',
+            variant: it.variant || '',
+            totalQty: 0,
+            ordersCount: 0,
+            totalRevenue: 0
+          };
+        }
+        foodMap[name].totalQty += Number(it.quantity || 1);
+        foodMap[name].ordersCount += 1;
+        foodMap[name].totalRevenue += Number(it.amount || ((it.price || 0) * (it.quantity || 1)));
+      });
+    } else if (sale.category) {
+      const name = sale.cakeName || sale.category;
+      if (!foodMap[name]) {
+        foodMap[name] = {
+          name: name,
+          category: sale.category || 'Cakes',
+          variant: '',
+          totalQty: 0,
+          ordersCount: 0,
+          totalRevenue: 0
+        };
+      }
+      foodMap[name].totalQty += units;
+      foodMap[name].ordersCount += 1;
+      foodMap[name].totalRevenue += rev;
+    }
+  });
+
+  const avgOrder = totalOrders > 0 ? (totalRevenue / totalOrders) : 0;
+  const avgUnits = totalOrders > 0 ? (totalUnits / totalOrders) : 0;
+
+  // Render Average Sales KPI Ribbon
+  const ribbonEl = document.getElementById('bestSalesKpiRibbon');
+  if (ribbonEl) {
+    ribbonEl.innerHTML = `
+      <div class="best-kpi-box purple">
+        <span class="best-kpi-label">📊 Average Order (AOV)</span>
+        <span class="best-kpi-val">₹${avgOrder.toFixed(2)}</span>
+      </div>
+      <div class="best-kpi-box sky">
+        <span class="best-kpi-label">🎂 Avg Items / Bill</span>
+        <span class="best-kpi-val">${avgUnits.toFixed(1)} pcs</span>
+      </div>
+      <div class="best-kpi-box emerald">
+        <span class="best-kpi-label">💰 Food Turnover</span>
+        <span class="best-kpi-val">₹${totalRevenue.toFixed(2)}</span>
+      </div>
+      <div class="best-kpi-box amber">
+        <span class="best-kpi-label">📦 Total Invoices</span>
+        <span class="best-kpi-val">${totalOrders} Orders</span>
+      </div>
+    `;
+  }
+
+  // Count badge
+  const countBadge = document.getElementById('bestFoodsCountBadge');
+  const rankedList = Object.values(foodMap).sort((a, b) => {
+    if (b.totalQty !== a.totalQty) return b.totalQty - a.totalQty;
+    return b.totalRevenue - a.totalRevenue;
+  });
+
+  if (countBadge) {
+    countBadge.textContent = `${rankedList.length} Foods Sold`;
+  }
+
+  // Subtitle
+  const subTitle = document.getElementById('bestSalesSubtitle');
+  if (subTitle) {
+    const scopeName = (filterMode === 'today') ? "Today's" : (filterMode === 'yesterday') ? "Yesterday's" : "All Time";
+    subTitle.textContent = `Showing ${scopeName} most ordered food ranking & average sales analytics`;
+  }
+
+  // Render Food Leaderboard List ("which food is more order show in this page")
+  const rankListEl = document.getElementById('bestFoodsRankList');
+  if (rankListEl) {
+    if (rankedList.length === 0) {
+      rankListEl.innerHTML = `
+        <div style="text-align: center; padding: 40px 16px; color: #64748b;">
+          <div style="font-size: 2.8rem; margin-bottom: 10px;">🍰</div>
+          <h4 style="font-size: 1.05rem; color: #1e293b; margin-bottom: 6px; font-weight: 700;">No Food Orders Found</h4>
+          <p style="font-size: 0.84rem; color: #94a3b8; margin: 0;">
+            Recorded customer orders will rank the most popular cakes and pastries here.
+          </p>
+        </div>
+      `;
+    } else {
+      const topMaxQty = rankedList[0].totalQty || 1;
+      let html = '';
+      rankedList.forEach((food, idx) => {
+        let rankClass = '';
+        let medalHtml = '';
+        if (idx === 0) {
+          rankClass = 'rank-1';
+          medalHtml = `<span class="food-rank-medal">🥇 #1 Most Ordered</span>`;
+        } else if (idx === 1) {
+          rankClass = 'rank-2';
+          medalHtml = `<span class="food-rank-medal">🥈 #2 Most Ordered</span>`;
+        } else if (idx === 2) {
+          rankClass = 'rank-3';
+          medalHtml = `<span class="food-rank-medal">🥉 #3 Most Ordered</span>`;
+        } else {
+          medalHtml = `<span class="food-rank-medal-default">#${idx + 1}</span>`;
+        }
+
+        const barPct = Math.min(100, Math.round((food.totalQty / topMaxQty) * 100));
+        const volumeSharePct = totalUnits > 0 ? Math.round((food.totalQty / totalUnits) * 100) : 0;
+        const avgUnitPrice = food.totalQty > 0 ? (food.totalRevenue / food.totalQty) : 0;
+
+        html += `
+          <div class="food-rank-card ${rankClass}">
+            <div class="food-rank-top">
+              <div class="food-rank-left">
+                ${medalHtml}
+                <div class="food-rank-info">
+                  <div class="food-rank-name" title="${escapeHtml(food.name)}">${escapeHtml(food.name)}</div>
+                  <div class="food-rank-cat">🏷️ ${escapeHtml(food.category)} ${food.variant ? `• ${escapeHtml(food.variant)}` : ''}</div>
+                </div>
+              </div>
+              <div class="food-rank-right">
+                <span class="food-rank-qty-tag">🔥 ${food.totalQty} pcs sold</span>
+                <span class="food-rank-rev-tag">₹${food.totalRevenue.toFixed(2)}</span>
+              </div>
+            </div>
+
+            <!-- Visual Popularity Progress Bar -->
+            <div class="food-popularity-track" title="${barPct}% of top seller volume">
+              <div class="food-popularity-fill" style="width: ${barPct}%;"></div>
+            </div>
+
+            <div class="food-rank-meta-row">
+              <span>📦 In <strong>${food.ordersCount}</strong> bills</span>
+              <span>Avg <strong>₹${avgUnitPrice.toFixed(2)}</strong> / pc</span>
+              <span><strong>${volumeSharePct}%</strong> volume share</span>
+            </div>
+          </div>
+        `;
+      });
+      rankListEl.innerHTML = html;
+    }
+  }
+}
+
+function openBestSalesAnalyticsModal(mode = 'all', fromProfile = false, fromRestore = false) {
+  bestSalesFilterMode = mode || 'all';
+
+  // Sync button classes
+  const btnToday = document.getElementById('bestFilterToday');
+  const btnYest = document.getElementById('bestFilterYest');
+  const btnAll = document.getElementById('bestFilterAll');
+  if (btnToday) btnToday.className = (bestSalesFilterMode === 'today') ? 'best-filter-btn active' : 'best-filter-btn';
+  if (btnYest) btnYest.className = (bestSalesFilterMode === 'yesterday') ? 'best-filter-btn active' : 'best-filter-btn';
+  if (btnAll) btnAll.className = (bestSalesFilterMode === 'all') ? 'best-filter-btn active' : 'best-filter-btn';
+
+  renderBestSalesAnalytics(bestSalesFilterMode);
+
+  const modal = document.getElementById('bestSalesAnalyticsModal');
+  if (modal) modal.style.display = 'flex';
+
+  if (!fromRestore) {
+    pushMobileModalState('bestSalesAnalyticsModal', {
+      mode: mode,
+      fromProfile: fromProfile,
+      restoreFn: () => { openBestSalesAnalyticsModal(mode, fromProfile, true); }
+    });
+  } else {
+    updateMobileScrollLock();
+  }
+}
+
+function closeBestSalesAnalyticsModal() {
+  if (isMobileViewport() && mobileModalStack.length > 0) {
+    popMobileModalState(false);
+    return;
+  }
+  const modal = document.getElementById('bestSalesAnalyticsModal');
+  if (modal) modal.style.display = 'none';
+  updateMobileScrollLock();
+}
+
+function closeBestSalesAnalyticsModalOnBackdrop(e) {
+  if (e && e.target && e.target.id === 'bestSalesAnalyticsModal') {
+    closeBestSalesAnalyticsModal();
+  }
+}
+
+function openBestSalesAnalyticsFromProfile() {
+  openBestSalesAnalyticsModal('all', true);
+}
+
+// ==========================================================================
 // Custom Cake / Off-Menu Order Modal
 // ==========================================================================
 
-function openCustomOrderModal() {
+function openCustomOrderModal(fromRestore = false) {
   const modal = document.getElementById('customOrderModal');
   if (modal) {
     modal.style.display = 'flex';
-    document.getElementById('customItemName').focus();
+    const nameInput = document.getElementById('customItemName');
+    if (nameInput) nameInput.focus();
+  }
+
+  if (!fromRestore) {
+    pushMobileModalState('customOrderModal', {
+      restoreFn: () => { openCustomOrderModal(true); }
+    });
+  } else {
+    updateMobileScrollLock();
   }
 }
 
 function closeCustomOrderModal() {
+  if (isMobileViewport() && mobileModalStack.length > 0) {
+    popMobileModalState(false);
+    return;
+  }
   const modal = document.getElementById('customOrderModal');
   if (modal) modal.style.display = 'none';
+  updateMobileScrollLock();
 }
 
 function closeCustomOrderModalOnBackdrop(e) {
@@ -2232,6 +2986,12 @@ function applyAuthenticatedState(user) {
   if (nameEl) nameEl.textContent = user.name || user.id;
   if (roleEl) roleEl.textContent = user.role || 'Cashier';
 
+  // Sync mobile top-corner profile button
+  const mobileNameEl = document.getElementById('mobileCornerUserName');
+  if (mobileNameEl) {
+    mobileNameEl.textContent = user.name ? user.name.split(' ')[0] : (user.id || 'Admin');
+  }
+
   if (window.innerWidth <= 768) {
     switchMobileView('menu');
   }
@@ -2250,6 +3010,10 @@ function showAuthScreen() {
 
   const userPill = document.getElementById('loggedUserPill');
   if (userPill) userPill.style.display = 'none';
+
+  const mobileNameEl = document.getElementById('mobileCornerUserName');
+  if (mobileNameEl) mobileNameEl.textContent = 'Login';
+  closeUserProfileModal();
 
   switchAuthTab('signin');
   clearAuthAlert();
@@ -2437,6 +3201,7 @@ function quickDemoLogin() {
 
 function logoutUser() {
   if (confirm('🔒 Lock POS Register and Logout?')) {
+    clearMobileModalStack();
     activeUser = null;
     localStorage.removeItem('sugarCubesActiveUser');
     sessionStorage.removeItem('sugarCubesActiveUser');
@@ -2455,6 +3220,272 @@ function togglePasswordVisibility(inputId, btnEl) {
     input.type = 'password';
     if (btnEl) btnEl.textContent = '👁️';
   }
+}
+
+// ==========================================================================
+// Cashier & User Profile Modal Handlers (Opened from Mobile Top-Corner Button)
+// Shows Live Time/Date, Total Sales, Orders, Best Sales, Ava Order, & History
+// ==========================================================================
+
+let profHistoryFilterMode = 'today';
+let profHistoryCustomDate = '';
+
+function openUserProfileModal(fromRestore = false) {
+  const modal = document.getElementById('userProfileModal');
+  if (!modal) return;
+
+  const currentU = activeUser || { name: 'Store Manager', role: 'Store Manager', id: 'admin' };
+  const fullNameEl = document.getElementById('profileModalFullName');
+  if (fullNameEl) fullNameEl.textContent = currentU.name || currentU.id || 'Store Manager';
+
+  // Sync sound toggle button inside profile modal
+  const profSoundBtn = document.getElementById('profSoundToggleBtn');
+  if (profSoundBtn) {
+    profSoundBtn.innerHTML = soundEnabled ? '🔔 Sound: ON' : '🔕 Sound: OFF';
+  }
+
+  // Populate sales KPIs and render date orders history
+  setProfHistoryFilter(profHistoryFilterMode || 'today');
+
+  modal.style.display = 'flex';
+  // SILENT OPEN: No audio beep when clicking the profile button, as requested
+
+  if (!fromRestore) {
+    pushMobileModalState('userProfileModal', {
+      restoreFn: () => { openUserProfileModal(true); }
+    });
+  } else {
+    updateMobileScrollLock();
+  }
+}
+
+function closeUserProfileModal() {
+  // 1. Unconditionally hide the profile modal window immediately
+  const modal = document.getElementById('userProfileModal');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+
+  // 2. Remove userProfileModal from mobile navigation stack
+  const idx = mobileModalStack.findIndex(m => m.id === 'userProfileModal');
+  if (idx !== -1) {
+    mobileModalStack.splice(idx, 1);
+  }
+
+  // 3. Set debounce lock to prevent router event bounce-back
+  isPoppingFromScript = true;
+
+  // 4. Safely clean URL hash without pushing extra history states
+  try {
+    if (window.location.hash && (window.location.hash.toLowerCase() === '#profile' || window.location.hash.toLowerCase() === '#store' || window.location.hash.toLowerCase() === '#menu')) {
+      history.replaceState(null, document.title, window.location.pathname + window.location.search);
+    }
+  } catch (err) {}
+
+  // 5. Unlock scroll
+  updateMobileScrollLock();
+
+  // 6. Ensure mobile view switches to the store catalog menu
+  if (isMobileViewport()) {
+    switchMobileView('menu');
+  }
+
+  setTimeout(() => {
+    isPoppingFromScript = false;
+  }, 500);
+}
+
+function closeUserProfileModalOnBackdrop(e) {
+  if (e && e.target && e.target.id === 'userProfileModal') {
+    closeUserProfileModal();
+  }
+}
+
+/**
+ * Mobile Profile Cockpit KPI Navigation Handlers:
+ * Moves user from inside profile button directly to All Total Sales page
+ * or All Orders page history.
+ */
+function openAllTotalSalesPageFromProfile() {
+  openDailyReportModal('all', true);
+}
+
+function openAllOrdersHistoryFromProfile() {
+  openOrderHistoryModal('all', true);
+}
+
+function setProfHistoryFilter(mode, val) {
+  profHistoryFilterMode = mode;
+  profHistoryCustomDate = val || '';
+
+  const btnToday = document.getElementById('profHistBtnToday');
+  const btnYest = document.getElementById('profHistBtnYesterday');
+  const btnAll = document.getElementById('profHistBtnAll');
+  const datePicker = document.getElementById('profHistDatePicker');
+
+  if (btnToday) btnToday.classList.toggle('active', mode === 'today');
+  if (btnYest) btnYest.classList.toggle('active', mode === 'yesterday');
+  if (btnAll) btnAll.classList.toggle('active', mode === 'all');
+  if (datePicker) {
+    if (mode === 'custom' && val) {
+      datePicker.value = val;
+    } else if (mode === 'today') {
+      datePicker.value = getTodayIso();
+    }
+  }
+
+  renderProfOrdersHistory();
+}
+
+function renderProfOrdersHistory() {
+  const allSales = getRecordedSales();
+  const searchInput = document.getElementById('profHistSearchInput');
+  const query = (searchInput ? searchInput.value : '').toLowerCase().trim();
+
+  // 1. Filter sales by date
+  let filtered = allSales.filter(sale => {
+    let saleIso = sale.isoDate;
+    if (!saleIso && sale.timestamp) {
+      try {
+        const parsed = new Date(sale.timestamp.split('•')[0].trim());
+        if (!isNaN(parsed.getTime())) saleIso = parsed.toISOString().slice(0, 10);
+      } catch (e) {}
+    }
+    if (profHistoryFilterMode === 'today') return saleIso === getTodayIso();
+    if (profHistoryFilterMode === 'yesterday') return saleIso === getYesterdayIso();
+    if (profHistoryFilterMode === 'custom') return saleIso === profHistoryCustomDate;
+    return true; // 'all'
+  });
+
+  // 2. Filter by search query if entered
+  if (query) {
+    filtered = filtered.filter(sale => {
+      const tick = (sale.ticketNumber || '').toLowerCase();
+      const name = (sale.customerName || '').toLowerCase();
+      const mob = (sale.customerMobile || '').toLowerCase();
+      const itemsMatch = Array.isArray(sale.items) && sale.items.some(it => (it.name || '').toLowerCase().includes(query));
+      return tick.includes(query) || name.includes(query) || mob.includes(query) || itemsMatch;
+    });
+  }
+
+  // 3. Compute Metrics for this filtered view
+  let totalRev = 0;
+  let orderCount = filtered.length;
+  let categoryRevenueMap = {};
+
+  filtered.forEach(sale => {
+    const amt = Number(sale.grandTotal || sale.amount || 0);
+    totalRev += amt;
+    if (Array.isArray(sale.items)) {
+      sale.items.forEach(it => {
+        const cat = it.category || 'Cakes';
+        categoryRevenueMap[cat] = (categoryRevenueMap[cat] || 0) + Number(it.amount || 0);
+      });
+    } else if (sale.category) {
+      categoryRevenueMap[sale.category] = (categoryRevenueMap[sale.category] || 0) + Number(sale.amount || 0);
+    }
+  });
+
+  let bestCat = '--';
+  let maxCatRev = 0;
+  for (const cat in categoryRevenueMap) {
+    if (categoryRevenueMap[cat] > maxCatRev) {
+      maxCatRev = categoryRevenueMap[cat];
+      bestCat = cat;
+    }
+  }
+
+  const aov = orderCount > 0 ? (totalRev / orderCount) : 0;
+
+  // 4. Update the 4 KPI cards inside the Profile Modal
+  const salesEl = document.getElementById('profKpiTotalSales');
+  const ordEl = document.getElementById('profKpiOrders');
+  const bestEl = document.getElementById('profKpiBestSales');
+  const aovEl = document.getElementById('profKpiAvgOrder');
+  const countBadge = document.getElementById('profHistCountBadge');
+
+  if (salesEl) salesEl.textContent = '₹' + totalRev.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+  if (ordEl) ordEl.textContent = orderCount + (orderCount === 1 ? ' Order' : ' Orders');
+  if (bestEl) bestEl.textContent = bestCat;
+  if (aovEl) aovEl.textContent = '₹' + aov.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+  if (countBadge) countBadge.textContent = `${orderCount} Orders • ₹${totalRev.toFixed(2)}`;
+
+  // 5. Render Orders List HTML
+  const listEl = document.getElementById('profModalOrdersList');
+  if (!listEl) return;
+
+  if (filtered.length === 0) {
+    listEl.innerHTML = `
+      <div style="text-align: center; padding: 28px 12px; color: #64748b;">
+        <div style="font-size: 2.2rem; margin-bottom: 6px;">📦</div>
+        <h5 style="margin: 0 0 4px; font-size: 0.95rem; font-weight: 700; color: #1e293b;">No Orders Recorded</h5>
+        <p style="margin: 0; font-size: 0.76rem; color: #94a3b8;">No transactions found for the selected date filter.</p>
+      </div>
+    `;
+    return;
+  }
+
+  let html = '';
+  filtered.forEach(sale => {
+    const itemsList = Array.isArray(sale.items) ? sale.items : [];
+    const itemsSummary = itemsList.map(it => `${it.quantity || 1}x ${it.name}`).join(', ') || 'Bakery Items';
+    const cleanNum = (sale.ticketNumber || '01').replace('#', '');
+    const dateFormatted = sale.date || sale.isoDate || 'Today';
+    const timeFormatted = sale.time || '';
+    const grand = Number(sale.grandTotal || sale.amount || 0).toFixed(2);
+    const payMode = sale.paymentMode || 'Cash';
+
+    let payBadgeBg = '#f1f5f9';
+    let payBadgeColor = '#475569';
+    if (payMode.toUpperCase().includes('UPI')) {
+      payBadgeBg = '#eff6ff';
+      payBadgeColor = '#1d4ed8';
+    } else if (payMode.toUpperCase().includes('CARD')) {
+      payBadgeBg = '#faf5ff';
+      payBadgeColor = '#7e22ce';
+    } else if (payMode.toUpperCase().includes('CASH')) {
+      payBadgeBg = '#ecfdf5';
+      payBadgeColor = '#047857';
+    }
+
+    const maskedPhone = maskMobileNumber(sale.customerMobile);
+
+    html += `
+      <div class="prof-order-card">
+        <div class="prof-order-card-top">
+          <div class="prof-order-badge-row">
+            <span class="prof-ticket-pill">${sale.ticketNumber || ('#SC-' + cleanNum)}</span>
+            <span class="prof-order-date-pill">📅 ${dateFormatted}${timeFormatted ? ` • ⏰ ${timeFormatted}` : ''}</span>
+          </div>
+          <span class="prof-order-amount">₹${grand}</span>
+        </div>
+
+        <div class="prof-order-meta-row">
+          <span class="prof-pay-badge" style="background: ${payBadgeBg}; color: ${payBadgeColor};">${payMode}</span>
+          <span class="prof-type-badge">${sale.orderType || 'Takeaway'}</span>
+          <span class="prof-cust-text">👤 ${escapeHtml(sale.customerName || 'Customer')}${maskedPhone ? ` (${maskedPhone})` : ''}</span>
+        </div>
+
+        <div class="prof-order-items-text">
+          🍰 ${escapeHtml(itemsSummary)}
+        </div>
+
+        <div class="prof-order-actions-row">
+          <button type="button" class="prof-btn-action" onclick="viewHistoryOrderReceipt('${escapeHtml(sale.ticketNumber)}')" title="View Receipt">
+            🧾 View Bill
+          </button>
+          <button type="button" class="prof-btn-action" onclick="downloadHistoryOrderPdf('${escapeHtml(sale.ticketNumber)}')" title="Download PDF">
+            📄 PDF
+          </button>
+          <button type="button" class="prof-btn-action wa" onclick="whatsappHistoryOrder('${escapeHtml(sale.ticketNumber)}')" title="Send WhatsApp">
+            📲 WhatsApp
+          </button>
+        </div>
+      </div>
+    `;
+  });
+
+  listEl.innerHTML = html;
 }
 
 // ==========================================================================
@@ -2521,6 +3552,22 @@ window.addEventListener('resize', () => {
 
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' || e.key === 'Esc' || e.keyCode === 27) {
+    // Mobile Stack: Step-by-step back one modal at a time
+    if (isMobileViewport() && mobileModalStack.length > 0) {
+      e.preventDefault();
+      popMobileModalState(false);
+      return;
+    }
+
+    // Desktop: Dismiss topmost modal
+    // 0. Cashier / User Profile Modal (Top-Corner Profile)
+    const userProfileModal = document.getElementById('userProfileModal');
+    if (userProfileModal && userProfileModal.style.display && userProfileModal.style.display !== 'none') {
+      e.preventDefault();
+      closeUserProfileModal();
+      return;
+    }
+
     // 1. Bill Receipt Modal (Topmost priority)
     const billModal = document.getElementById('billModal');
     if (billModal && billModal.style.display && billModal.style.display !== 'none') {
@@ -2534,6 +3581,14 @@ document.addEventListener('keydown', (e) => {
     if (dailyReportModal && dailyReportModal.style.display && dailyReportModal.style.display !== 'none') {
       e.preventDefault();
       closeDailyReportModal();
+      return;
+    }
+
+    // 2.5. Best Selling Foods & Average Sales Analytics Modal
+    const bestSalesModal = document.getElementById('bestSalesAnalyticsModal');
+    if (bestSalesModal && bestSalesModal.style.display && bestSalesModal.style.display !== 'none') {
+      e.preventDefault();
+      closeBestSalesAnalyticsModal();
       return;
     }
 
