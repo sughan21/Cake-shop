@@ -80,6 +80,10 @@ document.addEventListener('DOMContentLoaded', () => {
   refreshDailySalesAnalytics();
   renderInstagramQRs();
   if (window.innerWidth <= 768) {
+    document.body.classList.remove('mobile-modal-open');
+    document.body.style.top = '';
+    document.body.style.position = '';
+    document.body.style.overflow = '';
     switchMobileView('menu');
     setTimeout(() => {
       handleMobileHashRouting();
@@ -1290,40 +1294,17 @@ function updateMobileScrollLock() {
       document.body.classList.remove('mobile-modal-open');
       const restoreY = Math.abs(parseInt(document.body.style.top || '0', 10)) || mobileScrollY;
       document.body.style.top = '';
+      document.body.style.position = '';
+      document.body.style.overflow = '';
       window.scrollTo(0, restoreY);
+    } else {
+      document.body.style.top = '';
+      document.body.style.position = '';
+      document.body.style.overflow = '';
     }
   }
 }
 
-// Safety net: Prevent touchmove outside modal scrollable containers from dragging the background page
-function handleMobileModalTouchMove(e) {
-  if (!document.body.classList.contains('mobile-modal-open')) return;
-  let target = e.target;
-  let isScrollable = false;
-  while (target && target !== document.body && target !== document.documentElement) {
-    if (
-      target.classList && (
-        target.classList.contains('profile-modal-body') ||
-        target.classList.contains('prof-orders-scroll-list') ||
-        target.classList.contains('modal-card-body') ||
-        target.classList.contains('receipt-preview-box') ||
-        target.classList.contains('thermal-paper-receipt') ||
-        target.id === 'orderHistoryModalBody' ||
-        target.id === 'dailyReportModalBody' ||
-        target.id === 'bestSalesAnalyticsModalBody' ||
-        target.scrollHeight > target.clientHeight
-      )
-    ) {
-      isScrollable = true;
-      break;
-    }
-    target = target.parentElement;
-  }
-  if (!isScrollable) {
-    e.preventDefault();
-  }
-}
-document.addEventListener('touchmove', handleMobileModalTouchMove, { passive: false });
 window.addEventListener('resize', updateMobileScrollLock);
 
 // Mobile Page Hash Route Identifiers

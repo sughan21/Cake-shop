@@ -1595,7 +1595,6 @@ body {
 /* 📱 Background Scroll Lock when any Modal is Active */
 body.mobile-modal-open {
   overflow: hidden !important;
-  touch-action: none !important;
   overscroll-behavior: none !important;
 }
 
@@ -1610,7 +1609,7 @@ body.mobile-modal-open {
   z-index: 9999;
   padding: 16px;
   overscroll-behavior: contain;
-  touch-action: none;
+  touch-action: pan-y;
 }
 
 /* Modal Stacking Hierarchy - Guarantees billModal renders in front */
@@ -3602,8 +3601,19 @@ body.mobile-modal-open {
 }
 
 @media (max-width: 768px) {
-  /* Body & Global Spacing */
+  html {
+    overflow-x: hidden !important;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Body & Global Spacing: Guaranteed butter-smooth vertical touch scrolling */
   body {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y !important;
+    min-height: 100vh !important;
+    height: auto !important;
     padding: 8px 8px 84px; /* Space for bottom floating cart bar */
     -webkit-tap-highlight-color: transparent;
   }
@@ -4140,14 +4150,13 @@ body.mobile-modal-open {
     position: fixed !important;
     width: 100% !important;
     height: 100% !important;
-    touch-action: none !important;
     overscroll-behavior: none !important;
   }
 
   .modal-backdrop {
     padding: 8px;
-    overscroll-behavior: contain;
-    touch-action: none;
+    overscroll-behavior: contain !important;
+    touch-action: pan-y !important;
   }
 
   .modal-window-card {
@@ -4166,10 +4175,11 @@ body.mobile-modal-open {
   #orderHistoryModalBody,
   #dailyReportModalBody,
   #bestSalesAnalyticsModalBody,
-  .receipt-preview-box {
-    overscroll-behavior: contain;
-    touch-action: pan-y;
-    -webkit-overflow-scrolling: touch;
+  .receipt-preview-box,
+  .thermal-paper-receipt {
+    overscroll-behavior: contain !important;
+    touch-action: pan-y !important;
+    -webkit-overflow-scrolling: touch !important;
   }
 
   /* Best Sales Analytics & History Modals on Mobile */
@@ -4292,6 +4302,10 @@ body.mobile-modal-open {
     max-width: 360px;
     padding: 16px 14px;
     margin: 10px auto;
+    max-height: 88vh !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y !important;
   }
 
   .receipt-action-dock {
@@ -4388,6 +4402,7 @@ body.mobile-modal-open {
     z-index: 10020 !important;
     animation: mobilePageSlideRight 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
     overflow: hidden !important;
+    touch-action: pan-y !important;
   }
 
   @keyframes mobilePageSlideRight {
@@ -4475,6 +4490,7 @@ body.mobile-modal-open {
     align-items: stretch !important;
     justify-content: flex-start !important;
     overflow: hidden !important;
+    touch-action: pan-y !important;
     z-index: 10035 !important;
     animation: mobilePageSlideRight 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
   }
@@ -4581,6 +4597,27 @@ body.mobile-modal-open {
   .profile-modal-body {
     padding: 10px 10px !important;
     gap: 8px !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y !important;
+  }
+
+  /* Single continuous vertical scroll on mobile profile */
+  #userProfileModal .prof-orders-scroll-list {
+    max-height: none !important;
+    overflow-y: visible !important;
+  }
+
+  #bestSalesAnalyticsModalBody,
+  #orderHistoryModalBody,
+  #dailyReportModalBody {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y !important;
   }
 
   .prof-kpi-card {
@@ -6369,6 +6406,10 @@ document.addEventListener('DOMContentLoaded', () => {
   refreshDailySalesAnalytics();
   renderInstagramQRs();
   if (window.innerWidth <= 768) {
+    document.body.classList.remove('mobile-modal-open');
+    document.body.style.top = '';
+    document.body.style.position = '';
+    document.body.style.overflow = '';
     switchMobileView('menu');
     setTimeout(() => {
       handleMobileHashRouting();
@@ -7579,40 +7620,17 @@ function updateMobileScrollLock() {
       document.body.classList.remove('mobile-modal-open');
       const restoreY = Math.abs(parseInt(document.body.style.top || '0', 10)) || mobileScrollY;
       document.body.style.top = '';
+      document.body.style.position = '';
+      document.body.style.overflow = '';
       window.scrollTo(0, restoreY);
+    } else {
+      document.body.style.top = '';
+      document.body.style.position = '';
+      document.body.style.overflow = '';
     }
   }
 }
 
-// Safety net: Prevent touchmove outside modal scrollable containers from dragging the background page
-function handleMobileModalTouchMove(e) {
-  if (!document.body.classList.contains('mobile-modal-open')) return;
-  let target = e.target;
-  let isScrollable = false;
-  while (target && target !== document.body && target !== document.documentElement) {
-    if (
-      target.classList && (
-        target.classList.contains('profile-modal-body') ||
-        target.classList.contains('prof-orders-scroll-list') ||
-        target.classList.contains('modal-card-body') ||
-        target.classList.contains('receipt-preview-box') ||
-        target.classList.contains('thermal-paper-receipt') ||
-        target.id === 'orderHistoryModalBody' ||
-        target.id === 'dailyReportModalBody' ||
-        target.id === 'bestSalesAnalyticsModalBody' ||
-        target.scrollHeight > target.clientHeight
-      )
-    ) {
-      isScrollable = true;
-      break;
-    }
-    target = target.parentElement;
-  }
-  if (!isScrollable) {
-    e.preventDefault();
-  }
-}
-document.addEventListener('touchmove', handleMobileModalTouchMove, { passive: false });
 window.addEventListener('resize', updateMobileScrollLock);
 
 // Mobile Page Hash Route Identifiers
