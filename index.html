@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>🍰 Sugar Cubes | Artisanal Cake Shop POS & Daily Sales Tracker</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Client-Side High-Fidelity PDF Engine -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <!-- Client-Side QR Code Engine -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+
+  <!-- =========================================================================
+       Top Header: Branding, Instagram Handle, Live Clock, Audio & Fullscreen
+       ========================================================================= -->
+  <header class="pos-app-header">
+    <div class="brand-section">
+      <div class="brand-avatar">🍰</div>
+      <div class="brand-details">
+        <h1>Sugar Cubes</h1>
+        <p class="brand-tagline">Artisanal Cake Shop & Bakery POS</p>
+        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 2px;">
+          <div class="brand-live-badge">
+            <span class="pulse-dot"></span>
+            <span>STORE OPEN • COUNTER #1</span>
+          </div>
+          <div style="display: inline-flex; align-items: center; gap: 4px; background: #fdf2f8; border: 1px solid #fbcfe8; color: #db2777; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; cursor: pointer;" onclick="promptEditInstagramHandle()" title="Click to edit Instagram Profile handle">
+            <span>📸</span> <span id="headerIgHandle">@sugarcubes_official</span> <span>✏️</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-controls">
+      <div class="header-utility-btns">
+        <!-- Logged-in Cashier / User Badge with Logout button -->
+        <div class="logged-user-pill" id="loggedUserPill" style="display: none;">
+          <span class="user-avatar-badge">👤</span>
+          <div class="user-info-text">
+            <span class="user-name-title" id="headerCashierName">Admin</span>
+            <span class="user-role-tag" id="headerCashierRole">Manager</span>
+          </div>
+          <button type="button" class="btn-logout-pill" onclick="logoutUser()" title="Logout & Lock Register">
+            🔒 Logout
+          </button>
+        </div>
+
+        <button type="button" id="btnSoundToggle" class="util-btn" onclick="toggleAudioSound()" title="Toggle register beep sound">
+          🔔 Sound: ON
+        </button>
+        <button type="button" id="btnFullscreenToggle" class="util-btn" onclick="toggleFullscreen()" title="Toggle Fullscreen POS Mode">
+          ⛶ Fullscreen
+        </button>
+      </div>
+
+      <!-- Live Precision Digital Clock -->
+      <div class="header-clock-pill">
+        <div class="clock-digits" id="liveClockDisplay">--:--:-- --</div>
+        <div class="clock-date" id="liveDateDisplay">📅 Loading date...</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile-Only View Switcher (Visible on phone viewports <= 768px) -->
+  <div class="mobile-section-nav" id="mobileSectionNav">
+    <button type="button" class="mobile-nav-btn active" id="btnMobileTabMenu" onclick="switchMobileView('menu')">
+      <span>🍰 Catalog Menu</span>
+    </button>
+    <button type="button" class="mobile-nav-btn" id="btnMobileTabCart" onclick="switchMobileView('cart')">
+      <span>🛒 Bill Register</span>
+      <span class="mobile-nav-badge" id="mobileNavCartBadge">0</span>
+    </button>
+  </div>
+
+  <!-- =========================================================================
+       Main POS Dual-Column Workspace
+       ========================================================================= -->
+  <main class="pos-workspace-grid">
+
+    <!-- =======================================================================
+         LEFT COLUMN: Daily Sales KPIs, Date Tracker & Product Catalog
+         ======================================================================= -->
+    <section class="pos-left-pane">
+
+      <!-- 4-Card Daily Sales KPI Dashboard -->
+      <div class="daily-kpi-grid">
+        <div class="kpi-card kpi-rev kpi-clickable" onclick="openOrderHistoryModal()" title="Click to open Orders History with Date & Time log">
+          <div class="kpi-icon">💰</div>
+          <div class="kpi-content">
+            <span class="kpi-title" id="kpiRevenueLabel">Today's Sales</span>
+            <span class="kpi-val highlight-green" id="kpiRevenueVal">₹0.00</span>
+            <span class="kpi-card-action-badge">📋 View Orders</span>
+          </div>
+        </div>
+
+        <div class="kpi-card kpi-ord kpi-clickable" onclick="openOrderHistoryModal()" title="Click to open Orders History with Date & Time log">
+          <div class="kpi-icon">📦</div>
+          <div class="kpi-content">
+            <span class="kpi-title" id="kpiOrdersLabel">Orders</span>
+            <span class="kpi-val" id="kpiOrdersVal">0</span>
+            <span class="kpi-card-action-badge">📋 View Orders</span>
+          </div>
+        </div>
+
+        <div class="kpi-card kpi-top">
+          <div class="kpi-icon">🏆</div>
+          <div class="kpi-content">
+            <span class="kpi-title">Top Category</span>
+            <span class="kpi-val" id="kpiTopCatVal" style="font-size: 1.05rem;">--</span>
+          </div>
+        </div>
+
+        <div class="kpi-card kpi-aov">
+          <div class="kpi-icon">📈</div>
+          <div class="kpi-content">
+            <span class="kpi-title">Avg. Order Value</span>
+            <span class="kpi-val" id="kpiAovVal">₹0.00</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Date Tracker & Filter Bar -->
+      <div class="daily-track-panel">
+        <div class="date-tabs-wrap">
+          <span class="date-track-label">📅 Track Sales:</span>
+          <button type="button" class="date-pill-btn active" id="btnDateToday" onclick="setDateFilter('today')">🌟 Today</button>
+          <button type="button" class="date-pill-btn" id="btnDateYesterday" onclick="setDateFilter('yesterday')">⏪ Yesterday</button>
+          <button type="button" class="date-pill-btn" id="btnDateAll" onclick="setDateFilter('all')">🗓️ All Records</button>
+
+          <div class="date-picker-box">
+            <label for="customDatePicker" style="font-size: 0.75rem; font-weight: 600; color: #64748b;">Pick Date:</label>
+            <input type="date" id="customDatePicker" onchange="setDateFilter('custom', this.value)">
+          </div>
+        </div>
+
+        <div class="active-context-badge" id="activeDateContext">
+          Showing: <strong>Today's Sales</strong>
+        </div>
+      </div>
+
+      <!-- Interactive Product Catalog -->
+      <div class="pos-catalog-panel">
+        <div class="catalog-top-bar">
+          <div class="catalog-heading">
+            <span>🍰 Tap Item to Add Directly to Cart</span>
+          </div>
+          <div class="catalog-actions">
+            <button type="button" class="btn-custom-cake" onclick="openCustomOrderModal()" title="Add customized or off-menu cake">
+              + Custom Item
+            </button>
+            <button type="button" class="btn-stock-reset" onclick="resetCatalogStock()" title="Restock all bakery items to default levels">
+              🔄 Reset Stock
+            </button>
+          </div>
+        </div>
+
+        <!-- Category Filter Pills with Count Badges -->
+        <nav class="category-filter-nav" id="categoryFilterNav">
+          <button type="button" class="cat-nav-pill active" onclick="filterCatalogCategory('All', this)">
+            All Items <span class="cat-count-badge" id="catCountAll">19</span>
+          </button>
+          <button type="button" class="cat-nav-pill" onclick="filterCatalogCategory('Cakes', this)">
+            🎂 Cakes <span class="cat-count-badge" id="catCountCakes">5</span>
+          </button>
+          <button type="button" class="cat-nav-pill" onclick="filterCatalogCategory('Pastries', this)">
+            🍰 Pastries <span class="cat-count-badge" id="catCountPastries">4</span>
+          </button>
+          <button type="button" class="cat-nav-pill" onclick="filterCatalogCategory('Cupcakes', this)">
+            🧁 Cupcakes <span class="cat-count-badge" id="catCountCupcakes">4</span>
+          </button>
+          <button type="button" class="cat-nav-pill" onclick="filterCatalogCategory('Desserts', this)">
+            🍪 Desserts <span class="cat-count-badge" id="catCountDesserts">4</span>
+          </button>
+          <button type="button" class="cat-nav-pill" onclick="filterCatalogCategory('Beverages', this)">
+            ☕ Beverages <span class="cat-count-badge" id="catCountBeverages">2</span>
+          </button>
+        </nav>
+
+        <!-- Quick Item Search Input -->
+        <div class="catalog-search-box">
+          <input type="text" id="catalogSearchInput" placeholder="🔍 Quick search cakes, pastries, cupcakes, beverages... (Type to filter)" oninput="onCatalogSearch(this.value)">
+          <button type="button" class="search-clear-btn" onclick="clearCatalogSearch()" title="Clear search">✕</button>
+        </div>
+
+        <!-- Product Cards Grid -->
+        <div class="product-touch-grid" id="catalogChipsGrid">
+          <!-- Populated dynamically by script.js -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- =======================================================================
+         RIGHT COLUMN: Sticky Live Register & Active Cart
+         ======================================================================= -->
+    <aside class="pos-right-register">
+      <div class="register-main-card">
+
+        <!-- Register Header -->
+        <div class="register-header">
+          <div class="register-order-tag" id="registerTicketNum" onclick="promptEditBillNumber()" title="Click to adjust starting Bill No"><span>BILL NO:</span> <strong>#SC-001</strong> <span style="font-size: 0.65rem; opacity: 0.7;">✏️</span></div>
+          <div class="order-type-pills">
+            <button type="button" class="order-type-btn active" onclick="setOrderType('Takeaway', this)">🛍️ Takeaway</button>
+            <button type="button" class="order-type-btn" onclick="setOrderType('Dine-In', this)">🍽️ Dine-In</button>
+            <button type="button" class="order-type-btn" onclick="setOrderType('Delivery', this)">🛵 Delivery</button>
+          </div>
+        </div>
+
+        <!-- Customer Mobile & Name Input Bar (Direct WhatsApp Bill) -->
+        <div class="register-customer-bar">
+          <div class="customer-input-row">
+            <div class="cust-input-wrap mobile-wrap">
+              <span class="cust-input-icon">📱</span>
+              <input type="tel" id="custMobile" placeholder="Customer Mobile (10 Digits)" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+            </div>
+            <div class="cust-input-wrap">
+              <span class="cust-input-icon">👤</span>
+              <input type="text" id="custName" placeholder="Name (Optional)">
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.72rem;">
+            <span style="color: #15803d; font-weight: 600;">💬 Send PDF Bill to WhatsApp with 1-click!</span>
+            <label style="display: inline-flex; align-items: center; gap: 4px; color: #0f172a; font-weight: 700; cursor: pointer;">
+              <input type="checkbox" id="autoDownloadPdfToggle" checked>
+              <span>⚡ Auto PDF</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Active Order Cart Items Container -->
+        <div class="register-cart-container" id="cartContainer">
+          <ul class="cart-items-list" id="cartItemsList">
+            <!-- Populated dynamically by script.js -->
+          </ul>
+
+          <div class="cart-empty-state" id="cartEmptyState">
+            <div class="cart-empty-icon">🍰</div>
+            <p><strong>Current Cart is Empty</strong></p>
+            <p style="color: #94a3b8; font-size: 0.78rem;">Tap any cake, pastry or dessert on the left to add items directly.</p>
+          </div>
+        </div>
+
+        <!-- Calculation & Totals Panel -->
+        <div class="register-calc-panel">
+          <div class="calc-row">
+            <span>Items Subtotal (<span id="cartItemsCount">0</span> items):</span>
+            <span id="cartSubtotalVal">₹0.00</span>
+          </div>
+
+          <div class="calc-interactive-row">
+            <label class="tax-toggle-label">
+              <input type="checkbox" id="taxGstToggle" onchange="onTaxToggleChange()">
+              <span>Bakery GST (5%)</span>
+            </label>
+            <span id="cartTaxVal">₹0.00</span>
+          </div>
+
+          <div class="calc-interactive-row">
+            <span style="font-size: 0.8rem; font-weight: 600; color: #64748b;">Discount:</span>
+            <div class="discount-pills">
+              <button type="button" class="discount-pill active" onclick="setDiscount(0, this)">None</button>
+              <button type="button" class="discount-pill" onclick="setDiscount(5, this)">5%</button>
+              <button type="button" class="discount-pill" onclick="setDiscount(10, this)">10%</button>
+              <button type="button" class="discount-pill" onclick="promptCustomDiscount(this)">Custom</button>
+            </div>
+          </div>
+
+          <div class="calc-row" id="discountSummaryRow" style="display: none;">
+            <span>Discount Applied:</span>
+            <span id="cartDiscountVal" style="color: #dc2626;">-₹0.00</span>
+          </div>
+
+          <!-- Bold Grand Total Banner -->
+          <div class="register-grand-total">
+            <span class="total-due-label">Total Amount:</span>
+            <span class="total-due-amount" id="cartGrandTotalVal">₹0.00</span>
+          </div>
+        </div>
+
+        <!-- Payment Mode Selector -->
+        <div class="payment-mode-bar">
+          <span class="payment-mode-label">Payment Method:</span>
+          <div class="payment-mode-options">
+            <button type="button" class="pay-btn active" id="payModeCash" onclick="setPaymentMode('Cash', this)">
+              <span style="font-size: 1.1rem;">💵</span>
+              <span>Cash</span>
+            </button>
+            <button type="button" class="pay-btn" id="payModeUpi" onclick="setPaymentMode('UPI', this)">
+              <span style="font-size: 1.1rem;">📱</span>
+              <span>UPI / QR</span>
+            </button>
+            <button type="button" class="pay-btn" id="payModeCard" onclick="setPaymentMode('Card', this)">
+              <span style="font-size: 1.1rem;">💳</span>
+              <span>Card</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="register-action-buttons">
+          <!-- Send Official PDF Bill Directly to WhatsApp (PDF Format Only) -->
+          <button type="button" class="btn-whatsapp-bill" onclick="sendBillWhatsApp()" title="Send official PDF bill directly to customer on WhatsApp">
+            <span style="font-size: 1.2rem;">📲</span>
+            <span>Send PDF Bill to WhatsApp</span>
+          </button>
+
+          <!-- Direct Download Professional PDF Bill -->
+          <button type="button" class="btn-download-pdf" onclick="downloadPdfBill()" title="Generate and download official PDF tax invoice with Instagram QR">
+            <span style="font-size: 1.1rem;">📄</span>
+            <span>Download Official PDF Bill</span>
+          </button>
+
+          <!-- Complete & Print Bill Button -->
+          <button type="button" class="btn-checkout-print" onclick="openBillModal()" title="View and print thermal receipt with Instagram QR">
+            <span style="font-size: 1.1rem;">🧾</span>
+            <span>View Thermal Bill</span>
+          </button>
+
+          <!-- Complete & New Sale Action -->
+          <button type="button" class="btn-primary-action" style="background: #0f172a; padding: 11px; font-size: 0.88rem; width: 100%;" onclick="completeAndNewSale()" title="Record completed transaction and reset register for next customer">
+            ✅ Complete & Next Customer
+          </button>
+
+          <!-- Secondary Utilities -->
+          <div class="register-secondary-row">
+            <button type="button" class="btn-reg-secondary" onclick="openDailyReportModal()" title="View closing sales report">
+              📊 Daily Report
+            </button>
+            <button type="button" class="btn-reg-secondary" onclick="exportToExcel()" title="Export all records to CSV">
+              📈 Export CSV
+            </button>
+            <button type="button" class="btn-reg-secondary danger" onclick="clearCurrentCart()" title="Void current cart">
+              🗑️ Clear Cart
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- =========================================================================
+       Modal: Add Custom Cake / Off-Menu Item
+       ========================================================================= -->
+  <div id="customOrderModal" class="modal-backdrop" style="display: none;" onclick="closeCustomOrderModalOnBackdrop(event)">
+    <div class="modal-window-card" onclick="event.stopPropagation()">
+      <div class="modal-card-top">
+        <h3>🎂 Add Custom Cake / Special Item</h3>
+        <button type="button" class="modal-close-x" onclick="closeCustomOrderModal()">✕</button>
+      </div>
+      <div class="modal-card-body">
+        <div class="form-field">
+          <label for="customItemName">Item / Cake Name:</label>
+          <input type="text" id="customItemName" placeholder="e.g. 2-Tier Birthday Photo Cake (2 Kg)">
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-field">
+            <label for="customItemCategory">Category:</label>
+            <select id="customItemCategory">
+              <option value="Cakes">🎂 Cakes</option>
+              <option value="Pastries">🍰 Pastries</option>
+              <option value="Cupcakes">🧁 Cupcakes</option>
+              <option value="Desserts">🍪 Desserts</option>
+              <option value="Beverages">☕ Beverages</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="customItemPrice">Price (₹):</label>
+            <input type="number" id="customItemPrice" placeholder="0.00" min="0" step="0.01">
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="customItemQty">Quantity:</label>
+          <input type="number" id="customItemQty" value="1" min="1" max="99">
+        </div>
+      </div>
+      <div class="modal-card-bottom">
+        <button type="button" class="btn-dismiss" onclick="closeCustomOrderModal()">Cancel</button>
+        <button type="button" class="btn-primary-action" onclick="saveCustomOrder()">+ Add to Order</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       Modal: Thermal Receipt / Cash Memo (With Downside Instagram Profile QR)
+       ========================================================================= -->
+  <div id="billModal" class="modal-backdrop" style="display: none; z-index: 10050;" onclick="closeBillModalOnBackdrop(event)">
+    <div class="thermal-paper-receipt print-area-active" onclick="event.stopPropagation()">
+      
+      <div class="receipt-header-center">
+        <div class="receipt-brand-title">🍰 SUGAR CUBES</div>
+        <div class="receipt-tagline-text">Artisanal Cakes • Pastries • Fresh Bakes</div>
+        <div class="receipt-tagline-text">100% Eggless Options • Fresh Daily</div>
+        <div class="receipt-cut-line"></div>
+        <div style="font-weight: 700; font-size: 0.85rem; letter-spacing: 0.5px;">TAX INVOICE / CASH MEMO</div>
+        <div class="receipt-cut-line"></div>
+      </div>
+
+      <div class="receipt-meta-grid">
+        <div class="receipt-meta-row">
+          <span><strong>INVOICE NO:</strong> <span id="billNumber">#SC-001</span></span>
+          <span id="billOrderTypeTag" style="font-weight: 700;">TAKEAWAY</span>
+        </div>
+        <div class="receipt-meta-row">
+          <span>📅 Date: <span id="billDate">--</span></span>
+          <span>⏰ Time: <span id="billTime">--</span></span>
+        </div>
+        <div class="receipt-meta-row" id="billCustomerMetaRow">
+          <span>👤 Customer: <span id="billCustomerName">Walk-In</span></span>
+          <span>📱 <span id="billCustomerPhone">--</span></span>
+        </div>
+        <div class="receipt-meta-row">
+          <span>💳 Mode: <strong id="billPaymentMode">Cash</strong></span>
+          <span>Register: #Counter-1</span>
+        </div>
+      </div>
+
+      <div class="receipt-cut-line"></div>
+
+      <!-- Itemized Items Table -->
+      <table class="receipt-table">
+        <thead>
+          <tr>
+            <th style="width: 10%; text-align: center;">#</th>
+            <th style="width: 50%; text-align: left;">Item</th>
+            <th style="width: 15%; text-align: center;">Qty</th>
+            <th style="width: 25%; text-align: right;">Amt (₹)</th>
+          </tr>
+        </thead>
+        <tbody id="billItemsBody">
+          <!-- Populated by JavaScript -->
+        </tbody>
+      </table>
+
+      <div class="receipt-cut-line"></div>
+
+      <!-- Totals & Taxes -->
+      <div class="receipt-totals-box">
+        <div class="receipt-total-line">
+          <span>Total Items:</span>
+          <span id="billTotalItems">0</span>
+        </div>
+        <div class="receipt-total-line">
+          <span>Subtotal:</span>
+          <span id="billSubtotal">₹0.00</span>
+        </div>
+        <div class="receipt-total-line" id="billDiscountLine" style="display: none;">
+          <span>Discount:</span>
+          <span id="billDiscountVal">-₹0.00</span>
+        </div>
+        <div class="receipt-total-line">
+          <span>GST / Tax:</span>
+          <span id="billGstVal">₹0.00</span>
+        </div>
+        <div class="receipt-cut-line"></div>
+        <div class="receipt-total-line receipt-grand-total">
+          <span>TOTAL DUE:</span>
+          <span id="billGrandTotal">₹0.00</span>
+        </div>
+      </div>
+
+      <!-- Down-Side Instagram Profile ID & QR Code for Thermal Receipt -->
+      <div class="receipt-instagram-card">
+        <div class="receipt-cut-line" style="width: 100%;"></div>
+        <div class="receipt-ig-title">📸 FOLLOW US ON INSTAGRAM</div>
+        <div class="receipt-qr-frame" id="thermalInstagramQr">
+          <!-- QR Code Canvas/SVG injected by script.js -->
+        </div>
+        <div class="receipt-ig-handle" id="thermalIgHandleText">@sugarcubes_official</div>
+        <div class="receipt-ig-hint">Scan QR code to tag your celebration cakes! ✨</div>
+        <div class="receipt-cut-line" style="width: 100%;"></div>
+      </div>
+
+      <!-- Barcode & Thank You -->
+      <div class="receipt-barcode-view">|||| | || ||||| || ||| ||||</div>
+      <div class="receipt-greeting">
+        *** THANK YOU FOR VISITING SUGAR CUBES! ***<br>
+        Making your celebrations sweeter every day 🎂
+      </div>
+
+      <!-- Modal Action Buttons -->
+      <div class="receipt-action-dock no-print">
+        <button type="button" class="btn-whatsapp-bill" onclick="sendBillWhatsApp()" title="Send official PDF bill directly to customer on WhatsApp">
+          <span>📲</span> <span>Send PDF Bill to WhatsApp</span>
+        </button>
+        <button type="button" class="btn-download-pdf" onclick="downloadPdfBill()">
+          <span>📄</span> <span>Download Official PDF Bill</span>
+        </button>
+        <button type="button" class="btn-checkout-print" onclick="printThermalBill()">
+          <span>🖨️</span> <span>Print Receipt / Thermal</span>
+        </button>
+        <button type="button" class="btn-dismiss" onclick="closeBillModal()">
+          ✕ Close
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       Modal: Order History & Sales Log (Shows Date prominently)
+       ========================================================================= -->
+  <div id="orderHistoryModal" class="modal-backdrop" style="display: none;" onclick="closeOrderHistoryModalOnBackdrop(event)">
+    <div class="modal-window-card" style="max-width: 860px; width: 95%; max-height: 90vh; display: flex; flex-direction: column;" onclick="event.stopPropagation()">
+      <div class="modal-card-top" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #fff; padding: 14px 20px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.4rem;">📋</span>
+          <div>
+            <h3 style="margin: 0; font-size: 1.1rem; font-weight: 800; color: #fff;">Orders History & Sales Log</h3>
+            <p style="margin: 2px 0 0; font-size: 0.78rem; color: #94a3b8;" id="historyDateSubtitle">📅 Showing orders for: Today</p>
+          </div>
+        </div>
+        <button type="button" class="modal-close-x" style="color: #fff;" onclick="closeOrderHistoryModal()">✕</button>
+      </div>
+
+      <!-- Filter Controls & Date Picker Bar inside Modal -->
+      <div class="hist-filter-bar" style="background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 12px 18px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between;">
+        <div class="hist-date-pills-wrap" style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
+          <span style="font-size: 0.8rem; font-weight: 700; color: #475569;">📅 Filter Date:</span>
+          <button type="button" class="date-pill-btn active" id="histBtnToday" onclick="setHistoryDateFilter('today')">🌟 Today</button>
+          <button type="button" class="date-pill-btn" id="histBtnYesterday" onclick="setHistoryDateFilter('yesterday')">⏪ Yesterday</button>
+          <button type="button" class="date-pill-btn" id="histBtnAll" onclick="setHistoryDateFilter('all')">🗓️ All Records</button>
+          <div style="display: inline-flex; align-items: center; gap: 4px; margin-left: 4px;">
+            <label for="histDatePicker" style="font-size: 0.75rem; font-weight: 600; color: #64748b;">Pick Date:</label>
+            <input type="date" id="histDatePicker" style="padding: 4px 8px; font-size: 0.78rem; border: 1px solid #cbd5e1; border-radius: 6px;" onchange="setHistoryDateFilter('custom', this.value)">
+          </div>
+        </div>
+
+        <div class="hist-search-wrap" style="display: flex; align-items: center; gap: 6px;">
+          <input type="text" id="histSearchInput" placeholder="🔍 Search bill # or mobile..." style="padding: 5px 10px; font-size: 0.8rem; border: 1px solid #cbd5e1; border-radius: 6px; width: 190px;" oninput="renderHistoryOrdersList()">
+        </div>
+      </div>
+
+      <!-- Quick Summary KPI Ribbon -->
+      <div id="histSummaryRibbon" style="background: #ffffff; border-bottom: 1px solid #f1f5f9; padding: 10px 18px; display: flex; flex-wrap: wrap; gap: 16px; font-size: 0.82rem; font-weight: 600; color: #334155;">
+        <!-- Injected dynamically by script.js -->
+      </div>
+
+      <!-- Scrollable Orders List Body -->
+      <div class="modal-card-body" id="orderHistoryModalBody" style="padding: 16px 18px; overflow-y: auto; flex: 1; min-height: 250px; background: #f8fafc;">
+        <!-- Injected dynamically by script.js -->
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-card-bottom" style="padding: 12px 18px; background: #ffffff; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+        <button type="button" class="btn-reg-secondary" onclick="exportToExcel()" title="Export all sales to CSV">
+          📈 Export CSV
+        </button>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn-primary-action" style="padding: 8px 14px; font-size: 0.84rem;" onclick="openDailyReportModal()">
+            📊 Daily Summary Report
+          </button>
+          <button type="button" class="btn-dismiss" style="padding: 8px 14px; font-size: 0.84rem;" onclick="closeOrderHistoryModal()">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       Modal: Daily Sales Closing Statement & Audit Report
+       ========================================================================= -->
+  <div id="dailyReportModal" class="modal-backdrop" style="display: none;" onclick="closeDailyReportModalOnBackdrop(event)">
+    <div class="modal-window-card" style="max-width: 580px;" onclick="event.stopPropagation()">
+      <div class="modal-card-top">
+        <h3>📊 Daily Sales Closing Audit Statement</h3>
+        <button type="button" class="modal-close-x" onclick="closeDailyReportModal()">✕</button>
+      </div>
+      <div class="modal-card-body" id="dailyReportModalBody">
+        <!-- Rendered dynamically by script.js -->
+      </div>
+      <div class="modal-card-bottom">
+        <button type="button" class="btn-dismiss" onclick="closeDailyReportModal()">Close</button>
+        <button type="button" class="btn-primary-action" onclick="printDailyReport()">🖨️ Print Statement</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       DEDICATED PROFESSIONAL A4 BAKERY TAX INVOICE (Rendered for PDF generation)
+       ========================================================================= -->
+  <div id="professionalPdfInvoice">
+    <div class="pdf-invoice-wrapper">
+      
+      <!-- Top Brand & Invoice Header -->
+      <div class="pdf-header-top">
+        <div class="pdf-brand-block">
+          <div class="pdf-brand-icon">🍰</div>
+          <div class="pdf-brand-info">
+            <h2>Sugar Cubes Bakery</h2>
+            <p><strong>Artisanal Cakes, Fine Pastries & Confectionery</strong></p>
+            <p>No. 24, Baker's Avenue, 100 Feet Road, Indiranagar, Bengaluru - 560038</p>
+            <p>📞 +91 98765 43210 • ✉️ orders@sugarcubesbakery.com • 🌐 www.sugarcubes.in</p>
+            <p><strong>GSTIN:</strong> 29AABCS1429K1ZT &nbsp;|&nbsp; <strong>FSSAI Lic No:</strong> 11223344556677</p>
+          </div>
+        </div>
+
+        <div class="pdf-invoice-meta-block">
+          <span class="pdf-invoice-badge">TAX INVOICE</span>
+          <div class="pdf-inv-num" id="pdfInvoiceNumber">#SC-001</div>
+          <div class="pdf-inv-meta">
+            <div>📅 <strong>Date:</strong> <span id="pdfInvoiceDate">08-Sep-2026</span></div>
+            <div>⏰ <strong>Time:</strong> <span id="pdfInvoiceTime">03:40 PM</span></div>
+            <div>POS Terminal: <strong>Counter #1</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customer & Order Context Bar -->
+      <div class="pdf-two-col-meta">
+        <div>
+          <div class="pdf-meta-box-title">Billed To (Customer Details)</div>
+          <div style="font-size: 1rem; font-weight: 800; color: #0f172a;" id="pdfCustomerName">Valued Customer</div>
+          <div style="color: #475569; margin-top: 2px;">📱 Phone: <strong id="pdfCustomerMobile">+91 9876XXXXXX</strong></div>
+          <div style="color: #475569;">Delivery / Handover: <strong id="pdfOrderType">Takeaway</strong></div>
+        </div>
+        <div>
+          <div class="pdf-meta-box-title">Payment & Tax Information</div>
+          <div>Payment Mode: <strong id="pdfPaymentMode" style="color: #0284c7;">Cash</strong></div>
+          <div>Payment Status: <strong style="color: #059669;">PAID / VERIFIED</strong></div>
+          <div>State Jurisdiction: <strong>Karnataka (29)</strong></div>
+        </div>
+      </div>
+
+      <!-- Itemized Table -->
+      <table class="pdf-table">
+        <thead>
+          <tr>
+            <th style="width: 6%; text-align: center;">#</th>
+            <th style="width: 48%;">Item Description & Particulars</th>
+            <th style="width: 16%;">Category</th>
+            <th style="width: 15%; text-align: right;">Unit Rate (₹)</th>
+            <th style="width: 8%; text-align: center;">Qty</th>
+            <th style="width: 17%; text-align: right;">Amount (₹)</th>
+          </tr>
+        </thead>
+        <tbody id="pdfTableBody">
+          <!-- Filled dynamically -->
+        </tbody>
+      </table>
+
+      <!-- Calculations Split -->
+      <div class="pdf-calc-split">
+        <div class="pdf-notes-box">
+          <div>
+            <div class="pdf-amount-words">
+              Amount in Words: <span id="pdfAmountInWords" style="color: #b91c1c;">Zero Rupees Only</span>
+            </div>
+            <div style="font-size: 0.72rem; color: #64748b; line-height: 1.5; margin-top: 6px;">
+              <strong>Terms & Conditions:</strong><br>
+              1. Fresh artisanal bakery items. Best consumed within 24 hours.<br>
+              2. Please store fresh cream cakes & pastries refrigerated at or below 5°C.<br>
+              3. Items once sold cannot be returned or exchanged.
+            </div>
+          </div>
+
+          <div class="pdf-stamp-box">
+            <div class="pdf-digital-seal">
+              <span>✔</span> SUGAR CUBES POS VERIFIED
+            </div>
+            <div style="text-align: right; font-size: 0.72rem; color: #475569;">
+              Authorized Signature / Seal<br>
+              <strong>Sugar Cubes Bakery & Cafe</strong>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <table class="pdf-totals-table">
+            <tr>
+              <td>Items Total Subtotal:</td>
+              <td id="pdfSubtotal">₹0.00</td>
+            </tr>
+            <tr id="pdfDiscountRow" style="display: none;">
+              <td>Discount Offered:</td>
+              <td id="pdfDiscount" style="color: #dc2626;">-₹0.00</td>
+            </tr>
+            <tr>
+              <td>Taxable Turnover:</td>
+              <td id="pdfTaxableTurnover">₹0.00</td>
+            </tr>
+            <tr>
+              <td>CGST (2.5%):</td>
+              <td id="pdfCgst">₹0.00</td>
+            </tr>
+            <tr>
+              <td>SGST (2.5%):</td>
+              <td id="pdfSgst">₹0.00</td>
+            </tr>
+            <tr class="pdf-grand-row">
+              <td>GRAND TOTAL:</td>
+              <td id="pdfGrandTotal">₹0.00</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- Down-Side Instagram Profile ID & QR Code Card for PDF -->
+      <div class="pdf-instagram-card">
+        <div class="pdf-ig-left">
+          <div class="pdf-ig-badge">
+            <span>📸</span> <span>CONNECT ON INSTAGRAM</span>
+          </div>
+          <div class="pdf-ig-handle" id="pdfIgHandleDisplay">@sugarcubes_official</div>
+          <div class="pdf-ig-sub">Tag your birthday & celebration cakes with <strong>#SugarCubesBakes</strong> to get featured on our page!</div>
+          <div class="pdf-ig-link" id="pdfIgUrlDisplay">🌐 instagram.com/sugarcubes_official/</div>
+        </div>
+        <div class="pdf-ig-qr-container">
+          <div class="pdf-qr-frame" id="pdfInstagramQr">
+            <!-- QR Code Canvas/SVG injected by script.js -->
+          </div>
+          <div class="pdf-qr-caption">Scan QR to visit Instagram Profile</div>
+        </div>
+      </div>
+
+      <!-- Footer Notice -->
+      <div class="pdf-footer">
+        <div>Thank you for celebrating with Sugar Cubes! Making life sweeter one cube at a time. 🎂</div>
+        <div>Page 1 of 1 • System Generated by Sugar Cubes Enterprise POS</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       Floating Mobile Cart Bar (Sticky on Mobile Screens)
+       ========================================================================= -->
+  <div id="mobileStickyCartBar" class="mobile-sticky-cart-bar" style="display: none;" onclick="switchMobileView('cart')">
+    <div class="mobile-cart-info">
+      <div class="mobile-cart-badge-wrap">
+        <span style="font-size: 1.25rem;">🛒</span>
+        <span class="mobile-cart-badge" id="mobileCartItemCount">0</span>
+      </div>
+      <div class="mobile-cart-text">
+        <span class="mobile-cart-label">Current Bill Total</span>
+        <span class="mobile-cart-total" id="mobileCartTotalVal">₹0.00</span>
+      </div>
+    </div>
+    <button type="button" class="btn-mobile-view-cart">
+      <span>View Bill & Pay</span>
+      <span style="font-size: 1.05rem;">➔</span>
+    </button>
+  </div>
+
+  <!-- =========================================================================
+       Fullscreen Authentication Portal: Login & Create Account
+       ========================================================================= -->
+  <div id="loginAuthScreen" class="auth-fullscreen-overlay">
+    <div class="auth-card-container">
+      
+      <!-- Brand Header on Card -->
+      <div class="auth-brand-header">
+        <div class="auth-brand-icon">🍰</div>
+        <h2>Sugar Cubes</h2>
+        <p class="auth-brand-sub">Artisanal Cake Shop & Bakery POS</p>
+        <div class="auth-security-badge">
+          <span>🔒 SECURE REGISTER TERMINAL</span>
+        </div>
+      </div>
+
+      <!-- Auth Navigation Tabs: Sign In / Create Account -->
+      <div class="auth-tabs-nav">
+        <button type="button" class="auth-tab-btn active" id="tabBtnSignIn" onclick="switchAuthTab('signin')">
+          🔑 Sign In
+        </button>
+        <button type="button" class="auth-tab-btn" id="tabBtnRegister" onclick="switchAuthTab('register')">
+          ✨ Create Account
+        </button>
+      </div>
+
+      <!-- Error / Success Feedback Banner -->
+      <div id="authAlertBanner" class="auth-alert-banner" style="display: none;"></div>
+
+      <!-- ================= TAB 1: SIGN IN FORM ================= -->
+      <form id="signInForm" class="auth-form-body" onsubmit="event.preventDefault(); handleSignInSubmit(event); return false;">
+        <div class="auth-field-wrap">
+          <label for="loginIdInput">Cashier / Login ID</label>
+          <div class="auth-input-inner">
+            <span class="auth-field-icon">👤</span>
+            <input type="text" id="loginIdInput" value="admin" placeholder="Enter Login ID (e.g. admin)" autocomplete="username">
+          </div>
+        </div>
+
+        <div class="auth-field-wrap">
+          <label for="loginPasswordInput">Password</label>
+          <div class="auth-input-inner">
+            <span class="auth-field-icon">🔑</span>
+            <input type="password" id="loginPasswordInput" value="admin123" placeholder="Enter Password" autocomplete="current-password">
+            <button type="button" class="auth-eye-btn" onclick="togglePasswordVisibility('loginPasswordInput', this)" title="Show/Hide Password">👁️</button>
+          </div>
+        </div>
+
+        <div class="auth-options-row">
+          <label class="auth-remember-lbl">
+            <input type="checkbox" id="authRememberMe" checked>
+            <span>Stay signed in on this device</span>
+          </label>
+        </div>
+
+        <button type="button" class="btn-auth-primary" id="btnSubmitLogin" onclick="handleSignInSubmit(event)">
+          <span>🚀 Sign In to POS Register</span>
+        </button>
+
+        <!-- Quick 1-Click Demo Login Button -->
+        <div class="auth-demo-divider">
+          <span>OR QUICK ACCESS</span>
+        </div>
+        <button type="button" class="btn-auth-demo" onclick="quickDemoLogin()" title="Instant login with default admin credentials">
+          <span>⚡ Quick Demo Login (admin / admin123)</span>
+        </button>
+      </form>
+
+      <!-- ================= TAB 2: CREATE ACCOUNT FORM ================= -->
+      <form id="registerForm" class="auth-form-body" style="display: none;" onsubmit="handleRegisterSubmit(event)">
+        <div class="auth-field-wrap">
+          <label for="regFullName">Cashier / Staff Name</label>
+          <div class="auth-input-inner">
+            <span class="auth-field-icon">🏷️</span>
+            <input type="text" id="regFullName" placeholder="e.g. Rachel Green" required>
+          </div>
+        </div>
+
+        <div class="auth-field-wrap">
+          <label for="regLoginId">Create New Login ID</label>
+          <div class="auth-input-inner">
+            <span class="auth-field-icon">🆔</span>
+            <input type="text" id="regLoginId" placeholder="e.g. rachel01 (letters/numbers)" required>
+          </div>
+        </div>
+
+        <div class="auth-field-wrap">
+          <label for="regPassword">Create Password</label>
+          <div class="auth-input-inner">
+            <span class="auth-field-icon">🔒</span>
+            <input type="password" id="regPassword" placeholder="Minimum 4 characters" required minlength="4">
+            <button type="button" class="auth-eye-btn" onclick="togglePasswordVisibility('regPassword', this)" title="Show/Hide Password">👁️</button>
+          </div>
+        </div>
+
+        <div class="auth-field-wrap">
+          <label for="regRole">Role / Terminal Permission</label>
+          <div class="auth-input-inner select-wrap">
+            <span class="auth-field-icon">💼</span>
+            <select id="regRole">
+              <option value="Cashier">Cashier (Front Counter)</option>
+              <option value="Supervisor">Shift Supervisor</option>
+              <option value="Store Manager">Store Manager</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-auth-primary" id="btnSubmitRegister">
+          <span>✨ Create Account & Enter Register</span>
+        </button>
+      </form>
+
+      <!-- Footer Info -->
+      <div class="auth-footer-note">
+        <span>Sugar Cubes Enterprise POS • All data safely kept on device</span>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
