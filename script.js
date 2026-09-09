@@ -282,11 +282,25 @@ function getCatalog() {
   if (stored) {
     try {
       const parsed = JSON.parse(stored);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        let changed = false;
+        parsed.forEach((it, idx) => {
+          if (!it.id) {
+            it.id = 'prod_' + (idx + 1) + '_' + it.name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase().slice(0, 10);
+            changed = true;
+          }
+        });
+        if (changed) saveCatalog(parsed);
+        return parsed;
+      }
     } catch (e) {}
   }
-  saveCatalog(DEFAULT_PRELOADED_ITEMS);
-  return DEFAULT_PRELOADED_ITEMS;
+  const initial = DEFAULT_PRELOADED_ITEMS.map((it, idx) => ({
+    ...it,
+    id: 'prod_' + (idx + 1) + '_' + it.name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase().slice(0, 10)
+  }));
+  saveCatalog(initial);
+  return initial;
 }
 
 function saveCatalog(catalog) {
@@ -294,10 +308,18 @@ function saveCatalog(catalog) {
 }
 
 function resetCatalogStock() {
-  if (confirm('Restock all bakery items to original inventory levels?')) {
-    saveCatalog(DEFAULT_PRELOADED_ITEMS);
+  if (confirm('Restock all bakery items to original default levels?')) {
+    const initial = DEFAULT_PRELOADED_ITEMS.map((it, idx) => ({
+      ...it,
+      id: 'prod_' + (idx + 1) + '_' + it.name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase().slice(0, 10)
+    }));
+    saveCatalog(initial);
     renderPreloadedCatalog();
-    showToast('🔄 Catalog inventory successfully restored!');
+    const prodListModal = document.getElementById('productListModal');
+    if (prodListModal && prodListModal.style.display !== 'none') {
+      renderProductListManager();
+    }
+    showToast('🔄 Catalog inventory successfully restored to default levels!');
   }
 }
 
@@ -361,17 +383,24 @@ function renderPreloadedCatalog() {
     card.className = `product-touch-card ${isOutOfStock ? 'disabled' : ''}`;
     card.onclick = () => {
       if (!isOutOfStock) {
-        directAddCatalogItem(item.name);
+        directAddCatalogItem(item.id || item.name);
+      } else {
+        showToast(`⚠️ "${escapeHtml(item.name)}" is out of stock! Tap ✏️ to restock.`);
       }
     };
 
+    const safeProdId = item.id || ('prod_' + item.name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase());
+
     card.innerHTML = `
-      <div>
+      <div class="product-card-top-bar">
         <span class="card-cat-badge badge-${catConfig.class}">
           ${catConfig.icon} ${escapeHtml(item.category)}
         </span>
-        <h4 class="product-name-title">${escapeHtml(item.name)}</h4>
+        <button type="button" class="product-edit-btn" onclick="openEditProductModal('${safeProdId}', event)" title="Edit name, price & stock for ${escapeHtml(item.name)}" aria-label="Edit ${escapeHtml(item.name)}">
+          ✏️
+        </button>
       </div>
+      <h4 class="product-name-title">${escapeHtml(item.name)}</h4>
       <div class="product-bottom-row">
         <span class="product-price-pill">₹${item.price.toFixed(2)}</span>
         <span class="product-stock-tag ${stockTagClass}">${stockText}</span>
@@ -387,11 +416,15 @@ function filterCatalogCategory(category, btnEl) {
   document.querySelectorAll('.cat-nav-pill').forEach(b => b.classList.remove('active'));
   if (btnEl) btnEl.classList.add('active');
   renderPreloadedCatalog();
+  const grid = document.getElementById('catalogChipsGrid');
+  if (grid) grid.scrollTop = 0;
 }
 
 function onCatalogSearch(query) {
   catalogSearchFilter = query.trim();
   renderPreloadedCatalog();
+  const grid = document.getElementById('catalogChipsGrid');
+  if (grid) grid.scrollTop = 0;
 }
 
 function clearCatalogSearch() {
@@ -399,15 +432,17 @@ function clearCatalogSearch() {
   if (input) input.value = '';
   catalogSearchFilter = '';
   renderPreloadedCatalog();
+  const grid = document.getElementById('catalogChipsGrid');
+  if (grid) grid.scrollTop = 0;
 }
 
 // ==========================================================================
 // Direct One-Click Ring-Up to Active Cart
 // ==========================================================================
 
-function directAddCatalogItem(itemName) {
+function directAddCatalogItem(itemNameOrId) {
   const catalog = getCatalog();
-  const productIndex = catalog.findIndex(i => i.name.toLowerCase() === itemName.toLowerCase());
+  const productIndex = catalog.findIndex(i => (i.id && i.id === itemNameOrId) || i.name.toLowerCase() === String(itemNameOrId).toLowerCase());
   if (productIndex === -1) return;
 
   const product = catalog[productIndex];
@@ -421,13 +456,14 @@ function directAddCatalogItem(itemName) {
   renderPreloadedCatalog();
 
   // Add / Increment in active cart
-  const existingIdx = activeCart.findIndex(it => it.name.toLowerCase() === product.name.toLowerCase());
+  const existingIdx = activeCart.findIndex(it => (it.productId && it.productId === product.id) || it.name.toLowerCase() === product.name.toLowerCase());
   if (existingIdx !== -1) {
     activeCart[existingIdx].quantity += 1;
     activeCart[existingIdx].amount = Number((activeCart[existingIdx].unitPrice * activeCart[existingIdx].quantity).toFixed(2));
   } else {
     activeCart.unshift({
       id: currentTicketNumber,
+      productId: product.id,
       name: product.name,
       category: product.category,
       unitPrice: product.price,
@@ -446,7 +482,7 @@ function stepCartItem(index, delta) {
   if (!item) return;
 
   const catalog = getCatalog();
-  const catIdx = catalog.findIndex(i => i.name.toLowerCase() === item.name.toLowerCase());
+  const catIdx = catalog.findIndex(i => (item.productId && i.id === item.productId) || i.name.toLowerCase() === item.name.toLowerCase());
 
   if (delta === 1) {
     if (catIdx !== -1) {
@@ -484,7 +520,7 @@ function removeCartItem(index) {
   if (!item) return;
 
   const catalog = getCatalog();
-  const catIdx = catalog.findIndex(i => i.name.toLowerCase() === item.name.toLowerCase());
+  const catIdx = catalog.findIndex(i => (item.productId && i.id === item.productId) || i.name.toLowerCase() === item.name.toLowerCase());
   if (catIdx !== -1) {
     catalog[catIdx].stock += (item.quantity || 1);
     saveCatalog(catalog);
@@ -503,7 +539,7 @@ function clearCurrentCart() {
   if (confirm('Clear active cart and restore inventory stock back to catalog?')) {
     const catalog = getCatalog();
     activeCart.forEach(it => {
-      const idx = catalog.findIndex(c => c.name.toLowerCase() === it.name.toLowerCase());
+      const idx = catalog.findIndex(c => (it.productId && c.id === it.productId) || c.name.toLowerCase() === it.name.toLowerCase());
       if (idx !== -1) {
         catalog[idx].stock += (it.quantity || 1);
       }
@@ -516,6 +552,443 @@ function clearCurrentCart() {
     renderCart();
     showToast('Cart cleared.');
   }
+}
+
+// ==========================================================================
+// Product Catalog & Inventory Editor (Name, Category, Price & Stock)
+// ==========================================================================
+
+function openEditProductModal(identifier, event, fromRestore = false) {
+  if (event) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
+
+  const catalog = getCatalog();
+  const product = catalog.find(p => (p.id && p.id === identifier) || p.name.toLowerCase() === String(identifier).toLowerCase());
+
+  if (!product) {
+    showToast(`⚠️ Could not locate product in catalog.`);
+    return;
+  }
+
+  document.getElementById('editProductOriginalId').value = product.id || '';
+  document.getElementById('editProductOriginalName').value = product.name;
+  document.getElementById('editProductName').value = product.name;
+  document.getElementById('editProductCategory').value = product.category || 'Cakes';
+  document.getElementById('editProductPrice').value = product.price;
+  document.getElementById('editProductStock').value = product.stock;
+
+  updateEditStockBadge(product.stock);
+
+  const modal = document.getElementById('editProductModal');
+  if (modal) modal.style.display = 'flex';
+
+  if (!fromRestore) {
+    pushMobileModalState('editProductModal', {
+      restoreFn: () => { openEditProductModal(identifier, null, true); }
+    });
+  } else {
+    updateMobileScrollLock();
+  }
+
+  setTimeout(() => {
+    const nameInput = document.getElementById('editProductName');
+    if (nameInput && window.innerWidth > 768) {
+      nameInput.focus();
+      nameInput.select();
+    }
+  }, 100);
+}
+
+function updateEditStockBadge(val) {
+  const stock = parseInt(val, 10);
+  const badge = document.getElementById('editProductStockBadge');
+  if (!badge) return;
+
+  if (isNaN(stock) || stock <= 0) {
+    badge.className = 'stock-status-pill stock-out';
+    badge.textContent = 'Out of Stock (0)';
+  } else if (stock <= 4) {
+    badge.className = 'stock-status-pill stock-low';
+    badge.textContent = `Low Stock (${stock})`;
+  } else {
+    badge.className = 'stock-status-pill stock-in';
+    badge.textContent = `In Stock (${stock})`;
+  }
+}
+
+function onEditStockInputChanged(val) {
+  updateEditStockBadge(val);
+}
+
+function stepEditProductStock(delta) {
+  const input = document.getElementById('editProductStock');
+  if (!input) return;
+  let val = parseInt(input.value, 10);
+  if (isNaN(val)) val = 0;
+  val = Math.max(0, val + delta);
+  input.value = val;
+  updateEditStockBadge(val);
+}
+
+function addEditProductStock(qty) {
+  const input = document.getElementById('editProductStock');
+  if (!input) return;
+  let val = parseInt(input.value, 10);
+  if (isNaN(val)) val = 0;
+  val += qty;
+  input.value = val;
+  updateEditStockBadge(val);
+}
+
+function setEditProductStock(qty) {
+  const input = document.getElementById('editProductStock');
+  if (!input) return;
+  input.value = qty;
+  updateEditStockBadge(qty);
+}
+
+function closeEditProductModal() {
+  if (isMobileViewport() && mobileModalStack.length > 0 && mobileModalStack[mobileModalStack.length - 1].id === 'editProductModal') {
+    popMobileModalState(false);
+    return;
+  }
+  const modal = document.getElementById('editProductModal');
+  if (modal) modal.style.display = 'none';
+  updateMobileScrollLock();
+}
+
+function closeEditProductModalOnBackdrop(event) {
+  if (event.target === document.getElementById('editProductModal')) {
+    closeEditProductModal();
+  }
+}
+
+function saveProductChanges() {
+  const originalId = document.getElementById('editProductOriginalId').value;
+  const originalName = document.getElementById('editProductOriginalName').value;
+  const nameInput = document.getElementById('editProductName');
+  const catInput = document.getElementById('editProductCategory');
+  const priceInput = document.getElementById('editProductPrice');
+  const stockInput = document.getElementById('editProductStock');
+
+  const newName = nameInput.value.trim();
+  const newCat = catInput.value;
+  const newPrice = parseFloat(priceInput.value);
+  const newStock = parseInt(stockInput.value, 10);
+
+  if (!newName) {
+    alert('Please enter a valid product name.');
+    nameInput.focus();
+    return;
+  }
+
+  if (isNaN(newPrice) || newPrice < 0) {
+    alert('Please enter a valid price (must be 0 or greater).');
+    priceInput.focus();
+    return;
+  }
+
+  if (isNaN(newStock) || newStock < 0) {
+    alert('Please enter a valid stock quantity (must be 0 or greater).');
+    stockInput.focus();
+    return;
+  }
+
+  const catalog = getCatalog();
+  const productIndex = catalog.findIndex(p => 
+    (originalId && p.id === originalId) || 
+    p.name.toLowerCase() === originalName.toLowerCase()
+  );
+
+  if (productIndex === -1) {
+    alert('Product could not be found in catalog.');
+    return;
+  }
+
+  // Check duplicate name with other products
+  const duplicate = catalog.find((p, idx) => 
+    idx !== productIndex && p.name.toLowerCase() === newName.toLowerCase()
+  );
+  if (duplicate) {
+    alert(`Another product with the name "${newName}" already exists. Please enter a distinct name.`);
+    nameInput.focus();
+    return;
+  }
+
+  const oldName = catalog[productIndex].name;
+  catalog[productIndex].name = newName;
+  catalog[productIndex].category = newCat;
+  catalog[productIndex].price = Number(newPrice.toFixed(2));
+  catalog[productIndex].stock = newStock;
+
+  // Update any items in active cart if present
+  let cartUpdated = false;
+  activeCart.forEach(ci => {
+    if ((ci.productId && ci.productId === originalId) || ci.name.toLowerCase() === oldName.toLowerCase()) {
+      ci.name = newName;
+      ci.category = newCat;
+      ci.unitPrice = Number(newPrice.toFixed(2));
+      ci.amount = Number((ci.unitPrice * ci.quantity).toFixed(2));
+      cartUpdated = true;
+    }
+  });
+
+  saveCatalog(catalog);
+  renderPreloadedCatalog();
+  if (cartUpdated) {
+    renderCart();
+  }
+
+  // If product list manager is open, refresh it
+  const prodListModal = document.getElementById('productListModal');
+  if (prodListModal && prodListModal.style.display !== 'none') {
+    renderProductListManager();
+  }
+
+  closeEditProductModal();
+  playBeep('success');
+  showToast(`✅ Saved changes to <strong>${escapeHtml(newName)}</strong> (₹${newPrice.toFixed(2)}, ${newStock} units)!`);
+}
+
+// ==========================================================================
+// All Products Management List Modal Logic
+// ==========================================================================
+
+let prodManagerSearchFilter = '';
+let prodManagerCategoryFilter = 'All';
+
+function openProductListModal(fromRestore = false) {
+  prodManagerSearchFilter = '';
+  prodManagerCategoryFilter = 'All';
+  const searchInput = document.getElementById('prodManagerSearchInput');
+  if (searchInput) searchInput.value = '';
+
+  document.querySelectorAll('.prod-cat-tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent.trim() === 'All');
+  });
+
+  renderProductListManager();
+  const modal = document.getElementById('productListModal');
+  if (modal) modal.style.display = 'flex';
+
+  if (!fromRestore) {
+    pushMobileModalState('productListModal', {
+      restoreFn: () => { openProductListModal(true); }
+    });
+  } else {
+    updateMobileScrollLock();
+  }
+}
+
+function closeProductListModal() {
+  if (isMobileViewport() && mobileModalStack.length > 0 && mobileModalStack[mobileModalStack.length - 1].id === 'productListModal') {
+    popMobileModalState(false);
+    return;
+  }
+  const modal = document.getElementById('productListModal');
+  if (modal) modal.style.display = 'none';
+  updateMobileScrollLock();
+}
+
+function closeProductListModalOnBackdrop(event) {
+  if (event.target === document.getElementById('productListModal')) {
+    closeProductListModal();
+  }
+}
+
+let prodManagerSortMode = 'name-asc';
+
+function onProductManagerSearch(query) {
+  prodManagerSearchFilter = query.trim().toLowerCase();
+  const clearBtn = document.getElementById('prodManagerSearchClear');
+  if (clearBtn) clearBtn.style.display = prodManagerSearchFilter ? 'flex' : 'none';
+  renderProductListManager();
+}
+
+function clearProductManagerSearch() {
+  const input = document.getElementById('prodManagerSearchInput');
+  if (input) input.value = '';
+  prodManagerSearchFilter = '';
+  const clearBtn = document.getElementById('prodManagerSearchClear');
+  if (clearBtn) clearBtn.style.display = 'none';
+  renderProductListManager();
+}
+
+function onProductManagerSortChange(val) {
+  prodManagerSortMode = val;
+  renderProductListManager();
+}
+
+function filterProductManagerCategory(category, btnEl) {
+  prodManagerCategoryFilter = category;
+  renderProductListManager();
+}
+
+function quickRestockCatalogItem(safeProdId, delta, event) {
+  if (event) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
+  const catalog = getCatalog();
+  const product = catalog.find(p => (p.id && p.id === safeProdId) || p.name.toLowerCase() === String(safeProdId).toLowerCase());
+  if (!product) return;
+
+  product.stock = Math.max(0, (product.stock || 0) + delta);
+  saveCatalog(catalog);
+  renderPreloadedCatalog();
+  renderProductListManager();
+  playBeep('add');
+  showToast(`⚡ Restocked +${delta} units for <strong>${escapeHtml(product.name)}</strong>! (Now: ${product.stock})`);
+}
+
+function openCustomOrderFromProductList() {
+  closeProductListModal();
+  setTimeout(() => {
+    openCustomOrderModal();
+  }, 120);
+}
+
+function renderProductListManager() {
+  const container = document.getElementById('productListScrollContainer');
+  if (!container) return;
+
+  const catalog = getCatalog();
+
+  // Category counts and KPIs
+  const catCounts = { All: catalog.length, Cakes: 0, Pastries: 0, Cupcakes: 0, Desserts: 0, Beverages: 0 };
+  let totalStockUnits = 0;
+  let outOfStockCount = 0;
+  let lowStockCount = 0;
+
+  catalog.forEach(item => {
+    if (catCounts[item.category] !== undefined) catCounts[item.category]++;
+    totalStockUnits += (item.stock || 0);
+    if (item.stock <= 0) outOfStockCount++;
+    else if (item.stock <= 4) lowStockCount++;
+  });
+
+  // Render Category Tabs in toolbar
+  const catTabsEl = document.getElementById('prodManagerCatTabs');
+  if (catTabsEl) {
+    const cats = ['All', 'Cakes', 'Pastries', 'Cupcakes', 'Desserts', 'Beverages'];
+    const catIcons = { 'All': '🏷️', 'Cakes': '🎂', 'Pastries': '🍰', 'Cupcakes': '🧁', 'Desserts': '🍪', 'Beverages': '☕' };
+    catTabsEl.innerHTML = cats.map(cat => {
+      const isActive = prodManagerCategoryFilter.toLowerCase() === cat.toLowerCase();
+      const count = catCounts[cat] || 0;
+      return `
+        <button type="button" class="prod-cat-tab-btn ${isActive ? 'active' : ''}" onclick="filterProductManagerCategory('${cat}', this)">
+          <span>${catIcons[cat]} ${cat}</span>
+          <span class="prod-cat-tab-count">${count}</span>
+        </button>
+      `;
+    }).join('');
+  }
+
+  // Filter
+  let filtered = catalog.filter(item => {
+    const matchCategory = prodManagerCategoryFilter === 'All' || item.category.toLowerCase() === prodManagerCategoryFilter.toLowerCase();
+    const matchSearch = !prodManagerSearchFilter || item.name.toLowerCase().includes(prodManagerSearchFilter);
+    return matchCategory && matchSearch;
+  });
+
+  // Sort
+  if (prodManagerSortMode === 'name-asc') {
+    filtered.sort((a, b) => a.name.localeCompare(b.name));
+  } else if (prodManagerSortMode === 'price-asc') {
+    filtered.sort((a, b) => a.price - b.price);
+  } else if (prodManagerSortMode === 'price-desc') {
+    filtered.sort((a, b) => b.price - a.price);
+  } else if (prodManagerSortMode === 'stock-asc') {
+    filtered.sort((a, b) => a.stock - b.stock);
+  } else if (prodManagerSortMode === 'stock-desc') {
+    filtered.sort((a, b) => b.stock - a.stock);
+  }
+
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div class="prod-manager-empty-state">
+        <div class="prod-empty-icon">🔍</div>
+        <h4 class="prod-empty-title">No matching products found</h4>
+        <p class="prod-empty-desc">No bakery items match "<strong>${escapeHtml(prodManagerSearchFilter)}</strong>". Try clearing your search or picking another category.</p>
+        <button type="button" class="btn-clear-prod-filter" onclick="clearProductManagerSearch()">Clear Search</button>
+      </div>
+    `;
+    return;
+  }
+
+  let html = `
+    <div class="prod-manager-kpi-strip">
+      <div class="prod-kpi-chip">
+        <span class="prod-kpi-chip-label">PRODUCTS</span>
+        <span class="prod-kpi-chip-val text-blue">${filtered.length} of ${catalog.length}</span>
+      </div>
+      <div class="prod-kpi-chip">
+        <span class="prod-kpi-chip-label">TOTAL STOCK</span>
+        <span class="prod-kpi-chip-val text-emerald">${totalStockUnits} units</span>
+      </div>
+      <div class="prod-kpi-chip">
+        <span class="prod-kpi-chip-label">HEALTH ALERTS</span>
+        <span class="prod-kpi-chip-val ${outOfStockCount > 0 ? 'text-rose' : 'text-amber'}">${outOfStockCount} Out • ${lowStockCount} Low</span>
+      </div>
+    </div>
+    <div class="prod-manager-table-list">
+  `;
+
+  filtered.forEach((item) => {
+    const catConfig = CATEGORY_CONFIG[item.category] || { icon: '🍰', class: 'cakes' };
+    const isOut = item.stock <= 0;
+    const isLow = item.stock > 0 && item.stock <= 4;
+    let stockClass = 'stock-in';
+    let stockLabel = `${item.stock} in stock`;
+    if (isOut) {
+      stockClass = 'stock-out';
+      stockLabel = 'Sold Out (0)';
+    } else if (isLow) {
+      stockClass = 'stock-low';
+      stockLabel = `Low: ${item.stock} left`;
+    }
+
+    const safeProdId = item.id || ('prod_' + item.name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase());
+
+    html += `
+      <div class="prod-manager-item-row cat-stripe-${catConfig.class} ${isOut ? 'row-out-of-stock' : ''}">
+        <div class="prod-row-left">
+          <div class="prod-row-avatar-box">
+            <span class="prod-row-icon">${catConfig.icon}</span>
+          </div>
+          <div class="prod-row-info">
+            <div class="prod-row-name-line">
+              <span class="prod-row-name" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</span>
+            </div>
+            <div class="prod-row-meta">
+              <span class="card-cat-badge badge-${catConfig.class}">${escapeHtml(item.category)}</span>
+              <span class="stock-status-pill ${stockClass}">${stockLabel}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="prod-row-right">
+          <div class="prod-row-price-wrap">
+            <span class="prod-price-currency">₹</span>
+            <span class="prod-price-figure">${item.price.toFixed(2)}</span>
+          </div>
+          <div class="prod-row-actions">
+            <button type="button" class="btn-prod-quick-restock" onclick="quickRestockCatalogItem('${safeProdId}', 5, event)" title="Add +5 units immediately to shelf inventory">
+              ⚡ +5
+            </button>
+            <button type="button" class="btn-prod-row-edit" onclick="openEditProductModal('${safeProdId}', event)" title="Edit Name, Price, and Stock for ${escapeHtml(item.name)}">
+              ✏️ Edit
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+
+  html += `</div>`;
+  container.innerHTML = html;
 }
 
 // ==========================================================================
@@ -1314,7 +1787,9 @@ const MOBILE_PAGE_HASH_MAP = {
   'orderHistoryModal': '#order-history',
   'dailyReportModal': '#daily-report',
   'billModal': '#bill',
-  'customOrderModal': '#custom-cake'
+  'customOrderModal': '#custom-cake',
+  'editProductModal': '#edit-product',
+  'productListModal': '#products-list'
 };
 
 /**
@@ -1472,6 +1947,16 @@ function handleMobileHashRouting() {
     const bModal = document.getElementById('billModal');
     if (!bModal || bModal.style.display === 'none' || !bModal.style.display) {
       openBillModal();
+    }
+  } else if (hash === '#custom-cake' || hash === '#custom') {
+    const ccModal = document.getElementById('customOrderModal');
+    if (!ccModal || ccModal.style.display === 'none' || !ccModal.style.display) {
+      openCustomOrderModal();
+    }
+  } else if (hash === '#products-list' || hash === '#products') {
+    const plModal = document.getElementById('productListModal');
+    if (!plModal || plModal.style.display === 'none' || !plModal.style.display) {
+      openProductListModal();
     }
   }
 }
@@ -1984,8 +2469,8 @@ function openOrderHistoryModal(mode = null, fromProfile = false, fromRestore = f
   updateHistoryFilterPillsUi();
   renderHistoryOrdersList();
 
-  const actionBtnsEl = document.getElementById('orderHistoryModalActionBtns');
-  if (actionBtnsEl) {
+  const bottomEl = document.getElementById('orderHistoryModalBottom');
+  if (bottomEl) {
     const isMobile = isMobileViewport();
     // Dynamic back label: if mobileModalStack has userProfileModal, say "← Back to Profile"
     let backLabel = '← Back';
@@ -1993,19 +2478,35 @@ function openOrderHistoryModal(mode = null, fromProfile = false, fromRestore = f
     if (fromProfile || (prev && prev.id === 'userProfileModal')) {
       backLabel = '← Back to Profile';
     } else if (isMobile) {
-      backLabel = '← Back to Home';
+      backLabel = '← Back to Store';
     }
 
     const showBack = fromProfile || isMobile || (mobileModalStack.length > 0);
-    actionBtnsEl.innerHTML = `
-      ${showBack ? `<button type="button" class="btn-reg-secondary" style="padding: 8px 14px; font-size: 0.84rem;" onclick="closeOrderHistoryModal();">${backLabel}</button>` : ''}
-      <button type="button" class="btn-primary-action" style="padding: 8px 14px; font-size: 0.84rem;" onclick="openDailyReportModal('all', ${showBack})">
-        📊 Total Sales Report
-      </button>
-      <button type="button" class="btn-dismiss" style="padding: 8px 14px; font-size: 0.84rem;" onclick="closeOrderHistoryModal()">
-        Close
-      </button>
-    `;
+
+    if (isMobile) {
+      bottomEl.innerHTML = `
+        <div class="hist-mobile-cmd-dock">
+          ${showBack ? `<button type="button" class="btn-hist-dock btn-dock-back" onclick="closeOrderHistoryModal();">${backLabel}</button>` : `<button type="button" class="btn-hist-dock btn-dock-close" onclick="closeOrderHistoryModal();">✕ Close</button>`}
+          <button type="button" class="btn-hist-dock btn-dock-export" onclick="exportToExcel()" title="Export all sales to CSV">📈 Export CSV</button>
+          <button type="button" class="btn-hist-dock btn-dock-audit" onclick="openDailyReportModal('all', ${showBack})">📊 Sales Audit</button>
+        </div>
+      `;
+    } else {
+      bottomEl.innerHTML = `
+        <button type="button" class="btn-reg-secondary" onclick="exportToExcel()" title="Export all sales to CSV">
+          📈 Export CSV
+        </button>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;" id="orderHistoryModalActionBtns">
+          ${showBack ? `<button type="button" class="btn-reg-secondary" style="padding: 8px 12px; font-size: 0.82rem;" onclick="closeOrderHistoryModal();">${backLabel}</button>` : ''}
+          <button type="button" class="btn-primary-action" style="padding: 8px 12px; font-size: 0.82rem;" onclick="openDailyReportModal('all', ${showBack})">
+            📊 Total Sales Report
+          </button>
+          <button type="button" class="btn-dismiss" style="padding: 8px 12px; font-size: 0.82rem;" onclick="closeOrderHistoryModal()">
+            Close
+          </button>
+        </div>
+      `;
+    }
   }
 
   const modal = document.getElementById('orderHistoryModal');
@@ -2128,34 +2629,62 @@ function renderHistoryOrdersList() {
     else if (mode.includes('CARD')) cardRev += rev;
   });
 
+  const avgOrder = filtered.length > 0 ? (totalRev / filtered.length).toFixed(2) : '0.00';
+
   const ribbon = document.getElementById('histSummaryRibbon');
   if (ribbon) {
     ribbon.innerHTML = `
-      <div style="display: flex; align-items: center; gap: 6px;">
-        <span>💰 Total Sales:</span>
-        <strong style="color: #059669; font-size: 0.95rem;">₹${totalRev.toFixed(2)}</strong>
+      <div class="hist-kpi-grid">
+        <div class="hist-kpi-card kpi-emerald">
+          <div class="hist-kpi-header">
+            <span class="hist-kpi-icon">💰</span>
+            <span class="hist-kpi-label">TOTAL SALES</span>
+          </div>
+          <div class="hist-kpi-val text-emerald">₹${totalRev.toFixed(2)}</div>
+          <div class="hist-kpi-sub">${filtered.length} Bills Settled</div>
+        </div>
+
+        <div class="hist-kpi-card kpi-blue">
+          <div class="hist-kpi-header">
+            <span class="hist-kpi-icon">📦</span>
+            <span class="hist-kpi-label">ORDERS COUNT</span>
+          </div>
+          <div class="hist-kpi-val text-blue">${filtered.length} <span class="hist-kpi-unit">Bills</span></div>
+          <div class="hist-kpi-sub">Total Transactions</div>
+        </div>
+
+        <div class="hist-kpi-card kpi-amber">
+          <div class="hist-kpi-header">
+            <span class="hist-kpi-icon">🎂</span>
+            <span class="hist-kpi-label">UNITS SOLD</span>
+          </div>
+          <div class="hist-kpi-val text-amber">${totalUnits} <span class="hist-kpi-unit">pcs</span></div>
+          <div class="hist-kpi-sub">Dispatched Items</div>
+        </div>
+
+        <div class="hist-kpi-card kpi-purple">
+          <div class="hist-kpi-header">
+            <span class="hist-kpi-icon">📈</span>
+            <span class="hist-kpi-label">AVG BILL</span>
+          </div>
+          <div class="hist-kpi-val text-purple">₹${avgOrder}</div>
+          <div class="hist-kpi-sub">Per Customer AOV</div>
+        </div>
       </div>
-      <div style="display: flex; align-items: center; gap: 6px;">
-        <span>📦 Orders Count:</span>
-        <strong style="color: #0f172a;">${filtered.length}</strong>
-      </div>
-      <div style="display: flex; align-items: center; gap: 6px;">
-        <span>🎂 Units Sold:</span>
-        <strong style="color: #0f172a;">${totalUnits} pcs</strong>
-      </div>
-      <div style="margin-left: auto; display: flex; gap: 10px; font-size: 0.76rem;">
-        <span style="color: #475569;">💵 Cash: <strong>₹${cashRev.toFixed(2)}</strong></span>
-        <span style="color: #2563eb;">📱 UPI: <strong>₹${upiRev.toFixed(2)}</strong></span>
-        <span style="color: #7c3aed;">💳 Card: <strong>₹${cardRev.toFixed(2)}</strong></span>
+
+      <div class="hist-pay-strip">
+        <div class="hist-pay-chip pay-chip-cash">💵 Cash: <strong>₹${cashRev.toFixed(2)}</strong></div>
+        <div class="hist-pay-chip pay-chip-upi">📱 UPI: <strong>₹${upiRev.toFixed(2)}</strong></div>
+        <div class="hist-pay-chip pay-chip-card">💳 Card: <strong>₹${cardRev.toFixed(2)}</strong></div>
       </div>
     `;
   }
 
-  const body = document.getElementById('orderHistoryModalBody');
-  if (!body) return;
+  const container = document.getElementById('histOrdersCardsContainer') || document.getElementById('orderHistoryModalBody');
+  if (!container) return;
 
   if (filtered.length === 0) {
-    body.innerHTML = `
+    container.innerHTML = `
       <div style="text-align: center; padding: 45px 20px; color: #64748b;">
         <div style="font-size: 2.8rem; margin-bottom: 12px;">📦</div>
         <h4 style="font-size: 1.05rem; color: #1e293b; margin-bottom: 6px; font-weight: 700;">No Orders Recorded for This Date</h4>
@@ -2176,79 +2705,69 @@ function renderHistoryOrdersList() {
     const grand = Number(sale.grandTotal || sale.amount || 0).toFixed(2);
     const payMode = sale.paymentMode || 'Cash';
 
-    let payBadgeBg = '#f1f5f9';
-    let payBadgeColor = '#475569';
+    let payBadgeBg = '#ecfdf5';
+    let payBadgeColor = '#047857';
     if (payMode.toUpperCase().includes('UPI')) {
       payBadgeBg = '#eff6ff';
       payBadgeColor = '#1d4ed8';
     } else if (payMode.toUpperCase().includes('CARD')) {
       payBadgeBg = '#faf5ff';
       payBadgeColor = '#7e22ce';
-    } else if (payMode.toUpperCase().includes('CASH')) {
-      payBadgeBg = '#ecfdf5';
-      payBadgeColor = '#047857';
     }
 
     html += `
       <div class="history-order-row">
-        <!-- Top Row: Bill No, Date, Time & Grand Total -->
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="background: #e0f2fe; color: #0284c7; font-weight: 800; padding: 4px 10px; border-radius: 6px; font-size: 0.88rem; border: 1px solid #bae6fd; letter-spacing: 0.5px;">
-              ${sale.ticketNumber || ('#SC-' + cleanNum)}
-            </span>
-            <div class="hist-date-pill">
-              <span>📅</span> <strong>${dateFormatted}</strong>
-              ${timeFormatted ? `<span style="opacity: 0.6;">•</span> <span>⏰ ${timeFormatted}</span>` : ''}
-            </div>
+        <!-- Top Row: Bill #, Order Type, Date/Time & Grand Total -->
+        <div class="hist-order-header-row">
+          <div class="hist-order-id-group">
+            <span class="hist-bill-badge">${sale.ticketNumber || ('#SC-' + cleanNum)}</span>
+            <span class="hist-type-badge">${sale.orderType || 'Takeaway'}</span>
           </div>
+          <div class="hist-order-price-group">
+            <div class="hist-order-date-pill">
+              <span>📅 ${dateFormatted}</span>
+              ${timeFormatted ? `<span class="hist-time-sep">•</span> <span>⏰ ${timeFormatted}</span>` : ''}
+            </div>
+            <div class="hist-order-total-val">₹${grand}</div>
+          </div>
+        </div>
 
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="background: ${payBadgeBg}; color: ${payBadgeColor}; font-size: 0.74rem; font-weight: 700; padding: 3px 8px; border-radius: 4px;">
+        <!-- Middle Details: Customer Info & Items Summary -->
+        <div class="hist-order-details-box">
+          <div class="hist-order-customer-row">
+            <div class="hist-customer-identity">
+              <span class="hist-cust-icon">👤</span>
+              <span class="hist-cust-name">${escapeHtml(sale.customerName || 'Walk-In Customer')}</span>
+              ${sale.customerMobile ? `<span class="hist-cust-phone">📱 +91 ${sale.customerMobile}</span>` : ''}
+            </div>
+            <div class="hist-pay-mode-badge" style="background: ${payBadgeBg}; color: ${payBadgeColor};">
               ${payMode}
-            </span>
-            <span style="background: #f8fafc; color: #64748b; font-size: 0.74rem; font-weight: 600; padding: 3px 8px; border-radius: 4px; border: 1px solid #e2e8f0;">
-              ${sale.orderType || 'Takeaway'}
-            </span>
-            <span style="font-size: 1.15rem; font-weight: 800; color: #059669; margin-left: 4px;">
-              ₹${grand}
-            </span>
+            </div>
+          </div>
+          <div class="hist-order-items-row">
+            <span class="hist-items-icon">🍰</span>
+            <span class="hist-items-text">${escapeHtml(itemsSummary)}</span>
+            <span class="hist-items-count-pill">${sale.totalUnits || itemsList.length} pcs</span>
           </div>
         </div>
 
-        <!-- Middle Row: Customer Info & Items Breakdown -->
-        <div style="background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 6px; padding: 8px 12px; font-size: 0.82rem; display: flex; flex-direction: column; gap: 4px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
-            <div>
-              <strong>👤 Customer:</strong> <span style="font-weight: 600; color: #0f172a;">${escapeHtml(sale.customerName || 'Walk-In Customer')}</span>
-              ${sale.customerMobile ? `<span style="color: #64748b; margin-left: 8px;">📱 +91 ${sale.customerMobile}</span>` : ''}
-            </div>
-            <div style="font-size: 0.78rem; color: #64748b;">
-              Total Units: <strong>${sale.totalUnits || itemsList.length} pcs</strong>
-            </div>
-          </div>
-          <div style="color: #475569; font-size: 0.8rem; margin-top: 2px;">
-            <strong>🍰 Items:</strong> ${escapeHtml(itemsSummary)}
-          </div>
-        </div>
-
-        <!-- Bottom Action Buttons: View Receipt, PDF, WhatsApp -->
-        <div class="hist-order-actions" style="display: flex; justify-content: flex-end; align-items: center; gap: 8px;">
-          <button type="button" class="btn-reg-secondary" style="padding: 5px 12px; font-size: 0.78rem;" onclick="viewHistoryOrderReceipt('${sale.ticketNumber}')" title="View & Print thermal receipt for this bill">
-            🧾 View Bill
+        <!-- Bottom Action Buttons: 3-Button Symmetrical Grid -->
+        <div class="hist-order-actions">
+          <button type="button" class="btn-hist-action btn-hist-bill" onclick="viewHistoryOrderReceipt('${sale.ticketNumber}')" title="View & Print thermal receipt">
+            <span>🧾</span> <span>Bill</span>
           </button>
-          <button type="button" class="btn-reg-secondary" style="padding: 5px 12px; font-size: 0.78rem;" onclick="downloadHistoryOrderPdf('${sale.ticketNumber}')" title="Download official PDF Tax Invoice">
-            📄 PDF Invoice
+          <button type="button" class="btn-hist-action btn-hist-pdf" onclick="downloadHistoryOrderPdf('${sale.ticketNumber}')" title="Download official PDF Tax Invoice">
+            <span>📄</span> <span>PDF</span>
           </button>
-          <button type="button" class="btn-whatsapp-bill" style="padding: 5px 12px; font-size: 0.78rem;" onclick="whatsappHistoryOrder('${sale.ticketNumber}')" title="Send PDF bill to customer on WhatsApp">
-            📲 WhatsApp
+          <button type="button" class="btn-hist-action btn-hist-wa" onclick="whatsappHistoryOrder('${sale.ticketNumber}')" title="Send bill on WhatsApp">
+            <span>📲</span> <span>WhatsApp</span>
           </button>
         </div>
       </div>
     `;
   });
 
-  body.innerHTML = html;
+  container.innerHTML = html;
 }
 
 function viewHistoryOrderReceipt(ticketNumber) {
@@ -2380,21 +2899,31 @@ function openDailyReportModal(mode = null, fromProfile = false, fromRestore = fa
   const filtered = isAllMode ? allSales : allSales.filter(isSaleMatchingDateFilter);
 
   const titleEl = document.getElementById('dailyReportModalTitle');
+  const subtitleEl = document.getElementById('dailyReportSubtitle');
+  const iconEl = document.getElementById('dailyReportModalIcon');
   if (titleEl) {
-    titleEl.textContent = isAllMode ? '📈 All Total Sales & Revenue Audit Statement' : '📊 Daily Sales Closing Audit Statement';
+    titleEl.textContent = isAllMode ? 'All Total Sales & Revenue Statement' : 'Daily Sales Closing Audit Statement';
+  }
+  if (subtitleEl) {
+    subtitleEl.textContent = isAllMode
+      ? 'Lifetime Commercial Turnover & Category Performance Audit'
+      : 'Official End-of-Day Closing Turnover & Register Balance';
+  }
+  if (iconEl) {
+    iconEl.textContent = isAllMode ? '📈' : '📊';
   }
 
   const modalBody = document.getElementById('dailyReportModalBody');
   if (modalBody) {
     if (filtered.length === 0) {
       modalBody.innerHTML = `
-        <div style="text-align: center; padding: 40px 16px; color: #64748b;">
-          <div style="font-size: 2.8rem; margin-bottom: 10px;">📦</div>
-          <h4 style="font-size: 1.05rem; color: #1e293b; margin-bottom: 6px; font-weight: 700;">
+        <div style="text-align: center; padding: 48px 16px; color: #64748b;">
+          <div style="font-size: 3rem; margin-bottom: 12px; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.08));">📦</div>
+          <h4 style="font-size: 1.1rem; color: #1e293b; margin-bottom: 6px; font-weight: 800;">
             ${isAllMode ? 'No Sales Recorded Yet' : 'No Sales Records for Selected Date'}
           </h4>
-          <p style="font-size: 0.84rem; color: #94a3b8; margin: 0;">
-            Completed register sales will automatically generate commercial turnover statistics here.
+          <p style="font-size: 0.85rem; color: #94a3b8; margin: 0 auto; max-width: 320px; line-height: 1.5;">
+            Completed register sales will automatically generate verified commercial turnover and revenue statistics here.
           </p>
         </div>
       `;
@@ -2402,71 +2931,220 @@ function openDailyReportModal(mode = null, fromProfile = false, fromRestore = fa
       let totalRevenue = 0;
       let totalUnits = 0;
       let payModeBreakdown = { Cash: 0, UPI: 0, Card: 0 };
+      let payModeCount = { Cash: 0, UPI: 0, Card: 0 };
       let catBreakdown = { Cakes: 0, Pastries: 0, Cupcakes: 0, Desserts: 0, Beverages: 0 };
+      let catUnits = { Cakes: 0, Pastries: 0, Cupcakes: 0, Desserts: 0, Beverages: 0 };
 
       filtered.forEach(sale => {
         const rev = Number(sale.grandTotal || sale.amount || 0);
         totalRevenue += rev;
-        totalUnits += (sale.totalUnits || (Array.isArray(sale.items) ? sale.items.length : 1));
+        const uCount = Number(sale.totalUnits || (Array.isArray(sale.items) ? sale.items.reduce((s, it) => s + Number(it.qty || 1), 0) : 1));
+        totalUnits += uCount;
 
         const pMode = (sale.paymentMode || 'Cash').toUpperCase();
-        if (pMode.includes('CASH')) payModeBreakdown.Cash += rev;
-        else if (pMode.includes('UPI') || pMode.includes('QR')) payModeBreakdown.UPI += rev;
-        else if (pMode.includes('CARD')) payModeBreakdown.Card += rev;
+        if (pMode.includes('CASH')) {
+          payModeBreakdown.Cash += rev;
+          payModeCount.Cash++;
+        } else if (pMode.includes('UPI') || pMode.includes('QR')) {
+          payModeBreakdown.UPI += rev;
+          payModeCount.UPI++;
+        } else if (pMode.includes('CARD')) {
+          payModeBreakdown.Card += rev;
+          payModeCount.Card++;
+        } else {
+          payModeBreakdown.Cash += rev;
+          payModeCount.Cash++;
+        }
 
         if (Array.isArray(sale.items)) {
           sale.items.forEach(it => {
             const cat = it.category || 'Cakes';
-            catBreakdown[cat] = (catBreakdown[cat] || 0) + Number(it.amount || 0);
+            const itRev = Number(it.amount || ((it.price || 0) * (it.qty || 1)) || 0);
+            const itQty = Number(it.qty || 1);
+            catBreakdown[cat] = (catBreakdown[cat] || 0) + itRev;
+            catUnits[cat] = (catUnits[cat] || 0) + itQty;
           });
         } else if (sale.category) {
           catBreakdown[sale.category] = (catBreakdown[sale.category] || 0) + rev;
+          catUnits[sale.category] = (catUnits[sale.category] || 0) + uCount;
         }
       });
 
       const avgBill = filtered.length > 0 ? (totalRevenue / filtered.length).toFixed(2) : '0.00';
       const scopeLabel = isAllMode ? 'ALL RECORDED SALES (LIFETIME)' : currentDateFilterMode.toUpperCase();
 
+      // Top Payment Mode Determination
+      let topPayMode = 'Cash';
+      let maxPay = payModeBreakdown.Cash;
+      if (payModeBreakdown.UPI > maxPay) { topPayMode = 'UPI / QR'; maxPay = payModeBreakdown.UPI; }
+      if (payModeBreakdown.Card > maxPay) { topPayMode = 'Card'; maxPay = payModeBreakdown.Card; }
+      const topPayPct = totalRevenue > 0 ? ((maxPay / totalRevenue) * 100).toFixed(0) : '0';
+
+      const cashPct = totalRevenue > 0 ? ((payModeBreakdown.Cash / totalRevenue) * 100).toFixed(1) : '0.0';
+      const upiPct = totalRevenue > 0 ? ((payModeBreakdown.UPI / totalRevenue) * 100).toFixed(1) : '0.0';
+      const cardPct = totalRevenue > 0 ? ((payModeBreakdown.Card / totalRevenue) * 100).toFixed(1) : '0.0';
+
+      const categoriesMeta = [
+        { key: 'Cakes', name: 'Cakes', icon: '🎂', gradient: 'linear-gradient(90deg, #ec4899, #db2777)', badgeBg: '#fdf2f8', badgeColor: '#db2777', badgeBorder: '#fbcfe8' },
+        { key: 'Pastries', name: 'Pastries', icon: '🍰', gradient: 'linear-gradient(90deg, #f97316, #ea580c)', badgeBg: '#fff7ed', badgeColor: '#ea580c', badgeBorder: '#fed7aa' },
+        { key: 'Cupcakes', name: 'Cupcakes', icon: '🧁', gradient: 'linear-gradient(90deg, #8b5cf6, #7c3aed)', badgeBg: '#f5f3ff', badgeColor: '#7c3aed', badgeBorder: '#ddd6fe' },
+        { key: 'Desserts', name: 'Desserts', icon: '🍪', gradient: 'linear-gradient(90deg, #f59e0b, #d97706)', badgeBg: '#fef3c7', badgeColor: '#d97706', badgeBorder: '#fde68a' },
+        { key: 'Beverages', name: 'Beverages', icon: '☕', gradient: 'linear-gradient(90deg, #10b981, #059669)', badgeBg: '#ecfdf5', badgeColor: '#059669', badgeBorder: '#a7f3d0' }
+      ];
+
+      // Sort categories descending by revenue
+      categoriesMeta.sort((a, b) => (catBreakdown[b.key] || 0) - (catBreakdown[a.key] || 0));
+
+      const catRowsHtml = categoriesMeta.map(cat => {
+        const amt = catBreakdown[cat.key] || 0;
+        const units = catUnits[cat.key] || 0;
+        const pct = totalRevenue > 0 ? ((amt / totalRevenue) * 100).toFixed(1) : '0.0';
+        return `
+          <div class="audit-cat-item">
+            <div class="audit-cat-row-top">
+              <div class="audit-cat-left">
+                <span class="audit-cat-pill" style="background: ${cat.badgeBg}; color: ${cat.badgeColor}; border: 1px solid ${cat.badgeBorder};">
+                  ${cat.icon} ${cat.name}
+                </span>
+                <span class="audit-cat-units-tag">${units} pcs sold</span>
+              </div>
+              <div class="audit-cat-right">
+                <span class="audit-cat-amt">₹${amt.toFixed(2)}</span>
+                <span class="audit-cat-pct-badge">${pct}%</span>
+              </div>
+            </div>
+            <div class="audit-cat-bar-track">
+              <div class="audit-cat-bar-fill" style="width: ${pct}%; background: ${cat.gradient};"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      const now = new Date();
+      const auditTimeStr = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) + ' • ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
       modalBody.innerHTML = `
-        <div style="background: #f8fafc; padding: 14px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 14px;">
-          <h4 style="font-size: 0.95rem; margin-bottom: 8px;">🍰 SUGAR CUBES - ${isAllMode ? 'All Total Sales Summary' : 'End of Day Closing Summary'}</h4>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.82rem;">
-            <div>📅 <strong>Scope:</strong> ${scopeLabel}</div>
-            <div>📦 <strong>Total Invoices:</strong> ${filtered.length}</div>
-            <div>💰 <strong>Total Sales:</strong> <span style="font-size: 1.05rem; font-weight: 800; color: #059669;">₹${totalRevenue.toFixed(2)}</span></div>
-            <div>📈 <strong>Avg Bill:</strong> ₹${avgBill}</div>
-            <div>🎂 <strong>Total Units:</strong> ${totalUnits} pcs</div>
-            <div>👥 <strong>Cashier:</strong> ${activeUser ? escapeHtml(activeUser.name) : 'Store Manager'}</div>
+        <div class="audit-report-container">
+          <!-- 1. Hero Revenue Turnover Banner -->
+          <div class="audit-hero-card">
+            <div class="audit-hero-top">
+              <div class="audit-hero-title-group">
+                <span class="audit-hero-eyebrow">💰 GROSS TURNOVER AUDIT</span>
+                <span class="audit-scope-pill">${scopeLabel}</span>
+              </div>
+              <span class="audit-verified-badge">● Certified</span>
+            </div>
+            <div class="audit-hero-amount-row">
+              <span class="audit-hero-currency">₹</span>
+              <span class="audit-hero-val">${totalRevenue.toFixed(2)}</span>
+            </div>
+            <div class="audit-hero-sub-row">
+              <span>🏬 Sugar Cubes • Terminal #1</span>
+              <span>👥 Cashier: <strong>${activeUser ? escapeHtml(activeUser.name) : 'Store Manager'}</strong></span>
+            </div>
           </div>
-        </div>
 
-        <h5 style="font-size: 0.85rem; text-transform: uppercase; margin-bottom: 6px; color: #475569;">Revenue by Category</h5>
-        <table class="receipt-table" style="margin-bottom: 14px;">
-          <thead>
-            <tr><th>Category</th><th style="text-align: right;">Amount (₹)</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>🎂 Cakes</td><td style="text-align: right; font-weight: 700;">₹${(catBreakdown.Cakes || 0).toFixed(2)}</td></tr>
-            <tr><td>🍰 Pastries</td><td style="text-align: right; font-weight: 700;">₹${(catBreakdown.Pastries || 0).toFixed(2)}</td></tr>
-            <tr><td>🧁 Cupcakes</td><td style="text-align: right; font-weight: 700;">₹${(catBreakdown.Cupcakes || 0).toFixed(2)}</td></tr>
-            <tr><td>🍪 Desserts</td><td style="text-align: right; font-weight: 700;">₹${(catBreakdown.Desserts || 0).toFixed(2)}</td></tr>
-            <tr><td>☕ Beverages</td><td style="text-align: right; font-weight: 700;">₹${(catBreakdown.Beverages || 0).toFixed(2)}</td></tr>
-          </tbody>
-        </table>
+          <!-- 2. Symmetrical 2x2 Core Metrics Grid -->
+          <div class="audit-kpi-grid">
+            <div class="audit-kpi-card kpi-blue">
+              <div class="audit-kpi-header">
+                <span class="audit-kpi-icon">📦</span>
+                <span class="audit-kpi-label">TOTAL INVOICES</span>
+              </div>
+              <div class="audit-kpi-val text-blue">${filtered.length} <span class="audit-kpi-unit">Bills</span></div>
+              <div class="audit-kpi-sub">100% Settled Orders</div>
+            </div>
 
-        <h5 style="font-size: 0.85rem; text-transform: uppercase; margin-bottom: 6px; color: #475569;">Payment Collection Breakdown</h5>
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 0.82rem; text-align: center;">
-          <div style="background: #ffffff; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px;">
-            <div>💵 Cash</div>
-            <strong style="color: #0f172a;">₹${(payModeBreakdown.Cash || 0).toFixed(2)}</strong>
+            <div class="audit-kpi-card kpi-purple">
+              <div class="audit-kpi-header">
+                <span class="audit-kpi-icon">📈</span>
+                <span class="audit-kpi-label">AVG BILL (AOV)</span>
+              </div>
+              <div class="audit-kpi-val text-purple">₹${avgBill}</div>
+              <div class="audit-kpi-sub">Per Customer Bill</div>
+            </div>
+
+            <div class="audit-kpi-card kpi-amber">
+              <div class="audit-kpi-header">
+                <span class="audit-kpi-icon">🎂</span>
+                <span class="audit-kpi-label">UNITS SOLD</span>
+              </div>
+              <div class="audit-kpi-val text-amber">${totalUnits} <span class="audit-kpi-unit">pcs</span></div>
+              <div class="audit-kpi-sub">Dispatched Items</div>
+            </div>
+
+            <div class="audit-kpi-card kpi-rose">
+              <div class="audit-kpi-header">
+                <span class="audit-kpi-icon">💳</span>
+                <span class="audit-kpi-label">TOP PAYMENT</span>
+              </div>
+              <div class="audit-kpi-val text-rose">${topPayMode}</div>
+              <div class="audit-kpi-sub">${topPayPct}% of Volume</div>
+            </div>
           </div>
-          <div style="background: #ffffff; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px;">
-            <div>📱 UPI / QR</div>
-            <strong style="color: #2563eb;">₹${(payModeBreakdown.UPI || 0).toFixed(2)}</strong>
+
+          <!-- 3. Revenue by Bakery Category -->
+          <div class="audit-section-card">
+            <div class="audit-section-header">
+              <div class="audit-section-title">
+                <span class="audit-sec-icon">🎂</span>
+                <span class="audit-sec-text">Revenue by Bakery Category</span>
+              </div>
+              <span class="audit-section-chip">5 Lines</span>
+            </div>
+            <div class="audit-cat-list">
+              ${catRowsHtml}
+            </div>
           </div>
-          <div style="background: #ffffff; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px;">
-            <div>💳 Card</div>
-            <strong style="color: #7c3aed;">₹${(payModeBreakdown.Card || 0).toFixed(2)}</strong>
+
+          <!-- 4. Payment Collection Breakdown -->
+          <div class="audit-section-card">
+            <div class="audit-section-header">
+              <div class="audit-section-title">
+                <span class="audit-sec-icon">💳</span>
+                <span class="audit-sec-text">Payment Collection Breakdown</span>
+              </div>
+              <span class="audit-section-chip">Reconciled</span>
+            </div>
+            <div class="audit-pay-grid">
+              <div class="audit-pay-card pay-cash">
+                <div class="audit-pay-top">
+                  <span class="audit-pay-name">💵 Cash</span>
+                  <span class="audit-pay-pct">${cashPct}%</span>
+                </div>
+                <div class="audit-pay-val">₹${(payModeBreakdown.Cash || 0).toFixed(2)}</div>
+                <div class="audit-pay-count">${payModeCount.Cash || 0} Bills</div>
+              </div>
+
+              <div class="audit-pay-card pay-upi">
+                <div class="audit-pay-top">
+                  <span class="audit-pay-name">📱 UPI / QR</span>
+                  <span class="audit-pay-pct">${upiPct}%</span>
+                </div>
+                <div class="audit-pay-val">₹${(payModeBreakdown.UPI || 0).toFixed(2)}</div>
+                <div class="audit-pay-count">${payModeCount.UPI || 0} Bills</div>
+              </div>
+
+              <div class="audit-pay-card pay-card">
+                <div class="audit-pay-top">
+                  <span class="audit-pay-name">💳 Card</span>
+                  <span class="audit-pay-pct">${cardPct}%</span>
+                </div>
+                <div class="audit-pay-val">₹${(payModeBreakdown.Card || 0).toFixed(2)}</div>
+                <div class="audit-pay-count">${payModeCount.Card || 0} Bills</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5. Certified Digital Audit Footer Stamp -->
+          <div class="audit-footer-stamp">
+            <div class="audit-stamp-row">
+              <span class="audit-stamp-icon">🛡️</span>
+              <span class="audit-stamp-text">Certified Commercial Revenue & Turnover Statement</span>
+            </div>
+            <div class="audit-stamp-meta">
+              Sugar Cubes Artisanal Bakery • Terminal Counter #1 • ${auditTimeStr}
+            </div>
           </div>
         </div>
       `;
@@ -2484,7 +3162,7 @@ function openDailyReportModal(mode = null, fromProfile = false, fromRestore = fa
     } else if (fromProfile || (prev && prev.id === 'userProfileModal')) {
       backLabel = '← Back to Profile';
     } else if (isMobile) {
-      backLabel = '← Back to Home';
+      backLabel = '← Back to Store';
     }
 
     const showBack = fromProfile || isMobile || (mobileModalStack.length > 0);
@@ -2941,7 +3619,7 @@ function checkAuthSession() {
     const saved = localStorage.getItem('sugarCubesActiveUser') || sessionStorage.getItem('sugarCubesActiveUser');
     if (saved) {
       activeUser = JSON.parse(saved);
-      applyAuthenticatedState(activeUser);
+      applyAuthenticatedState(activeUser, false);
       return;
     }
   } catch (err) {
@@ -2950,14 +3628,23 @@ function checkAuthSession() {
   showAuthScreen();
 }
 
-function applyAuthenticatedState(user) {
+function applyAuthenticatedState(user, isInteractiveLogin = false) {
   activeUser = user;
+  try {
+    document.documentElement.classList.remove('auth-pending');
+  } catch (e) {}
+
   const overlay = document.getElementById('loginAuthScreen');
   if (overlay) {
-    overlay.classList.add('auth-hidden');
-    setTimeout(() => {
+    if (isInteractiveLogin && overlay.style.display !== 'none') {
+      overlay.classList.add('auth-hidden');
+      setTimeout(() => {
+        overlay.style.display = 'none';
+      }, 220);
+    } else {
+      overlay.classList.add('auth-hidden');
       overlay.style.display = 'none';
-    }, 220);
+    }
   }
 
   const userPill = document.getElementById('loggedUserPill');
@@ -2983,10 +3670,16 @@ function playRegisterAudioBeep() {
 }
 
 function showAuthScreen() {
+  try {
+    document.documentElement.classList.remove('auth-pending');
+  } catch (e) {}
+
   const overlay = document.getElementById('loginAuthScreen');
   if (overlay) {
     overlay.style.display = 'flex';
-    overlay.classList.remove('auth-hidden');
+    requestAnimationFrame(() => {
+      overlay.classList.remove('auth-hidden');
+    });
   }
 
   const userPill = document.getElementById('loggedUserPill');
@@ -3090,7 +3783,7 @@ function handleSignInSubmit(e) {
     }
 
     // Instantly transition to Home Page
-    applyAuthenticatedState(matched);
+    applyAuthenticatedState(matched, true);
     showToast(`👋 Welcome, <strong>${escapeHtml(matched.name)}</strong>! POS Register is ready.`);
     return false;
   } else {
@@ -3163,7 +3856,7 @@ function handleRegisterSubmit(e) {
   }
 
   setTimeout(() => {
-    applyAuthenticatedState(newUser);
+    applyAuthenticatedState(newUser, true);
     showToast(`✨ Account created! Welcome, <strong>${escapeHtml(newUser.name)}</strong> (${escapeHtml(newUser.role)}).`);
     // Reset register form
     if (nameInput) nameInput.value = '';
@@ -3547,6 +4240,22 @@ window.addEventListener('resize', () => {
 
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' || e.key === 'Esc' || e.keyCode === 27) {
+    // 0. Edit Product Modal (Highest dialog priority)
+    const editProductModal = document.getElementById('editProductModal');
+    if (editProductModal && editProductModal.style.display && editProductModal.style.display !== 'none') {
+      e.preventDefault();
+      closeEditProductModal();
+      return;
+    }
+
+    // 0.5. All Products Management List Modal
+    const productListModal = document.getElementById('productListModal');
+    if (productListModal && productListModal.style.display && productListModal.style.display !== 'none') {
+      e.preventDefault();
+      closeProductListModal();
+      return;
+    }
+
     // Mobile Stack: Step-by-step back one modal at a time
     if (isMobileViewport() && mobileModalStack.length > 0) {
       e.preventDefault();
@@ -3601,6 +4310,14 @@ document.addEventListener('keydown', (e) => {
       e.preventDefault();
       closeOrderHistoryModal();
       return;
+    }
+  } else if (e.key === 'Enter') {
+    const editProductModal = document.getElementById('editProductModal');
+    if (editProductModal && editProductModal.style.display && editProductModal.style.display !== 'none') {
+      if (e.target && e.target.tagName !== 'BUTTON') {
+        e.preventDefault();
+        saveProductChanges();
+      }
     }
   }
 });
