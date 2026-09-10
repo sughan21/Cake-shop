@@ -3,36 +3,36 @@
    Dual-Column Commercial Engine with Direct WhatsApp & Auto PDF Generation
    ========================================================================== */
 
-// 19 Curated Bakery Products Across 5 Categories
+// 19 Curated Bakery Products Across 5 Categories with High-Res Visual Photos
 const DEFAULT_PRELOADED_ITEMS = [
   // 🎂 Cakes
-  { name: 'Black Forest Cake (1 Kg)', category: 'Cakes', price: 650, stock: 8 },
-  { name: 'Chocolate Truffle Cake (1 Kg)', category: 'Cakes', price: 750, stock: 10 },
-  { name: 'Red Velvet Fresh Cream (1 Kg)', category: 'Cakes', price: 850, stock: 6 },
-  { name: 'Butterscotch Crunch Cake (1 Kg)', category: 'Cakes', price: 600, stock: 12 },
-  { name: 'Pineapple Delight Cake (1 Kg)', category: 'Cakes', price: 550, stock: 10 },
+  { name: 'Black Forest Cake (1 Kg)', category: 'Cakes', price: 650, stock: 8, image: 'https://images.unsplash.com/photo-1606890737304-57a1ca8a5b62?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Chocolate Truffle Cake (1 Kg)', category: 'Cakes', price: 750, stock: 10, image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Red Velvet Fresh Cream (1 Kg)', category: 'Cakes', price: 850, stock: 6, image: 'https://images.unsplash.com/photo-1616541823729-00fe0aacd32c?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Butterscotch Crunch Cake (1 Kg)', category: 'Cakes', price: 600, stock: 12, image: 'https://images.unsplash.com/photo-1535141192574-5d4897c13136?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Pineapple Delight Cake (1 Kg)', category: 'Cakes', price: 550, stock: 10, image: 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&auto=format&fit=crop&q=80' },
 
   // 🍰 Pastries
-  { name: 'Choco Lava Pastry', category: 'Pastries', price: 99, stock: 25 },
-  { name: 'Blueberry Cheesecake Slice', category: 'Pastries', price: 160, stock: 15 },
-  { name: 'Dark Chocolate Pastry', category: 'Pastries', price: 85, stock: 20 },
-  { name: 'Red Velvet Pastry Slice', category: 'Pastries', price: 110, stock: 18 },
+  { name: 'Choco Lava Pastry', category: 'Pastries', price: 99, stock: 25, image: 'https://images.unsplash.com/photo-1624353365286-3f8d62daad51?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Blueberry Cheesecake Slice', category: 'Pastries', price: 160, stock: 15, image: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Dark Chocolate Pastry', category: 'Pastries', price: 85, stock: 20, image: 'https://images.unsplash.com/photo-1587314168485-3236d6710814?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Red Velvet Pastry Slice', category: 'Pastries', price: 110, stock: 18, image: 'https://images.unsplash.com/photo-1586788680434-30d324b2d46f?w=400&auto=format&fit=crop&q=80' },
 
   // 🧁 Cupcakes
-  { name: 'Vanilla Rainbow Cupcake', category: 'Cupcakes', price: 60, stock: 30 },
-  { name: 'Choco Chip Frost Cupcake', category: 'Cupcakes', price: 75, stock: 25 },
-  { name: 'Red Velvet Cream Cupcake', category: 'Cupcakes', price: 80, stock: 20 },
-  { name: 'Oreo Crumble Cupcake', category: 'Cupcakes', price: 75, stock: 22 },
+  { name: 'Vanilla Rainbow Cupcake', category: 'Cupcakes', price: 60, stock: 30, image: 'https://images.unsplash.com/photo-1576618148400-f54bed99fcfd?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Choco Chip Frost Cupcake', category: 'Cupcakes', price: 75, stock: 25, image: 'https://images.unsplash.com/photo-1587668178277-295251f900ce?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Red Velvet Cream Cupcake', category: 'Cupcakes', price: 80, stock: 20, image: 'https://images.unsplash.com/photo-1614707267537-b85aaf00c4b7?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Oreo Crumble Cupcake', category: 'Cupcakes', price: 75, stock: 22, image: 'https://images.unsplash.com/photo-1599785209707-a456fc1337bb?w=400&auto=format&fit=crop&q=80' },
 
   // 🍪 Desserts
-  { name: 'Walnut Choco Brownie', category: 'Desserts', price: 120, stock: 20 },
-  { name: 'Choco Chip Cookie Box', category: 'Desserts', price: 150, stock: 16 },
-  { name: 'Tiramisu Jar Cake', category: 'Desserts', price: 180, stock: 14 },
-  { name: 'Assorted Macarons (4 Pcs)', category: 'Desserts', price: 220, stock: 12 },
+  { name: 'Walnut Choco Brownie', category: 'Desserts', price: 120, stock: 20, image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Choco Chip Cookie Box', category: 'Desserts', price: 150, stock: 16, image: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Tiramisu Jar Cake', category: 'Desserts', price: 180, stock: 14, image: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Assorted Macarons (4 Pcs)', category: 'Desserts', price: 220, stock: 12, image: 'https://images.unsplash.com/photo-1569864321398-32777148c3b4?w=400&auto=format&fit=crop&q=80' },
 
   // ☕ Beverages
-  { name: 'Cold Coffee with Ice Cream', category: 'Beverages', price: 130, stock: 25 },
-  { name: 'Thick Belgian Hot Chocolate', category: 'Beverages', price: 120, stock: 20 }
+  { name: 'Cold Coffee with Ice Cream', category: 'Beverages', price: 130, stock: 25, image: 'https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Thick Belgian Hot Chocolate', category: 'Beverages', price: 120, stock: 20, image: 'https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?w=400&auto=format&fit=crop&q=80' }
 ];
 
 const CATEGORY_CONFIG = {
@@ -224,29 +224,66 @@ function playBeep(type = 'add') {
     gain.connect(ctx.destination);
 
     if (type === 'add') {
+      // Professional Crystal Marimba Chime (Apple & Square Boutique POS Style)
+      const now = ctx.currentTime;
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(750, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(1050, ctx.currentTime + 0.07);
-      gain.gain.setValueAtTime(0.12, ctx.currentTime);
-      gain.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 0.07);
-      osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + 0.08);
+      osc.frequency.setValueAtTime(587.33, now); // D5 (Warm Root)
+      osc.frequency.exponentialRampToValueAtTime(880, now + 0.055); // A5 (Melodious Fifth)
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.065);
+      osc.start(now);
+      osc.stop(now + 0.07);
+
+      // Harmonious bell shimmer (adds crisp tactile elegance)
+      try {
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(1174.66, now + 0.008); // D6 (Octave chime)
+        osc2.frequency.exponentialRampToValueAtTime(1318.51, now + 0.055); // E6
+        gain2.gain.setValueAtTime(0.035, now + 0.008);
+        gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.065);
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.start(now + 0.008);
+        osc2.stop(now + 0.07);
+      } catch (err) {}
     } else if (type === 'success') {
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(523.25, ctx.currentTime);
-      osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1);
-      gain.gain.setValueAtTime(0.15, ctx.currentTime);
-      gain.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 0.25);
-      osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + 0.25);
+      // Professional Warm Celebration Chime (C5 -> E5 -> G5 Triad)
+      const now = ctx.currentTime;
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(523.25, now);
+      osc.frequency.setValueAtTime(659.25, now + 0.08);
+      osc.frequency.setValueAtTime(783.99, now + 0.16);
+      gain.gain.setValueAtTime(0.09, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.26);
+      osc.start(now);
+      osc.stop(now + 0.27);
     } else if (type === 'delete') {
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(440, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(220, ctx.currentTime + 0.08);
-      gain.gain.setValueAtTime(0.1, ctx.currentTime);
-      gain.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 0.08);
-      osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + 0.09);
+      // Professional Gentle Woodblock / Tactile Bubble Pop (Apple & Square POS Style)
+      const now = ctx.currentTime;
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(480, now);
+      osc.frequency.exponentialRampToValueAtTime(190, now + 0.055);
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.055);
+      osc.start(now);
+      osc.stop(now + 0.06);
+
+      // Micro subtle sub-harmonic body for warmth (simulates acoustic physical release)
+      try {
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(260, now + 0.015);
+        osc2.frequency.exponentialRampToValueAtTime(130, now + 0.06);
+        gain2.gain.setValueAtTime(0.04, now + 0.015);
+        gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.start(now + 0.015);
+        osc2.stop(now + 0.065);
+      } catch (err) {}
     }
   } catch (e) {}
 }
@@ -288,6 +325,13 @@ function getCatalog() {
           if (!it.id) {
             it.id = 'prod_' + (idx + 1) + '_' + it.name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase().slice(0, 10);
             changed = true;
+          }
+          if (!it.image) {
+            const defItem = DEFAULT_PRELOADED_ITEMS.find(d => d.name.toLowerCase() === it.name.toLowerCase());
+            if (defItem && defItem.image) {
+              it.image = defItem.image;
+              changed = true;
+            }
           }
         });
         if (changed) saveCatalog(parsed);
@@ -391,19 +435,34 @@ function renderPreloadedCatalog() {
 
     const safeProdId = item.id || ('prod_' + item.name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase());
 
+    const imgUrl = item.image || '';
     card.innerHTML = `
-      <div class="product-card-top-bar">
-        <span class="card-cat-badge badge-${catConfig.class}">
-          ${catConfig.icon} ${escapeHtml(item.category)}
-        </span>
-        <button type="button" class="product-edit-btn" onclick="openEditProductModal('${safeProdId}', event)" title="Edit name, price & stock for ${escapeHtml(item.name)}" aria-label="Edit ${escapeHtml(item.name)}">
+      <div class="product-card-visual-wrap">
+        ${imgUrl ? `<img src="${imgUrl}" alt="${escapeHtml(item.name)}" class="product-card-img" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">` : ''}
+        <div class="product-card-fallback-avatar" style="${imgUrl ? 'display: none;' : 'display: flex;'}">
+          <span class="fallback-icon">${catConfig.icon}</span>
+        </div>
+        <span class="product-stock-badge-floating ${stockTagClass}">${stockText}</span>
+        <button type="button" class="product-edit-btn-floating" onclick="openEditProductModal('${safeProdId}', event)" title="Edit name, price & stock for ${escapeHtml(item.name)}" aria-label="Edit ${escapeHtml(item.name)}">
           ✏️
         </button>
       </div>
-      <h4 class="product-name-title">${escapeHtml(item.name)}</h4>
-      <div class="product-bottom-row">
-        <span class="product-price-pill">₹${item.price.toFixed(2)}</span>
-        <span class="product-stock-tag ${stockTagClass}">${stockText}</span>
+      <div class="product-card-info-wrap">
+        <div class="product-card-cat-sub">
+          <span class="card-cat-badge badge-${catConfig.class}">
+            ${catConfig.icon} ${escapeHtml(item.category)}
+          </span>
+        </div>
+        <h4 class="product-name-title" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</h4>
+        <div class="product-bottom-row">
+          <div class="product-price-block">
+            <span class="product-price-currency">₹</span>
+            <span class="product-price-figure">${item.price.toFixed(2)}</span>
+          </div>
+          <button type="button" class="btn-card-quick-add ${isOutOfStock ? 'disabled' : ''}" onclick="if (!${isOutOfStock}) { directAddCatalogItem('${safeProdId}'); } event.stopPropagation();" title="Add to cart">
+            <span>+ Add</span>
+          </button>
+        </div>
       </div>
     `;
 
@@ -558,6 +617,325 @@ function clearCurrentCart() {
 // Product Catalog & Inventory Editor (Name, Category, Price & Stock)
 // ==========================================================================
 
+const DEFAULT_CATEGORY_IMAGES = {
+  'Cakes': 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&auto=format&fit=crop&q=80',
+  'Pastries': 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=400&auto=format&fit=crop&q=80',
+  'Cupcakes': 'https://images.unsplash.com/photo-1576618148400-f54bed99fcfd?w=400&auto=format&fit=crop&q=80',
+  'Desserts': 'https://images.unsplash.com/photo-1569864321398-32777148c3b4?w=400&auto=format&fit=crop&q=80',
+  'Beverages': 'https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?w=400&auto=format&fit=crop&q=80'
+};
+
+// Curated Studio Food Photography Library for Instant Intelligent Matching
+const SMART_FOOD_PHOTOS = [
+  // Cakes
+  { keywords: ['black forest'], image: 'https://images.unsplash.com/photo-1606890737304-57a1ca8a5b62?w=400&auto=format&fit=crop&q=80' },
+  { keywords: ['red velvet'], image: 'https://images.unsplash.com/photo-1616541823729-00fe0aacd32c?w=400&auto=format&fit=crop&q=80' },
+  { keywords: ['butterscotch', 'caramel'], image: 'https://images.unsplash.com/photo-1535141192574-5d4897c13136?w=400&auto=format&fit=crop&q=80' },
+  { keywords: ['pineapple'], image: 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&auto=format&fit=crop&q=80' },
+  { keywords: ['cheesecake', 'cheese cake'], image: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=400&auto=format&fit=crop&q=80' },
+  { keywords: ['mango'], image: 'https://images.unsplash.com/photo-1588195538326-c5b1e9f80a1b?w=400&auto=format&fit=crop&q=80' },
+  { keywords: ['strawberry', 'berry'], image: 'https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=400&auto=format&fit=crop&q=80' },
+  { keywords: ['biscoff', 'lotus'], image: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400&auto=format&fit=crop&q=80' },
+  { keywords: ['tiramisu'], image: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=400&auto=format&fit=crop&q=80' },
+  { keywords: ['truffle', 'chocolate cake', 'dark chocolate cake', 'fudge'], image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&auto=format&fit=crop&q=80' },
+  { keywords: ['vanilla cake'], image: 'https://images.unsplash.com/photo-1576618148400-f54bed99fcfd?w=400&auto=format&fit=crop&q=80' },
+  { keywords: ['rainbow cake'], image: 'https://images.unsplash.com/photo-1535141192574-5d4897c13136?w=400&auto=format&fit=crop&q=80' },
+  { keywords: ['carrot cake', 'carrot'], image: 'https://images.unsplash.com/photo-1588195538326-c5b1e9f80a1b?w=400&auto=format&fit=crop&q=80' },
+  { keywords: ['opera'], image: 'https://images.unsplash.com/photo-1587314168485-3236d6710814?w=400&auto=format&fit=crop&q=80' },
+
+  // Pastries & Bakes
+  { keywords: ['choco lava', 'lava'], image: 'https://images.unsplash.com/photo-1624353365286-3f8d62daad51?w=400&auto=format&fit=crop&q=80' },
+  { keywords: ['croissant'], image: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400&auto=format&fit=crop&q=80' },
+  { keywords: ['donut', 'doughnut'], image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=400&auto=format&fit=crop&q=80' },
+  { keywords: ['puff', 'danish', 'strudel'], image: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400&auto=format&fit=crop&q=80' },
+  { keywords: ['tart', 'pie', 'apple pie'], image: 'https://images.unsplash.com/photo-1519915028121-7d3463d20b13?w=400&auto=format&fit=crop&q=80' },
+  { keywords: ['eclair', 'éclair'], image: 'https://images.unsplash.com/photo-1587314168485-3236d6710814?w=400&auto=format&fit=crop&q=80' },
+  { keywords: ['cinnamon roll', 'cinnamon bun'], image: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400&auto=format&fit=crop&q=80' },
+
+  // Cupcakes
+  { keywords: ['oreo cupcake', 'oreo'], image: 'https://images.unsplash.com/photo-1599785209707-a456fc1337bb?w=400&auto=format&fit=crop&q=80' },
+  { keywords: ['choco chip cupcake', 'frost cupcake'], image: 'https://images.unsplash.com/photo-1587668178277-295251f900ce?w=400&auto=format&fit=crop&q=80' },
+  { keywords: ['red velvet cupcake'], image: 'https://images.unsplash.com/photo-1614707267537-b85aaf00c4b7?w=400&auto=format&fit=crop&q=80' },
+  { keywords: ['cupcake', 'muffin'], image: 'https://images.unsplash.com/photo-1576618148400-f54bed99fcfd?w=400&auto=format&fit=crop&q=80' },
+
+  // Desserts
+  { keywords: ['brownie'], image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=400&auto=format&fit=crop&q=80' },
+  { keywords: ['cookie', 'cookies'], image: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=400&auto=format&fit=crop&q=80' },
+  { keywords: ['macaron', 'macaroons'], image: 'https://images.unsplash.com/photo-1569864321398-32777148c3b4?w=400&auto=format&fit=crop&q=80' },
+  { keywords: ['waffle', 'pancake'], image: 'https://images.unsplash.com/photo-1562376552-0d160a2f238d?w=400&auto=format&fit=crop&q=80' },
+  { keywords: ['pudding', 'panna cotta', 'mousse'], image: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=400&auto=format&fit=crop&q=80' },
+
+  // Beverages
+  { keywords: ['cold coffee', 'iced coffee', 'frappe', 'iced latte'], image: 'https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?w=400&auto=format&fit=crop&q=80' },
+  { keywords: ['hot chocolate', 'cocoa'], image: 'https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?w=400&auto=format&fit=crop&q=80' },
+  { keywords: ['cappuccino', 'latte', 'espresso', 'coffee'], image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&auto=format&fit=crop&q=80' },
+  { keywords: ['tea', 'chai', 'green tea', 'iced tea'], image: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&auto=format&fit=crop&q=80' },
+  { keywords: ['mojito', 'lemonade', 'juice', 'smoothie', 'shake'], image: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=400&auto=format&fit=crop&q=80' }
+];
+
+let isManualPhotoSelected = false;
+let productNameDebounceTimer = null;
+
+function findSmartMatchingPhoto(productName, category) {
+  const norm = (productName || '').toLowerCase().trim();
+  if (norm) {
+    for (const entry of SMART_FOOD_PHOTOS) {
+      if (entry.keywords.some(kw => norm.includes(kw))) {
+        return entry.image;
+      }
+    }
+  }
+  return DEFAULT_CATEGORY_IMAGES[category] || DEFAULT_CATEGORY_IMAGES['Cakes'];
+}
+
+function autoMatchProductPhoto(isUserClick = false) {
+  const nameInput = document.getElementById('editProductName');
+  const catInput = document.getElementById('editProductCategory');
+  const imgInput = document.getElementById('editProductImage');
+  const previewImg = document.getElementById('editPhotoPreviewImg');
+  const badge = document.getElementById('smartPhotoBadge');
+  const googleLink = document.getElementById('btnGoogleImagesLink');
+
+  const name = nameInput ? nameInput.value.trim() : '';
+  const category = catInput ? catInput.value : 'Cakes';
+
+  const matchedPhoto = findSmartMatchingPhoto(name, category);
+
+  if (imgInput) imgInput.value = matchedPhoto;
+  if (previewImg) previewImg.src = matchedPhoto;
+  if (badge) {
+    badge.textContent = name ? '✨ Auto-Matched' : '📂 Category Default';
+    badge.className = 'smart-photo-badge';
+  }
+
+  if (googleLink) {
+    const q = encodeURIComponent((name || category) + ' bakery cake dessert food');
+    googleLink.href = `https://www.google.com/search?tbm=isch&q=${q}`;
+  }
+
+  isManualPhotoSelected = false;
+
+  if (isUserClick) {
+    playBeep('add');
+    showToast(`⚡ Matched photo for <strong>${escapeHtml(name || category)}</strong>!`);
+  }
+}
+
+function onProductNameInput(val) {
+  const googleLink = document.getElementById('btnGoogleImagesLink');
+  const category = document.getElementById('editProductCategory')?.value || 'Cakes';
+  if (googleLink) {
+    const q = encodeURIComponent((val.trim() || category) + ' bakery cake dessert food');
+    googleLink.href = `https://www.google.com/search?tbm=isch&q=${q}`;
+  }
+
+  if (!isManualPhotoSelected) {
+    clearTimeout(productNameDebounceTimer);
+    productNameDebounceTimer = setTimeout(() => {
+      autoMatchProductPhoto(false);
+    }, 300);
+  }
+}
+
+function onProductCategoryChanged(val) {
+  const name = document.getElementById('editProductName')?.value.trim();
+  if (!isManualPhotoSelected && !name) {
+    autoMatchProductPhoto(false);
+  }
+}
+
+function onManualPhotoUrlInput(val) {
+  const previewImg = document.getElementById('editPhotoPreviewImg');
+  const badge = document.getElementById('smartPhotoBadge');
+  if (val.trim()) {
+    isManualPhotoSelected = true;
+    if (previewImg) previewImg.src = val.trim();
+    if (badge) {
+      badge.textContent = '🔗 Custom URL';
+      badge.className = 'smart-photo-badge';
+    }
+  } else {
+    isManualPhotoSelected = false;
+    autoMatchProductPhoto(false);
+  }
+}
+
+function clearProductPhotoUrl() {
+  isManualPhotoSelected = false;
+  const imgInput = document.getElementById('editProductImage');
+  if (imgInput) imgInput.value = '';
+  autoMatchProductPhoto(false);
+  playBeep('delete');
+}
+
+function onPhotoPreviewError(imgEl) {
+  const cat = document.getElementById('editProductCategory')?.value || 'Cakes';
+  imgEl.src = DEFAULT_CATEGORY_IMAGES[cat] || DEFAULT_CATEGORY_IMAGES['Cakes'];
+}
+
+async function searchOnlinePhotos() {
+  const name = document.getElementById('editProductName')?.value.trim() || '';
+  const category = document.getElementById('editProductCategory')?.value || 'Cakes';
+  const container = document.getElementById('photoSuggestionsContainer');
+  const strip = document.getElementById('photoSuggestionsStrip');
+  const title = document.getElementById('photoSuggestionsTitle');
+  const btn = document.getElementById('btnWebSearchPhotos');
+
+  if (!container || !strip) return;
+  container.style.display = 'block';
+  if (title) title.textContent = `🔍 Searching photos for "${name || category}"...`;
+  strip.innerHTML = `<div class="photo-search-loading"><span class="loading-spin">🔄</span> Searching web for appetizing photos...</div>`;
+
+  if (btn) btn.disabled = true;
+
+  try {
+    const query = name ? `${name} food cake dessert` : `${category} dessert food`;
+    const encoded = encodeURIComponent(query);
+    const apiUrl = `https://en.wikipedia.org/w/api.php?action=query&format=json&generator=search&gsrnamespace=6&gsrsearch=${encoded}&gsrlimit=8&prop=imageinfo&iiprop=url|thumburl&iiurlwidth=400&origin=*`;
+
+    const res = await fetch(apiUrl);
+    const data = await res.json();
+    const pages = Object.values(data?.query?.pages || {});
+
+    const images = [];
+    pages.forEach(p => {
+      const info = p.imageinfo?.[0];
+      const url = info?.thumburl || info?.url;
+      const fileTitle = (p.title || '').toLowerCase();
+      if (url && (url.includes('.jpg') || url.includes('.jpeg') || url.includes('.png')) && !fileTitle.includes('.svg') && !fileTitle.includes('icon') && !fileTitle.includes('logo')) {
+        images.push({
+          url,
+          title: p.title.replace('File:', '').replace(/\.[^/.]+$/, '').replace(/_/g, ' ')
+        });
+      }
+    });
+
+    // Also include curated studio photo as option 1
+    const curatedPhoto = findSmartMatchingPhoto(name, category);
+    const results = [{ url: curatedPhoto, title: `${name || category} (Curated HD)` }];
+    images.forEach(img => {
+      if (!results.some(r => r.url === img.url)) {
+        results.push(img);
+      }
+    });
+
+    if (results.length === 0) {
+      strip.innerHTML = `
+        <div class="photo-search-no-results">
+          <span>No direct online photos found. Click "Google Images ↗" below or stick with our auto-matched photo!</span>
+        </div>
+      `;
+      return;
+    }
+
+    if (title) title.textContent = `✨ Matching Photos for "${name || category}" (${results.length} found):`;
+    const currentUrl = document.getElementById('editProductImage')?.value.trim() || '';
+
+    strip.innerHTML = results.slice(0, 8).map((item) => {
+      const isSelected = item.url === currentUrl;
+      return `
+        <div class="photo-suggestion-card ${isSelected ? 'selected' : ''}" onclick="selectSuggestedPhoto('${item.url.replace(/'/g, "\\'")}', this)" title="${escapeHtml(item.title)}">
+          <img src="${item.url}" alt="${escapeHtml(item.title)}" loading="lazy" onerror="this.parentElement.style.display='none';">
+          <span class="photo-card-check">✓</span>
+          <span class="photo-card-label">${escapeHtml(item.title.slice(0, 20))}</span>
+        </div>
+      `;
+    }).join('');
+
+  } catch (err) {
+    console.error('Online image search error:', err);
+    const fallbackPhoto = findSmartMatchingPhoto(name, category);
+    strip.innerHTML = `
+      <div class="photo-suggestion-card selected" onclick="selectSuggestedPhoto('${fallbackPhoto}', this)">
+        <img src="${fallbackPhoto}" alt="Curated Photo">
+        <span class="photo-card-check">✓</span>
+        <span class="photo-card-label">Curated HD Photo</span>
+      </div>
+    `;
+    if (title) title.textContent = `✨ Curated Match for "${name || category}":`;
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
+function selectSuggestedPhoto(url, cardElement) {
+  isManualPhotoSelected = true;
+  const imgInput = document.getElementById('editProductImage');
+  const previewImg = document.getElementById('editPhotoPreviewImg');
+  const badge = document.getElementById('smartPhotoBadge');
+
+  if (imgInput) imgInput.value = url;
+  if (previewImg) previewImg.src = url;
+  if (badge) {
+    badge.textContent = '✓ Selected';
+    badge.className = 'smart-photo-badge';
+  }
+
+  // Update selection rings
+  document.querySelectorAll('.photo-suggestion-card').forEach(c => c.classList.remove('selected'));
+  if (cardElement) cardElement.classList.add('selected');
+
+  playBeep('add');
+  showToast('📸 Matching photo selected!');
+}
+
+function closePhotoSuggestions() {
+  const container = document.getElementById('photoSuggestionsContainer');
+  if (container) container.style.display = 'none';
+}
+
+function openAddProductModal(fromRestore = false) {
+  isManualPhotoSelected = false;
+  closePhotoSuggestions();
+
+  document.getElementById('editProductOriginalId').value = '';
+  document.getElementById('editProductOriginalName').value = '';
+  document.getElementById('editProductName').value = '';
+  document.getElementById('editProductCategory').value = 'Cakes';
+  document.getElementById('editProductPrice').value = '';
+  document.getElementById('editProductStock').value = '10';
+
+  autoMatchProductPhoto(false);
+
+  const badge = document.getElementById('editProductModalBadge');
+  const title = document.getElementById('editProductModalTitle');
+  const subtitle = document.getElementById('editProductModalSubtitle');
+  const saveBtn = document.getElementById('editProductModalSaveBtn');
+
+  if (badge) badge.textContent = 'NEW PRODUCT ONBOARDING';
+  if (title) title.textContent = 'Add New Menu Item';
+  if (subtitle) subtitle.textContent = 'Add a delicious new cake, pastry, or beverage to your store catalog';
+  if (saveBtn) {
+    saveBtn.innerHTML = `
+      <span class="btn-text-full">➕ Add to Catalog</span>
+      <span class="btn-text-short">➕ Add Item</span>
+    `;
+  }
+
+  const delBtn = document.getElementById('btnEditProductDelete');
+  if (delBtn) delBtn.style.display = 'none';
+
+  updateEditStockBadge(10);
+
+  const modal = document.getElementById('editProductModal');
+  if (modal) modal.style.display = 'flex';
+
+  if (!fromRestore) {
+    pushMobileModalState('editProductModal', {
+      restoreFn: () => { openAddProductModal(true); }
+    });
+  } else {
+    updateMobileScrollLock();
+  }
+
+  setTimeout(() => {
+    const nameInput = document.getElementById('editProductName');
+    if (nameInput) {
+      nameInput.focus();
+    }
+  }, 100);
+}
+
 function openEditProductModal(identifier, event, fromRestore = false) {
   if (event) {
     event.stopPropagation();
@@ -572,12 +950,50 @@ function openEditProductModal(identifier, event, fromRestore = false) {
     return;
   }
 
+  closePhotoSuggestions();
+  isManualPhotoSelected = !!product.image;
+
   document.getElementById('editProductOriginalId').value = product.id || '';
   document.getElementById('editProductOriginalName').value = product.name;
   document.getElementById('editProductName').value = product.name;
   document.getElementById('editProductCategory').value = product.category || 'Cakes';
   document.getElementById('editProductPrice').value = product.price;
   document.getElementById('editProductStock').value = product.stock;
+  
+  const imgInput = document.getElementById('editProductImage');
+  const previewImg = document.getElementById('editPhotoPreviewImg');
+  const badgeEl = document.getElementById('smartPhotoBadge');
+  const photoToUse = product.image || findSmartMatchingPhoto(product.name, product.category);
+
+  if (imgInput) imgInput.value = product.image || '';
+  if (previewImg) previewImg.src = photoToUse;
+  if (badgeEl) {
+    badgeEl.textContent = product.image ? '🖼️ Saved Photo' : '✨ Auto-Matched';
+    badgeEl.className = 'smart-photo-badge';
+  }
+
+  const googleLink = document.getElementById('btnGoogleImagesLink');
+  if (googleLink) {
+    const q = encodeURIComponent(product.name + ' bakery cake dessert food');
+    googleLink.href = `https://www.google.com/search?tbm=isch&q=${q}`;
+  }
+
+  const badge = document.getElementById('editProductModalBadge');
+  const title = document.getElementById('editProductModalTitle');
+  const subtitle = document.getElementById('editProductModalSubtitle');
+  const saveBtn = document.getElementById('editProductModalSaveBtn');
+  const delBtn = document.getElementById('btnEditProductDelete');
+
+  if (badge) badge.textContent = 'ADMIN INVENTORY TERMINAL';
+  if (title) title.textContent = 'Edit Bakery Product';
+  if (subtitle) subtitle.textContent = 'Modify retail pricing, category assignment & live inventory';
+  if (saveBtn) {
+    saveBtn.innerHTML = `
+      <span class="btn-text-full">💾 Save & Apply Changes</span>
+      <span class="btn-text-short">💾 Save Changes</span>
+    `;
+  }
+  if (delBtn) delBtn.style.display = 'inline-flex';
 
   updateEditStockBadge(product.stock);
 
@@ -665,18 +1081,85 @@ function closeEditProductModalOnBackdrop(event) {
   }
 }
 
+function deleteCatalogProduct(identifier, event) {
+  if (event) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
+
+  const catalog = getCatalog();
+  const product = catalog.find(p => (p.id && p.id === identifier) || p.name.toLowerCase() === String(identifier).toLowerCase());
+
+  if (!product) {
+    showToast(`⚠️ Could not locate product to delete.`);
+    return;
+  }
+
+  const confirmMsg = `Are you sure you want to permanently delete "${product.name}" from your store catalog?\n\nThis will remove it from your POS touch menu.`;
+  if (!confirm(confirmMsg)) {
+    return;
+  }
+
+  // Remove from catalog
+  const filteredCatalog = catalog.filter(p => p !== product);
+  saveCatalog(filteredCatalog);
+
+  // If item was in active cart, remove it
+  let cartUpdated = false;
+  activeCart = activeCart.filter(ci => {
+    const isThisItem = (ci.productId && ci.productId === product.id) || ci.name.toLowerCase() === product.name.toLowerCase();
+    if (isThisItem) cartUpdated = true;
+    return !isThisItem;
+  });
+
+  renderPreloadedCatalog();
+  if (cartUpdated) {
+    renderCart();
+  }
+
+  // If product list manager is open, refresh it
+  const prodListModal = document.getElementById('productListModal');
+  if (prodListModal && prodListModal.style.display !== 'none') {
+    renderProductListManager();
+  }
+
+  // If edit product modal is open, close it
+  const editModal = document.getElementById('editProductModal');
+  if (editModal && editModal.style.display !== 'none') {
+    closeEditProductModal();
+  }
+
+  playBeep('delete');
+  showToast(`🗑️ Removed <strong>${escapeHtml(product.name)}</strong> from catalog.`);
+}
+
+function deleteCurrentProduct() {
+  const originalId = document.getElementById('editProductOriginalId').value;
+  const originalName = document.getElementById('editProductOriginalName').value;
+  const identifier = originalId || originalName;
+  if (!identifier) {
+    closeEditProductModal();
+    return;
+  }
+  deleteCatalogProduct(identifier);
+}
+
 function saveProductChanges() {
   const originalId = document.getElementById('editProductOriginalId').value;
   const originalName = document.getElementById('editProductOriginalName').value;
+  const isNewProduct = !originalId && !originalName;
+
   const nameInput = document.getElementById('editProductName');
   const catInput = document.getElementById('editProductCategory');
   const priceInput = document.getElementById('editProductPrice');
   const stockInput = document.getElementById('editProductStock');
+  const imgInput = document.getElementById('editProductImage');
 
   const newName = nameInput.value.trim();
   const newCat = catInput.value;
   const newPrice = parseFloat(priceInput.value);
   const newStock = parseInt(stockInput.value, 10);
+  const newImage = imgInput ? imgInput.value.trim() : '';
 
   if (!newName) {
     alert('Please enter a valid product name.');
@@ -697,6 +1180,46 @@ function saveProductChanges() {
   }
 
   const catalog = getCatalog();
+
+  if (isNewProduct) {
+    // Check if name already exists in catalog
+    const duplicate = catalog.find(p => p.name.toLowerCase() === newName.toLowerCase());
+    if (duplicate) {
+      alert(`A product named "${newName}" already exists in the catalog. Please enter a distinct name.`);
+      nameInput.focus();
+      return;
+    }
+
+    const assignedImage = newImage || findSmartMatchingPhoto(newName, newCat);
+    const newId = 'prod_' + Date.now() + '_' + newName.replace(/[^a-zA-Z0-9]/g, '').toLowerCase().slice(0, 10);
+
+    const newProduct = {
+      id: newId,
+      name: newName,
+      category: newCat,
+      price: Number(newPrice.toFixed(2)),
+      stock: newStock,
+      image: assignedImage
+    };
+
+    // Prepend new item so it appears first in the catalog grid
+    catalog.unshift(newProduct);
+    saveCatalog(catalog);
+    renderPreloadedCatalog();
+
+    // If product list manager is open, refresh it
+    const prodListModal = document.getElementById('productListModal');
+    if (prodListModal && prodListModal.style.display !== 'none') {
+      renderProductListManager();
+    }
+
+    closeEditProductModal();
+    playBeep('add');
+    showToast(`🎉 Added <strong>${escapeHtml(newName)}</strong> to the catalog (₹${newPrice.toFixed(2)}, ${newStock} units)!`);
+    return;
+  }
+
+  // Otherwise, edit existing product
   const productIndex = catalog.findIndex(p => 
     (originalId && p.id === originalId) || 
     p.name.toLowerCase() === originalName.toLowerCase()
@@ -722,6 +1245,9 @@ function saveProductChanges() {
   catalog[productIndex].category = newCat;
   catalog[productIndex].price = Number(newPrice.toFixed(2));
   catalog[productIndex].stock = newStock;
+  if (newImage) {
+    catalog[productIndex].image = newImage;
+  }
 
   // Update any items in active cart if present
   let cartUpdated = false;
@@ -956,7 +1482,7 @@ function renderProductListManager() {
       <div class="prod-manager-item-row cat-stripe-${catConfig.class} ${isOut ? 'row-out-of-stock' : ''}">
         <div class="prod-row-left">
           <div class="prod-row-avatar-box">
-            <span class="prod-row-icon">${catConfig.icon}</span>
+            ${item.image ? `<img src="${item.image}" alt="${escapeHtml(item.name)}" class="prod-row-thumb-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';"><span class="prod-row-icon" style="display:none;">${catConfig.icon}</span>` : `<span class="prod-row-icon">${catConfig.icon}</span>`}
           </div>
           <div class="prod-row-info">
             <div class="prod-row-name-line">
@@ -980,6 +1506,9 @@ function renderProductListManager() {
             </button>
             <button type="button" class="btn-prod-row-edit" onclick="openEditProductModal('${safeProdId}', event)" title="Edit Name, Price, and Stock for ${escapeHtml(item.name)}">
               ✏️ Edit
+            </button>
+            <button type="button" class="btn-prod-row-delete" onclick="deleteCatalogProduct('${safeProdId}', event)" title="Delete ${escapeHtml(item.name)} from menu">
+              🗑️
             </button>
           </div>
         </div>

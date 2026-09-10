@@ -169,14 +169,17 @@
             <span>🍰 Tap Item to Add Directly to Cart</span>
           </div>
           <div class="catalog-actions">
+            <button type="button" class="btn-add-menu-item" onclick="openAddProductModal()" title="Add a new bakery product to your permanent catalog">
+              <span>➕ Add Menu Item</span>
+            </button>
             <button type="button" class="btn-manage-products" onclick="openProductListModal()" title="View and edit all products in a list">
-              ✏️ Edit Products
+              <span>✏️ Edit Products</span>
             </button>
             <button type="button" class="btn-custom-cake" onclick="openCustomOrderModal()" title="Add customized or off-menu cake">
-              + Custom Item
+              <span>+ Custom Item</span>
             </button>
             <button type="button" class="btn-stock-reset" onclick="resetCatalogStock()" title="Restock all bakery items to default levels">
-              🔄 Reset Stock
+              <span>🔄 Reset Stock</span>
             </button>
           </div>
         </div>
@@ -447,9 +450,9 @@
             <span class="edit-header-beacon" title="Live Shelf Counter Active"></span>
           </div>
           <div class="edit-product-header-titles">
-            <div class="edit-product-modal-badge">ADMIN INVENTORY TERMINAL</div>
-            <h3 class="edit-product-title">Edit Bakery Product</h3>
-            <p class="edit-product-subtitle">Modify retail pricing, category assignment & live inventory</p>
+            <div class="edit-product-modal-badge" id="editProductModalBadge">ADMIN INVENTORY TERMINAL</div>
+            <h3 class="edit-product-title" id="editProductModalTitle">Edit Bakery Product</h3>
+            <p class="edit-product-subtitle" id="editProductModalSubtitle">Modify retail pricing, category assignment & live inventory</p>
           </div>
         </div>
         <button type="button" class="modal-close-x edit-product-close-x" onclick="closeEditProductModal()" aria-label="Close">✕</button>
@@ -467,7 +470,7 @@
             <span class="edit-required-mark">*</span>
           </label>
           <div class="edit-input-wrapper">
-            <input type="text" id="editProductName" placeholder="e.g. Black Forest Cake (1 Kg)" autocomplete="off" spellcheck="false">
+            <input type="text" id="editProductName" placeholder="e.g. Mango Cheesecake, Croissant, Biscoff..." autocomplete="off" spellcheck="false" oninput="onProductNameInput(this.value)">
           </div>
         </div>
 
@@ -479,7 +482,7 @@
               <span>Category</span>
             </label>
             <div class="edit-select-wrapper">
-              <select id="editProductCategory">
+              <select id="editProductCategory" onchange="onProductCategoryChanged(this.value)">
                 <option value="Cakes">🎂 Cakes</option>
                 <option value="Pastries">🍰 Pastries</option>
                 <option value="Cupcakes">🧁 Cupcakes</option>
@@ -498,6 +501,57 @@
             <div class="edit-currency-input-wrapper">
               <span class="currency-prefix-badge">₹</span>
               <input type="number" id="editProductPrice" placeholder="0.00" min="0" step="0.5">
+            </div>
+          </div>
+        </div>
+
+        <!-- Product Photo & Smart Online Matcher Cockpit -->
+        <div class="edit-field-group edit-photo-field-group">
+          <div class="edit-field-header-flex">
+            <label for="editProductImage" class="edit-field-label">
+              <span class="edit-label-icon">🖼️</span>
+              <span>Product Photo & Auto-Matcher</span>
+            </label>
+            <span class="smart-photo-badge" id="smartPhotoBadge">✨ Auto-Matched</span>
+          </div>
+
+          <div class="photo-matcher-cockpit">
+            <!-- Left: Live Photo Thumbnail Preview Box -->
+            <div class="photo-live-preview-box" id="editPhotoPreviewBox" title="Current product photo preview">
+              <img id="editPhotoPreviewImg" src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&auto=format&fit=crop&q=80" alt="Product Preview" onerror="onPhotoPreviewError(this)">
+              <div class="photo-preview-indicator">Preview</div>
+            </div>
+
+            <!-- Right: Photo URL Input & Action Buttons -->
+            <div class="photo-matcher-details">
+              <div class="edit-input-wrapper photo-input-wrapper">
+                <input type="url" id="editProductImage" placeholder="Auto-matching photo URL or paste custom link..." autocomplete="off" spellcheck="false" oninput="onManualPhotoUrlInput(this.value)">
+                <button type="button" class="photo-input-clear-btn" id="photoInputClearBtn" onclick="clearProductPhotoUrl()" title="Clear and auto-match photo">✕</button>
+              </div>
+
+              <!-- Action Buttons Strip -->
+              <div class="photo-matcher-actions">
+                <button type="button" class="btn-photo-action btn-auto-match" onclick="autoMatchProductPhoto(true)" title="Auto-find matching photo for this item name">
+                  <span>⚡ Auto-Match</span>
+                </button>
+                <button type="button" class="btn-photo-action btn-web-search" id="btnWebSearchPhotos" onclick="searchOnlinePhotos()" title="Search online web photos matching this item">
+                  <span>🔍 Search Online</span>
+                </button>
+                <a id="btnGoogleImagesLink" href="https://www.google.com/search?tbm=isch&q=bakery+cake" target="_blank" rel="noopener noreferrer" class="btn-photo-action btn-google-images" title="Open Google Images in new tab">
+                  <span>🌐 Google Images ↗</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Suggested Matching Online Photos Strip (Collapsible / Dynamic) -->
+          <div class="photo-suggestions-container" id="photoSuggestionsContainer" style="display: none;">
+            <div class="photo-suggestions-header">
+              <span class="suggestions-title" id="photoSuggestionsTitle">✨ Matching Photos:</span>
+              <button type="button" class="suggestions-close-btn" onclick="closePhotoSuggestions()" title="Close photo suggestions">✕</button>
+            </div>
+            <div class="photo-suggestions-scroll-strip" id="photoSuggestionsStrip">
+              <!-- Dynamically populated by searchOnlinePhotos() -->
             </div>
           </div>
         </div>
@@ -554,10 +608,14 @@
       </div>
 
       <div class="modal-card-bottom edit-product-footer">
+        <button type="button" class="btn-edit-delete" id="btnEditProductDelete" onclick="deleteCurrentProduct()" title="Permanently delete this product from menu">
+          <span class="btn-text-full">🗑️ Delete Item</span>
+          <span class="btn-text-short">🗑️ Delete</span>
+        </button>
         <button type="button" class="btn-edit-cancel" onclick="closeEditProductModal()">
           <span>✕ Cancel</span>
         </button>
-        <button type="button" class="btn-edit-save" onclick="saveProductChanges()">
+        <button type="button" class="btn-edit-save" id="editProductModalSaveBtn" onclick="saveProductChanges()">
           <span class="btn-text-full">💾 Save & Apply Changes</span>
           <span class="btn-text-short">💾 Save Changes</span>
         </button>
@@ -603,6 +661,9 @@
               <option value="stock-desc">Stock (Highest First)</option>
             </select>
           </div>
+          <button type="button" class="btn-toolbar-add-product" onclick="openAddProductModal()" title="Add new bakery product to catalog">
+            <span>➕ Add Product</span>
+          </button>
         </div>
 
         <div class="prod-manager-cat-tabs" id="prodManagerCatTabs">
@@ -622,13 +683,17 @@
             <span class="btn-text-full">← Back to Store</span>
             <span class="btn-text-short">← Store</span>
           </button>
-          <button type="button" class="btn-prod-footer-reset" onclick="resetCatalogStock()">
-            <span class="btn-text-full">🔄 Restore Defaults</span>
-            <span class="btn-text-short">🔄 Defaults</span>
+          <button type="button" class="btn-prod-footer-add" onclick="openAddProductModal()" title="Add a new bakery product to catalog">
+            <span class="btn-text-full">➕ Add Menu Item</span>
+            <span class="btn-text-short">➕ Add Item</span>
           </button>
           <button type="button" class="btn-prod-footer-custom" onclick="openCustomOrderFromProductList()">
-            <span class="btn-text-full">➕ Add Custom Cake</span>
-            <span class="btn-text-short">➕ Custom</span>
+            <span class="btn-text-full">🎂 Custom Cake</span>
+            <span class="btn-text-short">🎂 Custom</span>
+          </button>
+          <button type="button" class="btn-prod-footer-reset" onclick="resetCatalogStock()">
+            <span class="btn-text-full">🔄 Defaults</span>
+            <span class="btn-text-short">🔄 Defaults</span>
           </button>
         </div>
       </div>
