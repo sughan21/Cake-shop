@@ -4518,7 +4518,7 @@ function playRegisterAudioBeep() {
   playBeep('success');
 }
 
-function showAuthScreen() {
+function showAuthScreen(defaultTab = 'register') {
   try {
     document.documentElement.classList.remove('auth-pending');
   } catch (e) {}
@@ -4538,16 +4538,20 @@ function showAuthScreen() {
   if (mobileNameEl) mobileNameEl.textContent = 'Login';
   closeUserProfileModal();
 
-  switchAuthTab('signin');
+  switchAuthTab(defaultTab);
   clearAuthAlert();
 
   const loginInput = document.getElementById('loginIdInput');
   const passInput = document.getElementById('loginPasswordInput');
-  if (loginInput) loginInput.value = '';
+  if (loginInput && defaultTab === 'signin') loginInput.value = '';
   if (passInput) passInput.value = '';
 
   setTimeout(() => {
-    if (loginInput) loginInput.focus();
+    if (defaultTab === 'signin' && loginInput) loginInput.focus();
+    else if (defaultTab === 'register') {
+      const regName = document.getElementById('regFullName');
+      if (regName) regName.focus();
+    }
   }, 100);
 }
 
@@ -4715,8 +4719,7 @@ function handleRegisterSubmit(e) {
   users.push(newUser);
   saveUsersList(users);
 
-  localStorage.setItem('sugarCubesActiveUser', JSON.stringify(newUser));
-  showAuthAlert('🎉 Account created successfully! Accessing terminal...', 'success');
+  showAuthAlert(`🎉 Account created for <strong>${escapeHtml(name)}</strong>! Proceeding to Sign In...`, 'success');
 
   try {
     playBeep('success');
@@ -4739,13 +4742,23 @@ function handleRegisterSubmit(e) {
   );
 
   setTimeout(() => {
-    applyAuthenticatedState(newUser, true);
-    showToast(`✨ Account created! Welcome, <strong>${escapeHtml(newUser.name)}</strong> (${escapeHtml(newUser.email)}).`);
+    // 2-Step Auth Enforcement: Switch to Sign In tab (Create Account -> Sign In -> Home Page)
+    switchAuthTab('signin');
+    const loginIdInput = document.getElementById('loginIdInput');
+    const loginPassInput = document.getElementById('loginPasswordInput');
+    if (loginIdInput) loginIdInput.value = email || id;
+    if (loginPassInput) {
+      loginPassInput.value = '';
+      loginPassInput.focus();
+    }
+    showAuthAlert(`👉 Account created for <strong>${escapeHtml(name)}</strong>! Please enter your Password to Sign In and open Home Page.`, 'success');
+    showToast(`✨ Account created! Please enter your Password to Sign In.`);
+
     if (nameInput) nameInput.value = '';
     if (emailInput) emailInput.value = '';
     if (idInput) idInput.value = '';
     if (passInput) passInput.value = '';
-  }, 500);
+  }, 600);
 }
 
 function quickDemoLogin() {
