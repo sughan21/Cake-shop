@@ -3,44 +3,35 @@
    Dual-Column Commercial Engine with Direct WhatsApp & Auto PDF Generation
    ========================================================================== */
 
-// 19 Curated Bakery Products Across 5 Categories with High-Res Visual Photos
+// 19 Curated Bakery Products Across 2 Real Menu Categories with High-Res Visual Photos
 const DEFAULT_PRELOADED_ITEMS = [
-  // 🎂 Cakes
-  { name: 'Black Forest Cake (1 Kg)', category: 'Cakes', price: 650, stock: 8, image: 'https://images.unsplash.com/photo-1606890737304-57a1ca8a5b62?w=400&auto=format&fit=crop&q=80' },
-  { name: 'Chocolate Truffle Cake (1 Kg)', category: 'Cakes', price: 750, stock: 10, image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&auto=format&fit=crop&q=80' },
-  { name: 'Red Velvet Fresh Cream (1 Kg)', category: 'Cakes', price: 850, stock: 6, image: 'https://images.unsplash.com/photo-1616541823729-00fe0aacd32c?w=400&auto=format&fit=crop&q=80' },
-  { name: 'Butterscotch Crunch Cake (1 Kg)', category: 'Cakes', price: 600, stock: 12, image: 'https://images.unsplash.com/photo-1535141192574-5d4897c13136?w=400&auto=format&fit=crop&q=80' },
-  { name: 'Pineapple Delight Cake (1 Kg)', category: 'Cakes', price: 550, stock: 10, image: 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&auto=format&fit=crop&q=80' },
+  // 🍰 Cakes & More
+  { name: 'Tres Leches', category: 'Cakes & More', price: 160, stock: 15, bestseller: true, image: 'https://images.unsplash.com/photo-1588195538326-c5b1e9f80a1b?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Tiramisu', category: 'Cakes & More', price: 180, stock: 12, image: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Matilda Cake', category: 'Cakes & More', price: 170, stock: 15, bestseller: true, image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Cheese Cake', category: 'Cakes & More', price: 160, stock: 10, image: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Triple Chocolate Cake', category: 'Cakes & More', price: 150, stock: 12, image: 'https://images.unsplash.com/photo-1606890737304-57a1ca8a5b62?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Scoop Cookie', category: 'Cakes & More', price: 150, stock: 20, image: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Puddle Cake', category: 'Cakes & More', price: 150, stock: 15, image: 'https://images.unsplash.com/photo-1624353365286-3f8d62daad51?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Triple Delight Platter', category: 'Cakes & More', price: 300, stock: 8, image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=400&auto=format&fit=crop&q=80' },
 
-  // 🍰 Pastries
-  { name: 'Choco Lava Pastry', category: 'Pastries', price: 99, stock: 25, image: 'https://images.unsplash.com/photo-1624353365286-3f8d62daad51?w=400&auto=format&fit=crop&q=80' },
-  { name: 'Blueberry Cheesecake Slice', category: 'Pastries', price: 160, stock: 15, image: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=400&auto=format&fit=crop&q=80' },
-  { name: 'Dark Chocolate Pastry', category: 'Pastries', price: 85, stock: 20, image: 'https://images.unsplash.com/photo-1587314168485-3236d6710814?w=400&auto=format&fit=crop&q=80' },
-  { name: 'Red Velvet Pastry Slice', category: 'Pastries', price: 110, stock: 18, image: 'https://images.unsplash.com/photo-1586788680434-30d324b2d46f?w=400&auto=format&fit=crop&q=80' },
-
-  // 🧁 Cupcakes
-  { name: 'Vanilla Rainbow Cupcake', category: 'Cupcakes', price: 60, stock: 30, image: 'https://images.unsplash.com/photo-1576618148400-f54bed99fcfd?w=400&auto=format&fit=crop&q=80' },
-  { name: 'Choco Chip Frost Cupcake', category: 'Cupcakes', price: 75, stock: 25, image: 'https://images.unsplash.com/photo-1587668178277-295251f900ce?w=400&auto=format&fit=crop&q=80' },
-  { name: 'Red Velvet Cream Cupcake', category: 'Cupcakes', price: 80, stock: 20, image: 'https://images.unsplash.com/photo-1614707267537-b85aaf00c4b7?w=400&auto=format&fit=crop&q=80' },
-  { name: 'Oreo Crumble Cupcake', category: 'Cupcakes', price: 75, stock: 22, image: 'https://images.unsplash.com/photo-1599785209707-a456fc1337bb?w=400&auto=format&fit=crop&q=80' },
-
-  // 🍪 Desserts
-  { name: 'Walnut Choco Brownie', category: 'Desserts', price: 120, stock: 20, image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=400&auto=format&fit=crop&q=80' },
-  { name: 'Choco Chip Cookie Box', category: 'Desserts', price: 150, stock: 16, image: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=400&auto=format&fit=crop&q=80' },
-  { name: 'Tiramisu Jar Cake', category: 'Desserts', price: 180, stock: 14, image: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=400&auto=format&fit=crop&q=80' },
-  { name: 'Assorted Macarons (4 Pcs)', category: 'Desserts', price: 220, stock: 12, image: 'https://images.unsplash.com/photo-1569864321398-32777148c3b4?w=400&auto=format&fit=crop&q=80' },
-
-  // ☕ Beverages
-  { name: 'Cold Coffee with Ice Cream', category: 'Beverages', price: 130, stock: 25, image: 'https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?w=400&auto=format&fit=crop&q=80' },
-  { name: 'Thick Belgian Hot Chocolate', category: 'Beverages', price: 120, stock: 20, image: 'https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?w=400&auto=format&fit=crop&q=80' }
+  // 🍫 Sugar Cubes Classics
+  { name: 'Classic Brownie', category: 'Sugar Cubes Classics', price: 70, stock: 25, image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Chocochip Brownie', category: 'Sugar Cubes Classics', price: 80, stock: 25, image: 'https://images.unsplash.com/photo-1589218436045-ee320057f443?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Eggless Brownie', category: 'Sugar Cubes Classics', price: 80, stock: 20, image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Triple Chocolate Brownie', category: 'Sugar Cubes Classics', price: 100, stock: 20, bestseller: true, image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Triple Choco Brownie Cubes', category: 'Sugar Cubes Classics', price: 150, stock: 18, image: 'https://images.unsplash.com/photo-1564759298141-cef86f51d4d4?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Triple Chocolate Strawberry', category: 'Sugar Cubes Classics', price: 140, stock: 15, image: 'https://images.unsplash.com/photo-1587314168485-3236d6710814?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Triple Treat Choco-Berry Delight', category: 'Sugar Cubes Classics', price: 150, stock: 15, image: 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Hot Chocolate Brownie', category: 'Sugar Cubes Classics', price: 150, stock: 15, image: 'https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Triple Chocolate Banana', category: 'Sugar Cubes Classics', price: 70, stock: 20, image: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Triple Chocolate Marshmello', category: 'Sugar Cubes Classics', price: 70, stock: 20, image: 'https://images.unsplash.com/photo-1587668178277-295251f900ce?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Hot Chocolate with Cookies', category: 'Sugar Cubes Classics', price: 80, stock: 25, image: 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=400&auto=format&fit=crop&q=80' }
 ];
 
 const CATEGORY_CONFIG = {
-  'Cakes': { icon: '🎂', class: 'cakes' },
-  'Pastries': { icon: '🍰', class: 'pastries' },
-  'Cupcakes': { icon: '🧁', class: 'cupcakes' },
-  'Desserts': { icon: '🍪', class: 'desserts' },
-  'Beverages': { icon: '☕', class: 'beverages' }
+  'Cakes & More': { icon: '🍰', class: 'cakes' },
+  'Sugar Cubes Classics': { icon: '🍫', class: 'pastries' }
 };
 
 // Application State
@@ -315,6 +306,16 @@ function toggleFullscreen() {
 // ==========================================================================
 
 function getCatalog() {
+  const CURRENT_VER = 'sugarCubesCatalogVersion_v2';
+  if (localStorage.getItem('sugarCubesCatalogVersion') !== CURRENT_VER) {
+    localStorage.setItem('sugarCubesCatalogVersion', CURRENT_VER);
+    const initial = DEFAULT_PRELOADED_ITEMS.map((it, idx) => ({
+      ...it,
+      id: 'prod_' + (idx + 1) + '_' + it.name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase().slice(0, 10)
+    }));
+    saveCatalog(initial);
+    return initial;
+  }
   const stored = localStorage.getItem('sugarCubesCatalog');
   if (stored) {
     try {
@@ -373,24 +374,18 @@ function renderPreloadedCatalog() {
   if (!grid) return;
   grid.innerHTML = '';
 
-  const counts = { All: catalog.length, Cakes: 0, Pastries: 0, Cupcakes: 0, Desserts: 0, Beverages: 0 };
+  const counts = { All: catalog.length, 'Cakes & More': 0, 'Sugar Cubes Classics': 0 };
   catalog.forEach(item => {
     if (counts[item.category] !== undefined) counts[item.category]++;
   });
 
   const countAllEl = document.getElementById('catCountAll');
-  const countCakesEl = document.getElementById('catCountCakes');
-  const countPastriesEl = document.getElementById('catCountPastries');
-  const countCupcakesEl = document.getElementById('catCountCupcakes');
-  const countDessertsEl = document.getElementById('catCountDesserts');
-  const countBeveragesEl = document.getElementById('catCountBeverages');
+  const countCakesAndMoreEl = document.getElementById('catCountCakesAndMore');
+  const countClassicsEl = document.getElementById('catCountClassics');
 
   if (countAllEl) countAllEl.textContent = counts.All;
-  if (countCakesEl) countCakesEl.textContent = counts.Cakes;
-  if (countPastriesEl) countPastriesEl.textContent = counts.Pastries;
-  if (countCupcakesEl) countCupcakesEl.textContent = counts.Cupcakes;
-  if (countDessertsEl) countDessertsEl.textContent = counts.Desserts;
-  if (countBeveragesEl) countBeveragesEl.textContent = counts.Beverages;
+  if (countCakesAndMoreEl) countCakesAndMoreEl.textContent = counts['Cakes & More'] || 0;
+  if (countClassicsEl) countClassicsEl.textContent = counts['Sugar Cubes Classics'] || 0;
 
   const filtered = catalog.filter(item => {
     const matchCategory = activeCatalogCategory === 'All' || item.category.toLowerCase() === activeCatalogCategory.toLowerCase();
@@ -2130,7 +2125,7 @@ function downloadPdfBill(isSilent = false) {
 
 function generateWhatsAppBillText() {
   const cleanNum = currentTicketNumber.replace('#', '');
-  return `🍰 *Sugar Cubes Bakery & Cafe*\n📄 *Official Tax Invoice #${cleanNum} (PDF)*\n✨ Thank you for celebrating with Sugar Cubes! 🎂`;
+  return `🍰 *Sugar Cubes Bakery & Cafe (Coimbatore)*\n📄 *Official Tax Invoice #${cleanNum} (PDF)*\n✨ Thank you for celebrating with Sugar Cubes! 🎂`;
 }
 
 async function sendBillWhatsApp() {
@@ -3657,8 +3652,8 @@ function openDailyReportModal(mode = null, fromProfile = false, fromRestore = fa
       let totalUnits = 0;
       let payModeBreakdown = { Cash: 0, UPI: 0, Card: 0 };
       let payModeCount = { Cash: 0, UPI: 0, Card: 0 };
-      let catBreakdown = { Cakes: 0, Pastries: 0, Cupcakes: 0, Desserts: 0, Beverages: 0 };
-      let catUnits = { Cakes: 0, Pastries: 0, Cupcakes: 0, Desserts: 0, Beverages: 0 };
+      let catBreakdown = { 'Cakes & More': 0, 'Sugar Cubes Classics': 0 };
+      let catUnits = { 'Cakes & More': 0, 'Sugar Cubes Classics': 0 };
 
       filtered.forEach(sale => {
         const rev = Number(sale.grandTotal || sale.amount || 0);
@@ -3683,15 +3678,28 @@ function openDailyReportModal(mode = null, fromProfile = false, fromRestore = fa
 
         if (Array.isArray(sale.items)) {
           sale.items.forEach(it => {
-            const cat = it.category || 'Cakes';
+            let rawCat = it.category || 'Cakes & More';
+            let cat = rawCat;
+            if (rawCat === 'Cakes' || rawCat === 'Pastries' || rawCat === 'Desserts') {
+              cat = 'Cakes & More';
+            } else if (rawCat === 'Cupcakes' || rawCat === 'Beverages') {
+              cat = 'Sugar Cubes Classics';
+            }
             const itRev = Number(it.amount || ((it.price || 0) * (it.qty || 1)) || 0);
             const itQty = Number(it.qty || 1);
             catBreakdown[cat] = (catBreakdown[cat] || 0) + itRev;
             catUnits[cat] = (catUnits[cat] || 0) + itQty;
           });
         } else if (sale.category) {
-          catBreakdown[sale.category] = (catBreakdown[sale.category] || 0) + rev;
-          catUnits[sale.category] = (catUnits[sale.category] || 0) + uCount;
+          let rawCat = sale.category;
+          let cat = rawCat;
+          if (rawCat === 'Cakes' || rawCat === 'Pastries' || rawCat === 'Desserts') {
+            cat = 'Cakes & More';
+          } else if (rawCat === 'Cupcakes' || rawCat === 'Beverages') {
+            cat = 'Sugar Cubes Classics';
+          }
+          catBreakdown[cat] = (catBreakdown[cat] || 0) + rev;
+          catUnits[cat] = (catUnits[cat] || 0) + uCount;
         }
       });
 
@@ -3710,12 +3718,24 @@ function openDailyReportModal(mode = null, fromProfile = false, fromRestore = fa
       const cardPct = totalRevenue > 0 ? ((payModeBreakdown.Card / totalRevenue) * 100).toFixed(1) : '0.0';
 
       const categoriesMeta = [
-        { key: 'Cakes', name: 'Cakes', icon: '🎂', gradient: 'linear-gradient(90deg, #ec4899, #db2777)', badgeBg: '#fdf2f8', badgeColor: '#db2777', badgeBorder: '#fbcfe8' },
-        { key: 'Pastries', name: 'Pastries', icon: '🍰', gradient: 'linear-gradient(90deg, #f97316, #ea580c)', badgeBg: '#fff7ed', badgeColor: '#ea580c', badgeBorder: '#fed7aa' },
-        { key: 'Cupcakes', name: 'Cupcakes', icon: '🧁', gradient: 'linear-gradient(90deg, #8b5cf6, #7c3aed)', badgeBg: '#f5f3ff', badgeColor: '#7c3aed', badgeBorder: '#ddd6fe' },
-        { key: 'Desserts', name: 'Desserts', icon: '🍪', gradient: 'linear-gradient(90deg, #f59e0b, #d97706)', badgeBg: '#fef3c7', badgeColor: '#d97706', badgeBorder: '#fde68a' },
-        { key: 'Beverages', name: 'Beverages', icon: '☕', gradient: 'linear-gradient(90deg, #10b981, #059669)', badgeBg: '#ecfdf5', badgeColor: '#059669', badgeBorder: '#a7f3d0' }
+        { key: 'Cakes & More', name: 'Cakes & More', icon: '🍰', gradient: 'linear-gradient(90deg, #ec4899, #db2777)', badgeBg: '#fdf2f8', badgeColor: '#db2777', badgeBorder: '#fbcfe8' },
+        { key: 'Sugar Cubes Classics', name: 'Sugar Cubes Classics', icon: '🍫', gradient: 'linear-gradient(90deg, #8b5cf6, #7c3aed)', badgeBg: '#f5f3ff', badgeColor: '#7c3aed', badgeBorder: '#ddd6fe' }
       ];
+
+      // Include custom categories if present
+      Object.keys(catBreakdown).forEach(k => {
+        if (!categoriesMeta.some(c => c.key.toLowerCase() === k.toLowerCase()) && catBreakdown[k] > 0) {
+          categoriesMeta.push({
+            key: k,
+            name: k,
+            icon: '🧁',
+            gradient: 'linear-gradient(90deg, #10b981, #059669)',
+            badgeBg: '#ecfdf5',
+            badgeColor: '#059669',
+            badgeBorder: '#a7f3d0'
+          });
+        }
+      });
 
       // Sort categories descending by revenue
       categoriesMeta.sort((a, b) => (catBreakdown[b.key] || 0) - (catBreakdown[a.key] || 0));
@@ -3808,60 +3828,63 @@ function openDailyReportModal(mode = null, fromProfile = false, fromRestore = fa
             </div>
           </div>
 
-          <!-- 3. Revenue by Bakery Category -->
-          <div class="audit-section-card">
-            <div class="audit-section-header">
-              <div class="audit-section-title">
-                <span class="audit-sec-icon">🎂</span>
-                <span class="audit-sec-text">Revenue by Bakery Category</span>
+          <!-- 3. Desktop 2-Column Split Row: Category Revenue & Payment Breakdown -->
+          <div class="audit-split-row">
+            <!-- Left Column: Revenue by Bakery Category -->
+            <div class="audit-section-card">
+              <div class="audit-section-header">
+                <div class="audit-section-title">
+                  <span class="audit-sec-icon">🍰</span>
+                  <span class="audit-sec-text">Revenue by Bakery Category</span>
+                </div>
+                <span class="audit-section-chip">${categoriesMeta.length} Categories</span>
               </div>
-              <span class="audit-section-chip">5 Lines</span>
+              <div class="audit-cat-list">
+                ${catRowsHtml}
+              </div>
             </div>
-            <div class="audit-cat-list">
-              ${catRowsHtml}
+
+            <!-- Right Column: Payment Collection Breakdown -->
+            <div class="audit-section-card">
+              <div class="audit-section-header">
+                <div class="audit-section-title">
+                  <span class="audit-sec-icon">💳</span>
+                  <span class="audit-sec-text">Payment Collection Breakdown</span>
+                </div>
+                <span class="audit-section-chip">Reconciled</span>
+              </div>
+              <div class="audit-pay-grid">
+                <div class="audit-pay-card pay-cash">
+                  <div class="audit-pay-top">
+                    <span class="audit-pay-name">💵 Cash</span>
+                    <span class="audit-pay-pct">${cashPct}%</span>
+                  </div>
+                  <div class="audit-pay-val">₹${(payModeBreakdown.Cash || 0).toFixed(2)}</div>
+                  <div class="audit-pay-count">${payModeCount.Cash || 0} Bills</div>
+                </div>
+
+                <div class="audit-pay-card pay-upi">
+                  <div class="audit-pay-top">
+                    <span class="audit-pay-name">📱 UPI / QR</span>
+                    <span class="audit-pay-pct">${upiPct}%</span>
+                  </div>
+                  <div class="audit-pay-val">₹${(payModeBreakdown.UPI || 0).toFixed(2)}</div>
+                  <div class="audit-pay-count">${payModeCount.UPI || 0} Bills</div>
+                </div>
+
+                <div class="audit-pay-card pay-card">
+                  <div class="audit-pay-top">
+                    <span class="audit-pay-name">💳 Card</span>
+                    <span class="audit-pay-pct">${cardPct}%</span>
+                  </div>
+                  <div class="audit-pay-val">₹${(payModeBreakdown.Card || 0).toFixed(2)}</div>
+                  <div class="audit-pay-count">${payModeCount.Card || 0} Bills</div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- 4. Payment Collection Breakdown -->
-          <div class="audit-section-card">
-            <div class="audit-section-header">
-              <div class="audit-section-title">
-                <span class="audit-sec-icon">💳</span>
-                <span class="audit-sec-text">Payment Collection Breakdown</span>
-              </div>
-              <span class="audit-section-chip">Reconciled</span>
-            </div>
-            <div class="audit-pay-grid">
-              <div class="audit-pay-card pay-cash">
-                <div class="audit-pay-top">
-                  <span class="audit-pay-name">💵 Cash</span>
-                  <span class="audit-pay-pct">${cashPct}%</span>
-                </div>
-                <div class="audit-pay-val">₹${(payModeBreakdown.Cash || 0).toFixed(2)}</div>
-                <div class="audit-pay-count">${payModeCount.Cash || 0} Bills</div>
-              </div>
-
-              <div class="audit-pay-card pay-upi">
-                <div class="audit-pay-top">
-                  <span class="audit-pay-name">📱 UPI / QR</span>
-                  <span class="audit-pay-pct">${upiPct}%</span>
-                </div>
-                <div class="audit-pay-val">₹${(payModeBreakdown.UPI || 0).toFixed(2)}</div>
-                <div class="audit-pay-count">${payModeCount.UPI || 0} Bills</div>
-              </div>
-
-              <div class="audit-pay-card pay-card">
-                <div class="audit-pay-top">
-                  <span class="audit-pay-name">💳 Card</span>
-                  <span class="audit-pay-pct">${cardPct}%</span>
-                </div>
-                <div class="audit-pay-val">₹${(payModeBreakdown.Card || 0).toFixed(2)}</div>
-                <div class="audit-pay-count">${payModeCount.Card || 0} Bills</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 5. Certified Digital Audit Footer Stamp -->
+          <!-- 4. Certified Digital Audit Footer Stamp -->
           <div class="audit-footer-stamp">
             <div class="audit-stamp-row">
               <span class="audit-stamp-icon">🛡️</span>
@@ -4955,7 +4978,7 @@ function switchAccountRelogin(targetEmail) {
 
 const DEFAULT_PAYSLIP_CONFIG = {
   compName: 'SUGAR CUBES BAKERY & CAFÉ',
-  compAddr: 'Central Branch, Main Road • GSTIN: 33AAAAA0000A1Z5',
+  compAddr: 'Coimbatore Branch, Tamil Nadu • GSTIN: 33AAAAA0000A1Z5',
   payPeriod: 'September 2026',
 
   empId: 'SC-EMP-101',
@@ -5342,7 +5365,7 @@ const DEFAULT_STORE_OWNERS = [
     tag: 'PRIMARY STORE OWNER',
     phone: '+91 98765 43210',
     email: 'owner@sugarcubes.com',
-    branch: 'Sugar Cubes Bakery, Main Road, Chennai Central, TN 600001',
+    branch: 'Sugar Cubes Bakery, Coimbatore, Tamil Nadu',
     avatarBg: '#059669',
     tagBg: '#d1fae5',
     tagColor: '#065f46'
@@ -5354,7 +5377,7 @@ const DEFAULT_STORE_OWNERS = [
     tag: 'OPERATIONS & STORE HEAD',
     phone: '+91 98123 45678',
     email: 'ananya@sugarcubes.com',
-    branch: 'Sugar Cubes Bakery, Main Road, Chennai Central, TN 600001',
+    branch: 'Sugar Cubes Bakery, Coimbatore, Tamil Nadu',
     avatarBg: '#2563eb',
     tagBg: '#dbeafe',
     tagColor: '#1e40af'
@@ -5366,7 +5389,7 @@ const DEFAULT_STORE_OWNERS = [
     tag: 'FINANCE & EXPANSION',
     phone: '+91 98450 12345',
     email: 'rajesh@sugarcubes.com',
-    branch: 'Sugar Cubes Bakery, Main Road, Chennai Central, TN 600001',
+    branch: 'Sugar Cubes Bakery, Coimbatore, Tamil Nadu',
     avatarBg: '#7c3aed',
     tagBg: '#f3e8ff',
     tagColor: '#6b21a8'
@@ -5374,6 +5397,12 @@ const DEFAULT_STORE_OWNERS = [
 ];
 
 function getOwnersList() {
+  const CURRENT_LOC_VER = 'sugarCubesStoreLocationVersion_v1';
+  if (localStorage.getItem('sugarCubesStoreLocVer') !== CURRENT_LOC_VER) {
+    localStorage.setItem('sugarCubesStoreLocVer', CURRENT_LOC_VER);
+    saveOwnersList(DEFAULT_STORE_OWNERS);
+    return DEFAULT_STORE_OWNERS;
+  }
   try {
     const raw = localStorage.getItem('sugarCubesOwnersList');
     if (raw) {
@@ -5530,7 +5559,7 @@ function renderOwnerDetailsModal() {
         <span style="font-size: 1.3rem;">📍</span>
         <div>
           <span style="font-size: 0.7rem; font-weight: 700; color: #64748b; display: block;">STORE BRANCH & ADDRESS</span>
-          <span style="font-size: 0.82rem; font-weight: 700; color: #334155;">${escapeHtml(currentOwner.branch || 'Sugar Cubes Bakery, Main Road, Chennai Central, TN 600001')}</span>
+          <span style="font-size: 0.82rem; font-weight: 700; color: #334155;">${escapeHtml(currentOwner.branch || 'Sugar Cubes Bakery, Coimbatore, Tamil Nadu')}</span>
         </div>
       </div>
     </div>
@@ -5588,7 +5617,7 @@ function openAddOwnerModal() {
   if (tagIn) tagIn.value = 'STORE CO-OWNER';
   if (phoneIn) phoneIn.value = '';
   if (emailIn) emailIn.value = '';
-  if (branchIn) branchIn.value = 'Sugar Cubes Bakery, Main Road, Chennai Central, TN 600001';
+  if (branchIn) branchIn.value = 'Sugar Cubes Bakery, Coimbatore, Tamil Nadu';
 
   removeOwnerPhoto();
 
@@ -5618,7 +5647,7 @@ function openEditOwnerModal(ownerId) {
   if (tagIn) tagIn.value = owner.tag || 'STORE OWNER';
   if (phoneIn) phoneIn.value = owner.phone || '';
   if (emailIn) emailIn.value = owner.email || '';
-  if (branchIn) branchIn.value = owner.branch || 'Sugar Cubes Bakery, Main Road, Chennai Central, TN 600001';
+  if (branchIn) branchIn.value = owner.branch || 'Sugar Cubes Bakery, Coimbatore, Tamil Nadu';
 
   if (owner.photo) {
     const base64Input = document.getElementById('ownerPhotoBase64Input');
@@ -5658,7 +5687,7 @@ function saveOwnerForm(e) {
   const tag = (document.getElementById('ownerTagInput').value || '').trim() || 'STORE OWNER';
   const phone = (document.getElementById('ownerPhoneInput').value || '').trim();
   const email = (document.getElementById('ownerEmailInput').value || '').trim();
-  const branch = (document.getElementById('ownerBranchInput').value || '').trim() || 'Sugar Cubes Bakery, Main Road, Chennai Central, TN 600001';
+  const branch = (document.getElementById('ownerBranchInput').value || '').trim() || 'Sugar Cubes Bakery, Coimbatore, Tamil Nadu';
   const photo = (document.getElementById('ownerPhotoBase64Input').value || '').trim();
 
   if (!name || !role || !phone || !email) {

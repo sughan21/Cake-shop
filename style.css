@@ -2886,6 +2886,62 @@ body.mobile-modal-open {
    📈 All Total Sales & Revenue Audit Statement (Executive Design)
    ========================================================================== */
 
+.sales-report-modal-card {
+  max-width: 620px;
+  width: 95%;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.35);
+  transition: max-width 0.25s ease;
+}
+
+.audit-split-row {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@media (min-width: 860px) {
+  .sales-report-modal-card {
+    max-width: 880px !important;
+  }
+
+  .audit-kpi-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  .audit-split-row {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 14px !important;
+    align-items: stretch !important;
+  }
+
+  .audit-split-row .audit-section-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .audit-pay-grid {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+
+  .audit-pay-card {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 10px 14px !important;
+  }
+}
+
 .audit-report-container {
   display: flex;
   flex-direction: column;

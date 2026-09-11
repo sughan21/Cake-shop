@@ -2894,6 +2894,62 @@ body.mobile-modal-open {
    ðŸ“ˆ All Total Sales & Revenue Audit Statement (Executive Design)
    ========================================================================== */
 
+.sales-report-modal-card {
+  max-width: 620px;
+  width: 95%;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.35);
+  transition: max-width 0.25s ease;
+}
+
+.audit-split-row {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@media (min-width: 860px) {
+  .sales-report-modal-card {
+    max-width: 880px !important;
+  }
+
+  .audit-kpi-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  .audit-split-row {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 14px !important;
+    align-items: stretch !important;
+  }
+
+  .audit-split-row .audit-section-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .audit-pay-grid {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+
+  .audit-pay-card {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 10px 14px !important;
+  }
+}
+
 .audit-report-container {
   display: flex;
   flex-direction: column;
@@ -10634,57 +10690,7 @@ html.auth-pending #loginAuthScreen {
   filter: drop-shadow(0 2px 8px rgba(225, 29, 72, 0.2));
 }
 
-/* ==========================================================================
-   âš¡ Mobile Phone Top-Header Shift Action Button
-   ========================================================================== */
-.mobile-shift-action-btn {
-  display: none;
-  align-items: center;
-  gap: 5px;
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-  color: #ffffff;
-  border: 1.5px solid #10b981;
-  border-radius: 10px;
-  padding: 6px 12px;
-  font-weight: 800;
-  font-size: 0.78rem;
-  font-family: var(--font-sans);
-  cursor: pointer;
-  box-shadow: 0 3px 10px rgba(16, 185, 129, 0.22), 0 1px 3px rgba(15, 23, 42, 0.15);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  white-space: nowrap;
-  letter-spacing: -0.1px;
-  margin-left: auto;
-  line-height: 1;
-}
 
-.mobile-shift-action-btn:hover,
-.mobile-shift-action-btn:active {
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-  border-color: #34d399;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
-}
-
-.mobile-shift-action-btn .shift-action-bolt {
-  font-size: 0.85rem;
-  color: #34d399;
-  filter: drop-shadow(0 0 4px rgba(52, 211, 153, 0.6));
-  display: inline-block;
-  animation: pulseBeacon 2s infinite;
-}
-
-.mobile-shift-action-btn .shift-action-label {
-  font-weight: 800;
-  color: #ffffff;
-  font-size: 0.76rem;
-}
-
-@media (max-width: 768px) {
-  .mobile-shift-action-btn {
-    display: inline-flex !important;
-  }
-}
 
 </style>
   <!-- Client-Side High-Fidelity PDF Engine -->
@@ -10719,7 +10725,7 @@ html.auth-pending #loginAuthScreen {
             </div>
           </div>
           <div class="brand-meta-sub-row">
-            <span class="brand-tagline">Artisanal Cake Shop & Bakery POS</span>
+            <span class="brand-tagline">Artisanal Cake Shop & Bakery â€¢ Coimbatore</span>
             <span class="brand-dot-sep">â€¢</span>
             <div class="brand-ig-pill" onclick="promptEditInstagramHandle()" title="Click to edit Instagram Profile handle">
               <span>ðŸ“¸</span> <span id="headerIgHandle">@sugarcubes_official</span> <span>âœï¸</span>
@@ -10728,10 +10734,12 @@ html.auth-pending #loginAuthScreen {
         </div>
       </div>
 
-      <!-- Mobile Top-Corner Shift Action Button -->
-      <button type="button" class="mobile-shift-action-btn" id="mobileShiftActionBtn" onclick="openShiftActionModal()" title="Open Shift Quick Actions & Cockpit Directory" aria-label="Shift Action">
-        <span class="shift-action-bolt">âš¡</span>
-        <span class="shift-action-label">Shift Action</span>
+      <!-- Mobile Top-Corner Cashier Profile Button (Icon-Only Executive Button) -->
+      <button type="button" class="mobile-corner-profile-btn" id="mobileCornerProfileBtn" onclick="openUserProfileModal()" title="Store Cashier Profile & Sales Cockpit" aria-label="Store Profile">
+        <div class="mobile-corner-avatar-ring">
+          <span class="mobile-corner-emoji">ðŸ‘¤</span>
+          <span class="mobile-corner-beacon" title="Live Counter Shift Active"></span>
+        </div>
       </button>
     </div>
 
@@ -10924,26 +10932,17 @@ html.auth-pending #loginAuthScreen {
           <button type="button" class="cat-nav-pill active" onclick="filterCatalogCategory('All', this)">
             All Items <span class="cat-count-badge" id="catCountAll">19</span>
           </button>
-          <button type="button" class="cat-nav-pill" onclick="filterCatalogCategory('Cakes', this)">
-            ðŸŽ‚ Cakes <span class="cat-count-badge" id="catCountCakes">5</span>
+          <button type="button" class="cat-nav-pill" onclick="filterCatalogCategory('Cakes & More', this)">
+            ðŸ° Cakes & More <span class="cat-count-badge" id="catCountCakesAndMore">8</span>
           </button>
-          <button type="button" class="cat-nav-pill" onclick="filterCatalogCategory('Pastries', this)">
-            ðŸ° Pastries <span class="cat-count-badge" id="catCountPastries">4</span>
-          </button>
-          <button type="button" class="cat-nav-pill" onclick="filterCatalogCategory('Cupcakes', this)">
-            ðŸ§ Cupcakes <span class="cat-count-badge" id="catCountCupcakes">4</span>
-          </button>
-          <button type="button" class="cat-nav-pill" onclick="filterCatalogCategory('Desserts', this)">
-            ðŸª Desserts <span class="cat-count-badge" id="catCountDesserts">4</span>
-          </button>
-          <button type="button" class="cat-nav-pill" onclick="filterCatalogCategory('Beverages', this)">
-            â˜• Beverages <span class="cat-count-badge" id="catCountBeverages">2</span>
+          <button type="button" class="cat-nav-pill" onclick="filterCatalogCategory('Sugar Cubes Classics', this)">
+            ðŸ« Sugar Cubes Classics <span class="cat-count-badge" id="catCountClassics">11</span>
           </button>
         </nav>
 
         <!-- Quick Item Search Input -->
         <div class="catalog-search-box">
-          <input type="text" id="catalogSearchInput" placeholder="ðŸ” Quick search cakes, pastries, cupcakes, beverages... (Type to filter)" oninput="onCatalogSearch(this.value)">
+          <input type="text" id="catalogSearchInput" placeholder="ðŸ” Quick search cakes, brownies, tiramisu, tres leches... (Type to filter)" oninput="onCatalogSearch(this.value)">
           <button type="button" class="search-clear-btn" onclick="clearCatalogSearch()" title="Clear search">âœ•</button>
         </div>
 
@@ -11579,6 +11578,7 @@ html.auth-pending #loginAuthScreen {
       
       <div class="receipt-header-center">
         <div class="receipt-brand-title">ðŸ° SUGAR CUBES</div>
+        <div class="receipt-tagline-text">ðŸ“ Coimbatore â€¢ Tamil Nadu</div>
         <div class="receipt-tagline-text">Artisanal Cakes â€¢ Pastries â€¢ Fresh Bakes</div>
         <div class="receipt-tagline-text">100% Eggless Options â€¢ Fresh Daily</div>
         <div class="receipt-cut-line"></div>
@@ -11704,7 +11704,7 @@ html.auth-pending #loginAuthScreen {
             <div class="profile-user-texts">
               <span class="profile-user-title" id="profileModalFullName">Store Manager</span>
               <span class="profile-user-email" id="profileModalEmail" style="font-size: 12px; color: #475569; font-weight: 500;">admin@sugarcubes.com</span>
-              <span class="profile-user-shift" onclick="closeUserProfileModal(); openShiftActionModal();" style="cursor: pointer;" title="Click to view Quick Actions & Store Directory"><span class="prof-beacon-dot"></span> Live Shift â€¢ Counter #1</span>
+              <span class="profile-user-shift"><span class="prof-beacon-dot"></span> Live Shift â€¢ Counter #1</span>
             </div>
           </div>
           <div class="profile-header-actions">
@@ -11727,72 +11727,9 @@ html.auth-pending #loginAuthScreen {
         </div>
       </div>
 
-      <!-- Modal Body: Quick Actions & All Functions -->
+      <!-- Modal Body: Metrics & All Date Order History -->
       <div class="profile-modal-body">
         
-        <!-- âš¡ Staff Quick Actions Container (Laptop Web Shift Action Buttons with All Functions) -->
-        <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 16px; padding: 18px; box-shadow: inset 0 2px 4px rgba(15, 23, 42, 0.02); margin-bottom: 16px;">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid #e2e8f0;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 1.1rem; color: #f59e0b;">âš¡</span>
-              <span style="font-weight: 800; font-size: 0.92rem; color: #0f172a; letter-spacing: -0.2px;">Quick Actions & Store Directory</span>
-            </div>
-            <span style="font-size: 0.7rem; font-weight: 700; color: #64748b; background: #e2e8f0; padding: 3px 10px; border-radius: 12px;">3 Directory Services</span>
-          </div>
-
-          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
-            
-            <!-- Action Card 1: Owner's Details -->
-            <button type="button" onclick="closeUserProfileModal(); openOwnerDetailsModal();" style="background: linear-gradient(145deg, #ffffff 0%, #f0fdf4 100%); border: 1.5px solid #a7f3d0; border-radius: 16px; padding: 20px 10px 16px 10px; position: relative; overflow: hidden; cursor: pointer; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.06);" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='#10b981'; this.style.boxShadow='0 10px 20px -4px rgba(16, 185, 129, 0.2)';" onmouseout="this.style.transform='none'; this.style.borderColor='#a7f3d0'; this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.06)';">
-              <div style="height: 4px; background: linear-gradient(90deg, #10b981, #34d399); position: absolute; top: 0; left: 0; right: 0;"></div>
-              
-              <div style="width: 48px; height: 48px; border-radius: 14px; background: rgba(16, 185, 129, 0.12); border: 1.5px solid rgba(16, 185, 129, 0.25); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.1); margin-bottom: 2px;">
-                ðŸ¢
-              </div>
-              
-              <span style="font-size: 0.84rem; font-weight: 800; color: #065f46; letter-spacing: -0.2px; line-height: 1.2;">Owner's Details</span>
-              <span style="font-size: 0.68rem; font-weight: 600; color: #059669;">Store Leadership</span>
-              
-              <div style="margin-top: 6px; font-size: 0.66rem; font-weight: 700; color: #047857; background: #dcfce7; border: 1px solid #a7f3d0; padding: 3px 10px; border-radius: 20px; display: inline-flex; align-items: center; gap: 4px;">
-                View Profile <span style="font-size: 0.72rem;">â†’</span>
-              </div>
-            </button>
-
-            <!-- Action Card 2: Employee Payslip Download -->
-            <button type="button" onclick="closeUserProfileModal(); downloadEmployeePayslip();" style="background: linear-gradient(145deg, #ffffff 0%, #eff6ff 100%); border: 1.5px solid #bfdbfe; border-radius: 16px; padding: 20px 10px 16px 10px; position: relative; overflow: hidden; cursor: pointer; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.06);" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='#3b82f6'; this.style.boxShadow='0 10px 20px -4px rgba(37, 99, 235, 0.2)';" onmouseout="this.style.transform='none'; this.style.borderColor='#bfdbfe'; this.style.boxShadow='0 4px 12px rgba(37, 99, 235, 0.06)';">
-              <div style="height: 4px; background: linear-gradient(90deg, #2563eb, #60a5fa); position: absolute; top: 0; left: 0; right: 0;"></div>
-              
-              <div style="width: 48px; height: 48px; border-radius: 14px; background: rgba(37, 99, 235, 0.12); border: 1.5px solid rgba(37, 99, 235, 0.25); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.1); margin-bottom: 2px;">
-                ðŸ“„
-              </div>
-              
-              <span style="font-size: 0.84rem; font-weight: 800; color: #1e40af; letter-spacing: -0.2px; line-height: 1.2;">Payslip Download</span>
-              <span style="font-size: 0.68rem; font-weight: 600; color: #2563eb;">Shift Statement</span>
-              
-              <div style="margin-top: 6px; font-size: 0.66rem; font-weight: 700; color: #1d4ed8; background: #dbeafe; border: 1px solid #bfdbfe; padding: 3px 10px; border-radius: 20px; display: inline-flex; align-items: center; gap: 4px;">
-                Download PDF <span style="font-size: 0.72rem;">â†’</span>
-              </div>
-            </button>
-
-            <!-- Action Card 3: Registered Accounts & Email Directory -->
-            <button type="button" onclick="closeUserProfileModal(); openResignReloginModal();" style="background: linear-gradient(145deg, #ffffff 0%, #fff1f2 100%); border: 1.5px solid #fecdd3; border-radius: 16px; padding: 20px 10px 16px 10px; position: relative; overflow: hidden; cursor: pointer; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 12px rgba(225, 29, 72, 0.06);" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='#e11d48'; this.style.boxShadow='0 10px 20px -4px rgba(225, 29, 72, 0.2)';" onmouseout="this.style.transform='none'; this.style.borderColor='#fecdd3'; this.style.boxShadow='0 4px 12px rgba(225, 29, 72, 0.06)';">
-              <div style="height: 4px; background: linear-gradient(90deg, #e11d48, #fb7185); position: absolute; top: 0; left: 0; right: 0;"></div>
-              
-              <div style="width: 48px; height: 48px; border-radius: 14px; background: rgba(225, 29, 72, 0.12); border: 1.5px solid rgba(225, 29, 72, 0.25); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 4px 10px rgba(225, 29, 72, 0.1); margin-bottom: 2px;">
-                ðŸ”‘
-              </div>
-              
-              <span style="font-size: 0.8rem; font-weight: 800; color: #9f1239; line-height: 1.2; letter-spacing: -0.2px;">Registered Accounts & Email Directory</span>
-              <span style="font-size: 0.68rem; font-weight: 600; color: #e11d48;">Resign & Re-login</span>
-              
-              <div style="margin-top: 6px; font-size: 0.66rem; font-weight: 700; color: #be123c; background: #ffe4e6; border: 1px solid #fecdd3; padding: 3px 10px; border-radius: 20px; display: inline-flex; align-items: center; gap: 4px;">
-                Manage Roster <span style="font-size: 0.72rem;">â†’</span>
-              </div>
-            </button>
-
-          </div>
-        </div>
-
         <!-- 4 Key Sales Performance Metrics (Total Sales, Order, Best Sales, Ava Order) -->
         <div class="prof-kpi-grid">
           <div class="prof-kpi-card kpi-sales kpi-clickable" onclick="openAllTotalSalesPageFromProfile()" title="Tap to view All Total Sales Statement & Audit Page">
@@ -12663,7 +12600,7 @@ html.auth-pending #loginAuthScreen {
        Modal: Daily Sales Closing Statement & Audit Report
        ========================================================================= -->
   <div id="dailyReportModal" class="modal-backdrop" style="display: none;" onclick="closeDailyReportModalOnBackdrop(event)">
-    <div class="modal-window-card" style="max-width: 620px;" onclick="event.stopPropagation()">
+    <div class="modal-window-card sales-report-modal-card" onclick="event.stopPropagation()">
       <div class="modal-card-top" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #fff; padding: 14px 18px; border-bottom: 2px solid #10b981;">
         <div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1;">
           <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(16, 185, 129, 0.2); border: 1.5px solid rgba(16, 185, 129, 0.4); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0;">
@@ -12753,7 +12690,7 @@ html.auth-pending #loginAuthScreen {
           <div class="pdf-brand-info">
             <h2>Sugar Cubes Bakery</h2>
             <p><strong>Artisanal Cakes, Fine Pastries & Confectionery</strong></p>
-            <p>No. 24, Baker's Avenue, 100 Feet Road, Indiranagar, Bengaluru - 560038</p>
+            <p>Sugar Cubes Artisanal Bakery, Coimbatore, Tamil Nadu</p>
             <p>ðŸ“ž +91 98765 43210 â€¢ âœ‰ï¸ orders@sugarcubesbakery.com â€¢ www.sugarcubes.in</p>
             <p><strong>GSTIN:</strong> 29AABCS1429K1ZT &nbsp;|&nbsp; <strong>FSSAI Lic No:</strong> 11223344556677</p>
           </div>
@@ -13095,44 +13032,35 @@ html.auth-pending #loginAuthScreen {
    Dual-Column Commercial Engine with Direct WhatsApp & Auto PDF Generation
    ========================================================================== */
 
-// 19 Curated Bakery Products Across 5 Categories with High-Res Visual Photos
+// 19 Curated Bakery Products Across 2 Real Menu Categories with High-Res Visual Photos
 const DEFAULT_PRELOADED_ITEMS = [
-  // ðŸŽ‚ Cakes
-  { name: 'Black Forest Cake (1 Kg)', category: 'Cakes', price: 650, stock: 8, image: 'https://images.unsplash.com/photo-1606890737304-57a1ca8a5b62?w=400&auto=format&fit=crop&q=80' },
-  { name: 'Chocolate Truffle Cake (1 Kg)', category: 'Cakes', price: 750, stock: 10, image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&auto=format&fit=crop&q=80' },
-  { name: 'Red Velvet Fresh Cream (1 Kg)', category: 'Cakes', price: 850, stock: 6, image: 'https://images.unsplash.com/photo-1616541823729-00fe0aacd32c?w=400&auto=format&fit=crop&q=80' },
-  { name: 'Butterscotch Crunch Cake (1 Kg)', category: 'Cakes', price: 600, stock: 12, image: 'https://images.unsplash.com/photo-1535141192574-5d4897c13136?w=400&auto=format&fit=crop&q=80' },
-  { name: 'Pineapple Delight Cake (1 Kg)', category: 'Cakes', price: 550, stock: 10, image: 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&auto=format&fit=crop&q=80' },
+  // ðŸ° Cakes & More
+  { name: 'Tres Leches', category: 'Cakes & More', price: 160, stock: 15, bestseller: true, image: 'https://images.unsplash.com/photo-1588195538326-c5b1e9f80a1b?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Tiramisu', category: 'Cakes & More', price: 180, stock: 12, image: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Matilda Cake', category: 'Cakes & More', price: 170, stock: 15, bestseller: true, image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Cheese Cake', category: 'Cakes & More', price: 160, stock: 10, image: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Triple Chocolate Cake', category: 'Cakes & More', price: 150, stock: 12, image: 'https://images.unsplash.com/photo-1606890737304-57a1ca8a5b62?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Scoop Cookie', category: 'Cakes & More', price: 150, stock: 20, image: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Puddle Cake', category: 'Cakes & More', price: 150, stock: 15, image: 'https://images.unsplash.com/photo-1624353365286-3f8d62daad51?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Triple Delight Platter', category: 'Cakes & More', price: 300, stock: 8, image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=400&auto=format&fit=crop&q=80' },
 
-  // ðŸ° Pastries
-  { name: 'Choco Lava Pastry', category: 'Pastries', price: 99, stock: 25, image: 'https://images.unsplash.com/photo-1624353365286-3f8d62daad51?w=400&auto=format&fit=crop&q=80' },
-  { name: 'Blueberry Cheesecake Slice', category: 'Pastries', price: 160, stock: 15, image: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=400&auto=format&fit=crop&q=80' },
-  { name: 'Dark Chocolate Pastry', category: 'Pastries', price: 85, stock: 20, image: 'https://images.unsplash.com/photo-1587314168485-3236d6710814?w=400&auto=format&fit=crop&q=80' },
-  { name: 'Red Velvet Pastry Slice', category: 'Pastries', price: 110, stock: 18, image: 'https://images.unsplash.com/photo-1586788680434-30d324b2d46f?w=400&auto=format&fit=crop&q=80' },
-
-  // ðŸ§ Cupcakes
-  { name: 'Vanilla Rainbow Cupcake', category: 'Cupcakes', price: 60, stock: 30, image: 'https://images.unsplash.com/photo-1576618148400-f54bed99fcfd?w=400&auto=format&fit=crop&q=80' },
-  { name: 'Choco Chip Frost Cupcake', category: 'Cupcakes', price: 75, stock: 25, image: 'https://images.unsplash.com/photo-1587668178277-295251f900ce?w=400&auto=format&fit=crop&q=80' },
-  { name: 'Red Velvet Cream Cupcake', category: 'Cupcakes', price: 80, stock: 20, image: 'https://images.unsplash.com/photo-1614707267537-b85aaf00c4b7?w=400&auto=format&fit=crop&q=80' },
-  { name: 'Oreo Crumble Cupcake', category: 'Cupcakes', price: 75, stock: 22, image: 'https://images.unsplash.com/photo-1599785209707-a456fc1337bb?w=400&auto=format&fit=crop&q=80' },
-
-  // ðŸª Desserts
-  { name: 'Walnut Choco Brownie', category: 'Desserts', price: 120, stock: 20, image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=400&auto=format&fit=crop&q=80' },
-  { name: 'Choco Chip Cookie Box', category: 'Desserts', price: 150, stock: 16, image: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=400&auto=format&fit=crop&q=80' },
-  { name: 'Tiramisu Jar Cake', category: 'Desserts', price: 180, stock: 14, image: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=400&auto=format&fit=crop&q=80' },
-  { name: 'Assorted Macarons (4 Pcs)', category: 'Desserts', price: 220, stock: 12, image: 'https://images.unsplash.com/photo-1569864321398-32777148c3b4?w=400&auto=format&fit=crop&q=80' },
-
-  // â˜• Beverages
-  { name: 'Cold Coffee with Ice Cream', category: 'Beverages', price: 130, stock: 25, image: 'https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?w=400&auto=format&fit=crop&q=80' },
-  { name: 'Thick Belgian Hot Chocolate', category: 'Beverages', price: 120, stock: 20, image: 'https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?w=400&auto=format&fit=crop&q=80' }
+  // ðŸ« Sugar Cubes Classics
+  { name: 'Classic Brownie', category: 'Sugar Cubes Classics', price: 70, stock: 25, image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Chocochip Brownie', category: 'Sugar Cubes Classics', price: 80, stock: 25, image: 'https://images.unsplash.com/photo-1589218436045-ee320057f443?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Eggless Brownie', category: 'Sugar Cubes Classics', price: 80, stock: 20, image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Triple Chocolate Brownie', category: 'Sugar Cubes Classics', price: 100, stock: 20, bestseller: true, image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Triple Choco Brownie Cubes', category: 'Sugar Cubes Classics', price: 150, stock: 18, image: 'https://images.unsplash.com/photo-1564759298141-cef86f51d4d4?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Triple Chocolate Strawberry', category: 'Sugar Cubes Classics', price: 140, stock: 15, image: 'https://images.unsplash.com/photo-1587314168485-3236d6710814?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Triple Treat Choco-Berry Delight', category: 'Sugar Cubes Classics', price: 150, stock: 15, image: 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Hot Chocolate Brownie', category: 'Sugar Cubes Classics', price: 150, stock: 15, image: 'https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Triple Chocolate Banana', category: 'Sugar Cubes Classics', price: 70, stock: 20, image: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Triple Chocolate Marshmello', category: 'Sugar Cubes Classics', price: 70, stock: 20, image: 'https://images.unsplash.com/photo-1587668178277-295251f900ce?w=400&auto=format&fit=crop&q=80' },
+  { name: 'Hot Chocolate with Cookies', category: 'Sugar Cubes Classics', price: 80, stock: 25, image: 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=400&auto=format&fit=crop&q=80' }
 ];
 
 const CATEGORY_CONFIG = {
-  'Cakes': { icon: 'ðŸŽ‚', class: 'cakes' },
-  'Pastries': { icon: 'ðŸ°', class: 'pastries' },
-  'Cupcakes': { icon: 'ðŸ§', class: 'cupcakes' },
-  'Desserts': { icon: 'ðŸª', class: 'desserts' },
-  'Beverages': { icon: 'â˜•', class: 'beverages' }
+  'Cakes & More': { icon: 'ðŸ°', class: 'cakes' },
+  'Sugar Cubes Classics': { icon: 'ðŸ«', class: 'pastries' }
 };
 
 // Application State
@@ -13407,6 +13335,16 @@ function toggleFullscreen() {
 // ==========================================================================
 
 function getCatalog() {
+  const CURRENT_VER = 'sugarCubesCatalogVersion_v2';
+  if (localStorage.getItem('sugarCubesCatalogVersion') !== CURRENT_VER) {
+    localStorage.setItem('sugarCubesCatalogVersion', CURRENT_VER);
+    const initial = DEFAULT_PRELOADED_ITEMS.map((it, idx) => ({
+      ...it,
+      id: 'prod_' + (idx + 1) + '_' + it.name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase().slice(0, 10)
+    }));
+    saveCatalog(initial);
+    return initial;
+  }
   const stored = localStorage.getItem('sugarCubesCatalog');
   if (stored) {
     try {
@@ -13465,24 +13403,18 @@ function renderPreloadedCatalog() {
   if (!grid) return;
   grid.innerHTML = '';
 
-  const counts = { All: catalog.length, Cakes: 0, Pastries: 0, Cupcakes: 0, Desserts: 0, Beverages: 0 };
+  const counts = { All: catalog.length, 'Cakes & More': 0, 'Sugar Cubes Classics': 0 };
   catalog.forEach(item => {
     if (counts[item.category] !== undefined) counts[item.category]++;
   });
 
   const countAllEl = document.getElementById('catCountAll');
-  const countCakesEl = document.getElementById('catCountCakes');
-  const countPastriesEl = document.getElementById('catCountPastries');
-  const countCupcakesEl = document.getElementById('catCountCupcakes');
-  const countDessertsEl = document.getElementById('catCountDesserts');
-  const countBeveragesEl = document.getElementById('catCountBeverages');
+  const countCakesAndMoreEl = document.getElementById('catCountCakesAndMore');
+  const countClassicsEl = document.getElementById('catCountClassics');
 
   if (countAllEl) countAllEl.textContent = counts.All;
-  if (countCakesEl) countCakesEl.textContent = counts.Cakes;
-  if (countPastriesEl) countPastriesEl.textContent = counts.Pastries;
-  if (countCupcakesEl) countCupcakesEl.textContent = counts.Cupcakes;
-  if (countDessertsEl) countDessertsEl.textContent = counts.Desserts;
-  if (countBeveragesEl) countBeveragesEl.textContent = counts.Beverages;
+  if (countCakesAndMoreEl) countCakesAndMoreEl.textContent = counts['Cakes & More'] || 0;
+  if (countClassicsEl) countClassicsEl.textContent = counts['Sugar Cubes Classics'] || 0;
 
   const filtered = catalog.filter(item => {
     const matchCategory = activeCatalogCategory === 'All' || item.category.toLowerCase() === activeCatalogCategory.toLowerCase();
@@ -15222,7 +15154,7 @@ function downloadPdfBill(isSilent = false) {
 
 function generateWhatsAppBillText() {
   const cleanNum = currentTicketNumber.replace('#', '');
-  return `ðŸ° *Sugar Cubes Bakery & Cafe*\nðŸ“„ *Official Tax Invoice #${cleanNum} (PDF)*\nâœ¨ Thank you for celebrating with Sugar Cubes! ðŸŽ‚`;
+  return `ðŸ° *Sugar Cubes Bakery & Cafe (Coimbatore)*\nðŸ“„ *Official Tax Invoice #${cleanNum} (PDF)*\nâœ¨ Thank you for celebrating with Sugar Cubes! ðŸŽ‚`;
 }
 
 async function sendBillWhatsApp() {
@@ -16749,8 +16681,8 @@ function openDailyReportModal(mode = null, fromProfile = false, fromRestore = fa
       let totalUnits = 0;
       let payModeBreakdown = { Cash: 0, UPI: 0, Card: 0 };
       let payModeCount = { Cash: 0, UPI: 0, Card: 0 };
-      let catBreakdown = { Cakes: 0, Pastries: 0, Cupcakes: 0, Desserts: 0, Beverages: 0 };
-      let catUnits = { Cakes: 0, Pastries: 0, Cupcakes: 0, Desserts: 0, Beverages: 0 };
+      let catBreakdown = { 'Cakes & More': 0, 'Sugar Cubes Classics': 0 };
+      let catUnits = { 'Cakes & More': 0, 'Sugar Cubes Classics': 0 };
 
       filtered.forEach(sale => {
         const rev = Number(sale.grandTotal || sale.amount || 0);
@@ -16775,15 +16707,28 @@ function openDailyReportModal(mode = null, fromProfile = false, fromRestore = fa
 
         if (Array.isArray(sale.items)) {
           sale.items.forEach(it => {
-            const cat = it.category || 'Cakes';
+            let rawCat = it.category || 'Cakes & More';
+            let cat = rawCat;
+            if (rawCat === 'Cakes' || rawCat === 'Pastries' || rawCat === 'Desserts') {
+              cat = 'Cakes & More';
+            } else if (rawCat === 'Cupcakes' || rawCat === 'Beverages') {
+              cat = 'Sugar Cubes Classics';
+            }
             const itRev = Number(it.amount || ((it.price || 0) * (it.qty || 1)) || 0);
             const itQty = Number(it.qty || 1);
             catBreakdown[cat] = (catBreakdown[cat] || 0) + itRev;
             catUnits[cat] = (catUnits[cat] || 0) + itQty;
           });
         } else if (sale.category) {
-          catBreakdown[sale.category] = (catBreakdown[sale.category] || 0) + rev;
-          catUnits[sale.category] = (catUnits[sale.category] || 0) + uCount;
+          let rawCat = sale.category;
+          let cat = rawCat;
+          if (rawCat === 'Cakes' || rawCat === 'Pastries' || rawCat === 'Desserts') {
+            cat = 'Cakes & More';
+          } else if (rawCat === 'Cupcakes' || rawCat === 'Beverages') {
+            cat = 'Sugar Cubes Classics';
+          }
+          catBreakdown[cat] = (catBreakdown[cat] || 0) + rev;
+          catUnits[cat] = (catUnits[cat] || 0) + uCount;
         }
       });
 
@@ -16802,12 +16747,24 @@ function openDailyReportModal(mode = null, fromProfile = false, fromRestore = fa
       const cardPct = totalRevenue > 0 ? ((payModeBreakdown.Card / totalRevenue) * 100).toFixed(1) : '0.0';
 
       const categoriesMeta = [
-        { key: 'Cakes', name: 'Cakes', icon: 'ðŸŽ‚', gradient: 'linear-gradient(90deg, #ec4899, #db2777)', badgeBg: '#fdf2f8', badgeColor: '#db2777', badgeBorder: '#fbcfe8' },
-        { key: 'Pastries', name: 'Pastries', icon: 'ðŸ°', gradient: 'linear-gradient(90deg, #f97316, #ea580c)', badgeBg: '#fff7ed', badgeColor: '#ea580c', badgeBorder: '#fed7aa' },
-        { key: 'Cupcakes', name: 'Cupcakes', icon: 'ðŸ§', gradient: 'linear-gradient(90deg, #8b5cf6, #7c3aed)', badgeBg: '#f5f3ff', badgeColor: '#7c3aed', badgeBorder: '#ddd6fe' },
-        { key: 'Desserts', name: 'Desserts', icon: 'ðŸª', gradient: 'linear-gradient(90deg, #f59e0b, #d97706)', badgeBg: '#fef3c7', badgeColor: '#d97706', badgeBorder: '#fde68a' },
-        { key: 'Beverages', name: 'Beverages', icon: 'â˜•', gradient: 'linear-gradient(90deg, #10b981, #059669)', badgeBg: '#ecfdf5', badgeColor: '#059669', badgeBorder: '#a7f3d0' }
+        { key: 'Cakes & More', name: 'Cakes & More', icon: 'ðŸ°', gradient: 'linear-gradient(90deg, #ec4899, #db2777)', badgeBg: '#fdf2f8', badgeColor: '#db2777', badgeBorder: '#fbcfe8' },
+        { key: 'Sugar Cubes Classics', name: 'Sugar Cubes Classics', icon: 'ðŸ«', gradient: 'linear-gradient(90deg, #8b5cf6, #7c3aed)', badgeBg: '#f5f3ff', badgeColor: '#7c3aed', badgeBorder: '#ddd6fe' }
       ];
+
+      // Include custom categories if present
+      Object.keys(catBreakdown).forEach(k => {
+        if (!categoriesMeta.some(c => c.key.toLowerCase() === k.toLowerCase()) && catBreakdown[k] > 0) {
+          categoriesMeta.push({
+            key: k,
+            name: k,
+            icon: 'ðŸ§',
+            gradient: 'linear-gradient(90deg, #10b981, #059669)',
+            badgeBg: '#ecfdf5',
+            badgeColor: '#059669',
+            badgeBorder: '#a7f3d0'
+          });
+        }
+      });
 
       // Sort categories descending by revenue
       categoriesMeta.sort((a, b) => (catBreakdown[b.key] || 0) - (catBreakdown[a.key] || 0));
@@ -16900,60 +16857,63 @@ function openDailyReportModal(mode = null, fromProfile = false, fromRestore = fa
             </div>
           </div>
 
-          <!-- 3. Revenue by Bakery Category -->
-          <div class="audit-section-card">
-            <div class="audit-section-header">
-              <div class="audit-section-title">
-                <span class="audit-sec-icon">ðŸŽ‚</span>
-                <span class="audit-sec-text">Revenue by Bakery Category</span>
+          <!-- 3. Desktop 2-Column Split Row: Category Revenue & Payment Breakdown -->
+          <div class="audit-split-row">
+            <!-- Left Column: Revenue by Bakery Category -->
+            <div class="audit-section-card">
+              <div class="audit-section-header">
+                <div class="audit-section-title">
+                  <span class="audit-sec-icon">ðŸ°</span>
+                  <span class="audit-sec-text">Revenue by Bakery Category</span>
+                </div>
+                <span class="audit-section-chip">${categoriesMeta.length} Categories</span>
               </div>
-              <span class="audit-section-chip">5 Lines</span>
+              <div class="audit-cat-list">
+                ${catRowsHtml}
+              </div>
             </div>
-            <div class="audit-cat-list">
-              ${catRowsHtml}
+
+            <!-- Right Column: Payment Collection Breakdown -->
+            <div class="audit-section-card">
+              <div class="audit-section-header">
+                <div class="audit-section-title">
+                  <span class="audit-sec-icon">ðŸ’³</span>
+                  <span class="audit-sec-text">Payment Collection Breakdown</span>
+                </div>
+                <span class="audit-section-chip">Reconciled</span>
+              </div>
+              <div class="audit-pay-grid">
+                <div class="audit-pay-card pay-cash">
+                  <div class="audit-pay-top">
+                    <span class="audit-pay-name">ðŸ’µ Cash</span>
+                    <span class="audit-pay-pct">${cashPct}%</span>
+                  </div>
+                  <div class="audit-pay-val">â‚¹${(payModeBreakdown.Cash || 0).toFixed(2)}</div>
+                  <div class="audit-pay-count">${payModeCount.Cash || 0} Bills</div>
+                </div>
+
+                <div class="audit-pay-card pay-upi">
+                  <div class="audit-pay-top">
+                    <span class="audit-pay-name">ðŸ“± UPI / QR</span>
+                    <span class="audit-pay-pct">${upiPct}%</span>
+                  </div>
+                  <div class="audit-pay-val">â‚¹${(payModeBreakdown.UPI || 0).toFixed(2)}</div>
+                  <div class="audit-pay-count">${payModeCount.UPI || 0} Bills</div>
+                </div>
+
+                <div class="audit-pay-card pay-card">
+                  <div class="audit-pay-top">
+                    <span class="audit-pay-name">ðŸ’³ Card</span>
+                    <span class="audit-pay-pct">${cardPct}%</span>
+                  </div>
+                  <div class="audit-pay-val">â‚¹${(payModeBreakdown.Card || 0).toFixed(2)}</div>
+                  <div class="audit-pay-count">${payModeCount.Card || 0} Bills</div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- 4. Payment Collection Breakdown -->
-          <div class="audit-section-card">
-            <div class="audit-section-header">
-              <div class="audit-section-title">
-                <span class="audit-sec-icon">ðŸ’³</span>
-                <span class="audit-sec-text">Payment Collection Breakdown</span>
-              </div>
-              <span class="audit-section-chip">Reconciled</span>
-            </div>
-            <div class="audit-pay-grid">
-              <div class="audit-pay-card pay-cash">
-                <div class="audit-pay-top">
-                  <span class="audit-pay-name">ðŸ’µ Cash</span>
-                  <span class="audit-pay-pct">${cashPct}%</span>
-                </div>
-                <div class="audit-pay-val">â‚¹${(payModeBreakdown.Cash || 0).toFixed(2)}</div>
-                <div class="audit-pay-count">${payModeCount.Cash || 0} Bills</div>
-              </div>
-
-              <div class="audit-pay-card pay-upi">
-                <div class="audit-pay-top">
-                  <span class="audit-pay-name">ðŸ“± UPI / QR</span>
-                  <span class="audit-pay-pct">${upiPct}%</span>
-                </div>
-                <div class="audit-pay-val">â‚¹${(payModeBreakdown.UPI || 0).toFixed(2)}</div>
-                <div class="audit-pay-count">${payModeCount.UPI || 0} Bills</div>
-              </div>
-
-              <div class="audit-pay-card pay-card">
-                <div class="audit-pay-top">
-                  <span class="audit-pay-name">ðŸ’³ Card</span>
-                  <span class="audit-pay-pct">${cardPct}%</span>
-                </div>
-                <div class="audit-pay-val">â‚¹${(payModeBreakdown.Card || 0).toFixed(2)}</div>
-                <div class="audit-pay-count">${payModeCount.Card || 0} Bills</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 5. Certified Digital Audit Footer Stamp -->
+          <!-- 4. Certified Digital Audit Footer Stamp -->
           <div class="audit-footer-stamp">
             <div class="audit-stamp-row">
               <span class="audit-stamp-icon">ðŸ›¡ï¸</span>
@@ -18047,7 +18007,7 @@ function switchAccountRelogin(targetEmail) {
 
 const DEFAULT_PAYSLIP_CONFIG = {
   compName: 'SUGAR CUBES BAKERY & CAFÃ‰',
-  compAddr: 'Central Branch, Main Road â€¢ GSTIN: 33AAAAA0000A1Z5',
+  compAddr: 'Coimbatore Branch, Tamil Nadu â€¢ GSTIN: 33AAAAA0000A1Z5',
   payPeriod: 'September 2026',
 
   empId: 'SC-EMP-101',
@@ -18434,7 +18394,7 @@ const DEFAULT_STORE_OWNERS = [
     tag: 'PRIMARY STORE OWNER',
     phone: '+91 98765 43210',
     email: 'owner@sugarcubes.com',
-    branch: 'Sugar Cubes Bakery, Main Road, Chennai Central, TN 600001',
+    branch: 'Sugar Cubes Bakery, Coimbatore, Tamil Nadu',
     avatarBg: '#059669',
     tagBg: '#d1fae5',
     tagColor: '#065f46'
@@ -18446,7 +18406,7 @@ const DEFAULT_STORE_OWNERS = [
     tag: 'OPERATIONS & STORE HEAD',
     phone: '+91 98123 45678',
     email: 'ananya@sugarcubes.com',
-    branch: 'Sugar Cubes Bakery, Main Road, Chennai Central, TN 600001',
+    branch: 'Sugar Cubes Bakery, Coimbatore, Tamil Nadu',
     avatarBg: '#2563eb',
     tagBg: '#dbeafe',
     tagColor: '#1e40af'
@@ -18458,7 +18418,7 @@ const DEFAULT_STORE_OWNERS = [
     tag: 'FINANCE & EXPANSION',
     phone: '+91 98450 12345',
     email: 'rajesh@sugarcubes.com',
-    branch: 'Sugar Cubes Bakery, Main Road, Chennai Central, TN 600001',
+    branch: 'Sugar Cubes Bakery, Coimbatore, Tamil Nadu',
     avatarBg: '#7c3aed',
     tagBg: '#f3e8ff',
     tagColor: '#6b21a8'
@@ -18466,6 +18426,12 @@ const DEFAULT_STORE_OWNERS = [
 ];
 
 function getOwnersList() {
+  const CURRENT_LOC_VER = 'sugarCubesStoreLocationVersion_v1';
+  if (localStorage.getItem('sugarCubesStoreLocVer') !== CURRENT_LOC_VER) {
+    localStorage.setItem('sugarCubesStoreLocVer', CURRENT_LOC_VER);
+    saveOwnersList(DEFAULT_STORE_OWNERS);
+    return DEFAULT_STORE_OWNERS;
+  }
   try {
     const raw = localStorage.getItem('sugarCubesOwnersList');
     if (raw) {
@@ -18622,7 +18588,7 @@ function renderOwnerDetailsModal() {
         <span style="font-size: 1.3rem;">ðŸ“</span>
         <div>
           <span style="font-size: 0.7rem; font-weight: 700; color: #64748b; display: block;">STORE BRANCH & ADDRESS</span>
-          <span style="font-size: 0.82rem; font-weight: 700; color: #334155;">${escapeHtml(currentOwner.branch || 'Sugar Cubes Bakery, Main Road, Chennai Central, TN 600001')}</span>
+          <span style="font-size: 0.82rem; font-weight: 700; color: #334155;">${escapeHtml(currentOwner.branch || 'Sugar Cubes Bakery, Coimbatore, Tamil Nadu')}</span>
         </div>
       </div>
     </div>
@@ -18680,7 +18646,7 @@ function openAddOwnerModal() {
   if (tagIn) tagIn.value = 'STORE CO-OWNER';
   if (phoneIn) phoneIn.value = '';
   if (emailIn) emailIn.value = '';
-  if (branchIn) branchIn.value = 'Sugar Cubes Bakery, Main Road, Chennai Central, TN 600001';
+  if (branchIn) branchIn.value = 'Sugar Cubes Bakery, Coimbatore, Tamil Nadu';
 
   removeOwnerPhoto();
 
@@ -18710,7 +18676,7 @@ function openEditOwnerModal(ownerId) {
   if (tagIn) tagIn.value = owner.tag || 'STORE OWNER';
   if (phoneIn) phoneIn.value = owner.phone || '';
   if (emailIn) emailIn.value = owner.email || '';
-  if (branchIn) branchIn.value = owner.branch || 'Sugar Cubes Bakery, Main Road, Chennai Central, TN 600001';
+  if (branchIn) branchIn.value = owner.branch || 'Sugar Cubes Bakery, Coimbatore, Tamil Nadu';
 
   if (owner.photo) {
     const base64Input = document.getElementById('ownerPhotoBase64Input');
@@ -18750,7 +18716,7 @@ function saveOwnerForm(e) {
   const tag = (document.getElementById('ownerTagInput').value || '').trim() || 'STORE OWNER';
   const phone = (document.getElementById('ownerPhoneInput').value || '').trim();
   const email = (document.getElementById('ownerEmailInput').value || '').trim();
-  const branch = (document.getElementById('ownerBranchInput').value || '').trim() || 'Sugar Cubes Bakery, Main Road, Chennai Central, TN 600001';
+  const branch = (document.getElementById('ownerBranchInput').value || '').trim() || 'Sugar Cubes Bakery, Coimbatore, Tamil Nadu';
   const photo = (document.getElementById('ownerPhotoBase64Input').value || '').trim();
 
   if (!name || !role || !phone || !email) {

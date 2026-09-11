@@ -38,7 +38,7 @@
             </div>
           </div>
           <div class="brand-meta-sub-row">
-            <span class="brand-tagline">Artisanal Cake Shop & Bakery POS</span>
+            <span class="brand-tagline">Artisanal Cake Shop & Bakery • Coimbatore</span>
             <span class="brand-dot-sep">•</span>
             <div class="brand-ig-pill" onclick="promptEditInstagramHandle()" title="Click to edit Instagram Profile handle">
               <span>📸</span> <span id="headerIgHandle">@sugarcubes_official</span> <span>✏️</span>
@@ -245,26 +245,17 @@
           <button type="button" class="cat-nav-pill active" onclick="filterCatalogCategory('All', this)">
             All Items <span class="cat-count-badge" id="catCountAll">19</span>
           </button>
-          <button type="button" class="cat-nav-pill" onclick="filterCatalogCategory('Cakes', this)">
-            🎂 Cakes <span class="cat-count-badge" id="catCountCakes">5</span>
+          <button type="button" class="cat-nav-pill" onclick="filterCatalogCategory('Cakes & More', this)">
+            🍰 Cakes & More <span class="cat-count-badge" id="catCountCakesAndMore">8</span>
           </button>
-          <button type="button" class="cat-nav-pill" onclick="filterCatalogCategory('Pastries', this)">
-            🍰 Pastries <span class="cat-count-badge" id="catCountPastries">4</span>
-          </button>
-          <button type="button" class="cat-nav-pill" onclick="filterCatalogCategory('Cupcakes', this)">
-            🧁 Cupcakes <span class="cat-count-badge" id="catCountCupcakes">4</span>
-          </button>
-          <button type="button" class="cat-nav-pill" onclick="filterCatalogCategory('Desserts', this)">
-            🍪 Desserts <span class="cat-count-badge" id="catCountDesserts">4</span>
-          </button>
-          <button type="button" class="cat-nav-pill" onclick="filterCatalogCategory('Beverages', this)">
-            ☕ Beverages <span class="cat-count-badge" id="catCountBeverages">2</span>
+          <button type="button" class="cat-nav-pill" onclick="filterCatalogCategory('Sugar Cubes Classics', this)">
+            🍫 Sugar Cubes Classics <span class="cat-count-badge" id="catCountClassics">11</span>
           </button>
         </nav>
 
         <!-- Quick Item Search Input -->
         <div class="catalog-search-box">
-          <input type="text" id="catalogSearchInput" placeholder="🔍 Quick search cakes, pastries, cupcakes, beverages... (Type to filter)" oninput="onCatalogSearch(this.value)">
+          <input type="text" id="catalogSearchInput" placeholder="🔍 Quick search cakes, brownies, tiramisu, tres leches... (Type to filter)" oninput="onCatalogSearch(this.value)">
           <button type="button" class="search-clear-btn" onclick="clearCatalogSearch()" title="Clear search">✕</button>
         </div>
 
@@ -900,6 +891,7 @@
       
       <div class="receipt-header-center">
         <div class="receipt-brand-title">🍰 SUGAR CUBES</div>
+        <div class="receipt-tagline-text">📍 Coimbatore • Tamil Nadu</div>
         <div class="receipt-tagline-text">Artisanal Cakes • Pastries • Fresh Bakes</div>
         <div class="receipt-tagline-text">100% Eggless Options • Fresh Daily</div>
         <div class="receipt-cut-line"></div>
@@ -1921,7 +1913,7 @@
        Modal: Daily Sales Closing Statement & Audit Report
        ========================================================================= -->
   <div id="dailyReportModal" class="modal-backdrop" style="display: none;" onclick="closeDailyReportModalOnBackdrop(event)">
-    <div class="modal-window-card" style="max-width: 620px;" onclick="event.stopPropagation()">
+    <div class="modal-window-card sales-report-modal-card" onclick="event.stopPropagation()">
       <div class="modal-card-top" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #fff; padding: 14px 18px; border-bottom: 2px solid #10b981;">
         <div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1;">
           <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(16, 185, 129, 0.2); border: 1.5px solid rgba(16, 185, 129, 0.4); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0;">
@@ -2011,7 +2003,7 @@
           <div class="pdf-brand-info">
             <h2>Sugar Cubes Bakery</h2>
             <p><strong>Artisanal Cakes, Fine Pastries & Confectionery</strong></p>
-            <p>No. 24, Baker's Avenue, 100 Feet Road, Indiranagar, Bengaluru - 560038</p>
+            <p>Sugar Cubes Artisanal Bakery, Coimbatore, Tamil Nadu</p>
             <p>📞 +91 98765 43210 • ✉️ orders@sugarcubesbakery.com • www.sugarcubes.in</p>
             <p><strong>GSTIN:</strong> 29AABCS1429K1ZT &nbsp;|&nbsp; <strong>FSSAI Lic No:</strong> 11223344556677</p>
           </div>
