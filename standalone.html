@@ -132,7 +132,7 @@ body {
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(226, 232, 240, 0.85);
   border-radius: 14px;
-  padding: 8px 14px;
+  padding: 13px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -398,64 +398,39 @@ body {
   flex-shrink: 0;
 }
 
-/* Cashier / Staff Pill */
+/* Cashier / Staff Status & Logout Wrapper Box (Increased Box Size) */
 .logged-user-pill {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   background: #ffffff;
-  border: 1px solid #e2e8f0;
-  padding: 2px 4px 2px 6px;
-  height: 38px;
-  border-radius: 10px;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  border: 1.5px solid #cbd5e1;
+  padding: 4px 6px;
+  height: 48px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
   flex-shrink: 0;
   box-sizing: border-box;
-  transition: var(--transition);
-  cursor: pointer;
 }
 
 .logged-user-pill:hover {
-  border-color: #cbd5e1;
-  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
+  border-color: #94a3b8;
 }
 
-.user-avatar-badge {
-  font-size: 0.85rem;
-  width: 22px;
-  height: 22px;
-  background: #f1f5f9;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #475569;
+.user-shift-badge {
+  background: #ffffff;
   border: 1px solid #e2e8f0;
-}
-
-.user-info-text {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.1;
-  text-align: left;
-}
-
-.user-name-title {
-  font-size: 0.72rem;
+  color: #059669;
   font-weight: 800;
-  color: #0f172a;
-  white-space: nowrap;
-  max-width: 85px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.user-role-tag {
-  font-size: 0.55rem;
-  font-weight: 700;
-  color: #0284c7;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
+  font-size: 0.76rem;
+  padding: 0 12px;
+  height: 36px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: default;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.02);
 }
 
 .user-email-subtitle {
@@ -518,27 +493,30 @@ body {
 }
 
 .btn-logout-pill {
-  background: #fff1f2;
-  border: 1px solid #fecdd3;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   color: #e11d48;
-  font-size: 0.65rem;
+  font-size: 0.76rem;
   font-weight: 700;
-  padding: 2px 5px;
-  height: 24px;
-  border-radius: 6px;
+  padding: 0 12px;
+  height: 36px;
+  border-radius: 8px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  justify-content: center;
+  gap: 5px;
   transition: var(--transition);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.02);
+  margin: 0;
 }
 
 .btn-logout-pill:hover {
-  background: #e11d48;
-  color: #ffffff;
-  border-color: #e11d48;
-  box-shadow: 0 2px 6px rgba(225, 29, 72, 0.25);
+  background: #fff1f2;
+  border-color: #fecdd3;
+  color: #be123c;
   transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(225, 29, 72, 0.1);
 }
 
 /* Utility Buttons: Sound & Fullscreen */
@@ -2136,21 +2114,33 @@ body.mobile-modal-open {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(255, 255, 255, 0.92);
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 55%, #f1f5f9 100%);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(226, 232, 240, 0.85);
-  border-radius: 16px;
-  padding: 16px 22px;
-  box-shadow: 0 10px 30px -4px rgba(15, 23, 42, 0.04), 0 2px 8px -1px rgba(15, 23, 42, 0.02);
-  gap: 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 18px;
+  padding: 18px 24px;
+  box-shadow: 0 12px 32px -6px rgba(15, 23, 42, 0.06), 0 2px 6px rgba(15, 23, 42, 0.02);
+  gap: 20px;
   flex-wrap: wrap;
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-page-top-bar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #3b82f6 0%, #10b981 50%, #6366f1 100%);
 }
 
 .kpi-page-header-left {
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 20px;
   min-width: 0;
   flex: 1;
 }
@@ -2158,24 +2148,34 @@ body.mobile-modal-open {
 .btn-back-to-pos {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  background: #0f172a;
+  gap: 10px;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
   color: #ffffff;
-  border: none;
-  padding: 10px 18px;
-  border-radius: 10px;
-  font-size: 0.86rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 11px 20px;
+  border-radius: 12px;
+  font-size: 0.88rem;
   font-weight: 700;
   cursor: pointer;
-  transition: var(--transition);
-  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.18);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.22);
   flex-shrink: 0;
 }
 
 .btn-back-to-pos:hover {
-  background: #1e293b;
-  transform: translateX(-2px);
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25);
+  background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
+  transform: translateX(-4px);
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.3);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn-back-to-pos .back-icon {
+  font-size: 1.05rem;
+  transition: transform 0.25s ease;
+}
+
+.btn-back-to-pos:hover .back-icon {
+  transform: translateX(-3px);
 }
 
 .kpi-page-title-wrap {
@@ -2185,28 +2185,33 @@ body.mobile-modal-open {
 .kpi-page-badge-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
+  gap: 10px;
+  margin-bottom: 5px;
 }
 
 .kpi-page-hub-badge {
   font-size: 0.68rem;
   font-weight: 800;
-  letter-spacing: 0.5px;
-  background: #f1f5f9;
-  color: #475569;
-  padding: 2px 8px;
-  border-radius: 4px;
-  border: 1px solid #cbd5e1;
+  letter-spacing: 0.6px;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  color: #1e40af;
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: 1px solid #bfdbfe;
+  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.08);
 }
 
 .kpi-page-status-pill {
-  font-size: 0.72rem;
+  font-size: 0.74rem;
   font-weight: 700;
-  color: #10b981;
+  color: #059669;
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  background: rgba(209, 250, 229, 0.6);
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: 1px solid #a7f3d0;
 }
 
 .kpi-live-dot {
@@ -2215,26 +2220,88 @@ body.mobile-modal-open {
   background: #10b981;
   border-radius: 50%;
   box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.35);
+  animation: liveDotPulse 2s infinite ease-in-out;
+}
+
+@keyframes liveDotPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
 }
 
 .kpi-page-heading {
   margin: 0;
-  font-size: 1.32rem;
+  font-size: 1.4rem;
   font-weight: 800;
   color: #0f172a;
-  letter-spacing: -0.3px;
+  letter-spacing: -0.4px;
+  line-height: 1.25;
 }
 
 .kpi-page-sub {
-  margin: 2px 0 0;
-  font-size: 0.78rem;
+  margin: 3px 0 0;
+  font-size: 0.8rem;
   color: #64748b;
+  font-weight: 500;
+  letter-spacing: -0.1px;
 }
 
 .kpi-page-header-right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+}
+
+.btn-kpi-export-csv {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  color: #334155;
+  border: 1.5px solid #cbd5e1;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+}
+
+.btn-kpi-export-csv:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+  color: #0f172a;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+
+.btn-kpi-print-stmt {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #e11d48 0%, #be123c 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(225, 29, 72, 0.35);
+}
+
+.btn-kpi-print-stmt:hover {
+  background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(225, 29, 72, 0.45);
 }
 
 .kpi-page-track-panel {
@@ -4242,9 +4309,13 @@ html.auth-pending #loginAuthScreen {
   display: none;
 }
 
-/* ==========================================================================
-   Cashier & User Profile Modal Styles
-   ========================================================================== */
+/* Hide Mobile Profile Cockpit Modal on Laptop Web View (>768px) */
+@media (min-width: 769px) {
+  #userProfileModal {
+    display: none !important;
+  }
+}
+
 /* ==========================================================================
    Cashier Profile & Mobile Sales Hub Modal Styles
    ========================================================================== */
@@ -5005,80 +5076,36 @@ html.auth-pending #loginAuthScreen {
   }
 
   .logged-user-pill {
-    height: 50px !important;
-    padding: 4px 16px !important;
-    border-radius: 14px !important;
-    gap: 14px !important;
-    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
-    border: 1.5px solid #cbd5e1 !important;
-    box-shadow: 0 3px 10px rgba(15, 23, 42, 0.05), inset 0 1px 0 #ffffff !important;
     display: inline-flex !important;
     align-items: center !important;
-    max-width: none !important;
-    min-width: fit-content !important;
-  }
-
-  .user-avatar-badge {
-    width: 38px !important;
-    height: 38px !important;
-    font-size: 1.15rem !important;
-    background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%) !important;
-    color: #0284c7 !important;
-    border: 1px solid #7dd3fc !important;
-    border-radius: 10px !important;
-    box-shadow: 0 2px 5px rgba(2, 132, 199, 0.15) !important;
-    flex-shrink: 0 !important;
-  }
-
-  .user-info-text {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    max-width: none !important;
-  }
-
-  #headerCashierName {
-    display: none !important;
-  }
-
-  #headerCashierEmail {
-    display: none !important;
-  }
-
-  .user-role-tag {
-    font-size: 0.74rem !important;
-    font-weight: 800 !important;
-    color: #059669 !important;
-    background: #ecfdf5 !important;
-    border: 1.5px solid #a7f3d0 !important;
-    padding: 4px 12px !important;
+    gap: 6px !important;
+    background: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+    padding: 4px 6px !important;
+    height: 48px !important;
     border-radius: 12px !important;
-    letter-spacing: 0.4px !important;
-    text-transform: uppercase !important;
-    white-space: nowrap !important;
-    box-shadow: 0 1px 2px rgba(16, 185, 129, 0.1) !important;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04) !important;
+  }
+
+  .user-shift-badge {
+    height: 36px !important;
+    padding: 0 12px !important;
+    border-radius: 8px !important;
+    font-size: 0.76rem !important;
   }
 
   .btn-logout-pill {
-    height: 38px !important;
-    padding: 0 16px !important;
-    border-radius: 10px !important;
-    font-size: 0.8rem !important;
+    height: 36px !important;
+    padding: 0 12px !important;
+    border-radius: 8px !important;
+    font-size: 0.76rem !important;
     font-weight: 700 !important;
-    background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%) !important;
-    border: 1.5px solid #fecdd3 !important;
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
     color: #e11d48 !important;
-    box-shadow: 0 2px 4px rgba(225, 29, 72, 0.08) !important;
-    transition: all 0.2s ease !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.02) !important;
+    transition: var(--transition) !important;
     flex-shrink: 0 !important;
-  }
-
-  .btn-logout-pill:hover {
-    background: #ffe4e6 !important;
-    border-color: #fda4af !important;
-    color: #be123c !important;
-    transform: translateY(-1px) !important;
-    box-shadow: 0 4px 10px rgba(225, 29, 72, 0.18) !important;
   }
 
   .header-utility-btns .util-btn {
@@ -10509,28 +10536,155 @@ html.auth-pending #loginAuthScreen {
     height: 72px;
     min-width: 72px;
   }
+}
 
 /* ==========================================================================
-   Registered Accounts & Email Directory - Laptop Web View Only (>768px)
+   Corporate Payslip Dedicated Print Styles
    ========================================================================== */
-.prof-registered-users-card {
-  display: block;
+@media print {
+  body > * {
+    display: none !important;
+  }
+  
+  #employeePayslipModal {
+    display: block !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    z-index: 999999 !important;
+  }
+  
+  #employeePayslipModal .modal-window-card {
+    max-width: 100% !important;
+    width: 100% !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    max-height: none !important;
+  }
+  
+  /* Hide modal header and footer buttons during print */
+  #employeePayslipModal .modal-window-card > div:first-child,
+  #employeePayslipModal .modal-window-card > div:last-child {
+    display: none !important;
+  }
+  
+  #payslipPrintArea {
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+  
+  #payslipEditContainer {
+    display: none !important;
+  }
+  
+  #payslipViewContainer {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  #payslipViewContainer > div {
+    border: 2px solid #000000 !important;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 12mm;
+  }
+}
+
+/* ==========================================================================
+   âœ¨ Shiny Light Moving Loop Effect for Header Brand Name "Sugar Cubes"
+   ========================================================================== */
+@keyframes lightMovingLoop {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shiny-brand-text {
+  background: linear-gradient(
+    115deg,
+    #0f172a 0%,
+    #0f172a 32%,
+    #e11d48 42%,
+    #ffffff 50%,
+    #f43f5e 58%,
+    #0f172a 68%,
+    #0f172a 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  animation: lightMovingLoop 2.8s infinite linear;
+  font-weight: 900;
+  letter-spacing: -0.4px;
+  filter: drop-shadow(0 2px 8px rgba(225, 29, 72, 0.2));
+}
+
+/* ==========================================================================
+   âš¡ Mobile Phone Top-Header Shift Action Button
+   ========================================================================== */
+.mobile-shift-action-btn {
+  display: none;
+  align-items: center;
+  gap: 5px;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: #ffffff;
+  border: 1.5px solid #10b981;
+  border-radius: 10px;
+  padding: 6px 12px;
+  font-weight: 800;
+  font-size: 0.78rem;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(16, 185, 129, 0.22), 0 1px 3px rgba(15, 23, 42, 0.15);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  letter-spacing: -0.1px;
+  margin-left: auto;
+  line-height: 1;
+}
+
+.mobile-shift-action-btn:hover,
+.mobile-shift-action-btn:active {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  border-color: #34d399;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+}
+
+.mobile-shift-action-btn .shift-action-bolt {
+  font-size: 0.85rem;
+  color: #34d399;
+  filter: drop-shadow(0 0 4px rgba(52, 211, 153, 0.6));
+  display: inline-block;
+  animation: pulseBeacon 2s infinite;
+}
+
+.mobile-shift-action-btn .shift-action-label {
+  font-weight: 800;
+  color: #ffffff;
+  font-size: 0.76rem;
 }
 
 @media (max-width: 768px) {
-  .prof-registered-users-card {
-    display: none !important;
+  .mobile-shift-action-btn {
+    display: inline-flex !important;
   }
 }
-
-@media (min-width: 769px) {
-  .prof-registered-users-card {
-    display: block !important;
-  }
-}
-
-
-
 
 </style>
   <!-- Client-Side High-Fidelity PDF Engine -->
@@ -10558,7 +10712,7 @@ html.auth-pending #loginAuthScreen {
         <div class="brand-avatar">ðŸ°</div>
         <div class="brand-details">
           <div class="brand-title-row">
-            <h1 class="brand-title-heading">Sugar Cubes <span class="brand-logo-sparkle" title="Official Registered Brand">âœ¨</span></h1>
+            <h1 class="brand-title-heading"><span class="shiny-brand-text">Sugar Cubes</span> <span class="brand-logo-sparkle" title="Official Registered Brand">âœ¨</span></h1>
             <div class="brand-live-badge">
               <span class="pulse-dot"></span>
               <span>STORE OPEN â€¢ COUNTER #1</span>
@@ -10574,25 +10728,25 @@ html.auth-pending #loginAuthScreen {
         </div>
       </div>
 
-      <!-- Mobile Top-Corner Cashier Profile Button (Icon-Only Executive Button) -->
-      <button type="button" class="mobile-corner-profile-btn" id="mobileCornerProfileBtn" onclick="openUserProfileModal()" title="Store Cashier Profile & Sales Cockpit" aria-label="Store Profile">
-        <div class="mobile-corner-avatar-ring">
-          <span class="mobile-corner-emoji">ðŸ‘¤</span>
-          <span class="mobile-corner-beacon" title="Live Counter Shift Active"></span>
-        </div>
+      <!-- Mobile Top-Corner Shift Action Button -->
+      <button type="button" class="mobile-shift-action-btn" id="mobileShiftActionBtn" onclick="openShiftActionModal()" title="Open Shift Quick Actions & Cockpit Directory" aria-label="Shift Action">
+        <span class="shift-action-bolt">âš¡</span>
+        <span class="shift-action-label">Shift Action</span>
       </button>
     </div>
 
     <div class="header-controls">
-      <!-- Logged-in Cashier / User Badge with Logout button (Clicking opens Account Details & Registered Email Directory) -->
-      <div class="logged-user-pill" id="loggedUserPill" style="display: none;" onclick="openUserProfileModal()" title="Click to view Shift Account Details & Registered Accounts">
-        <span class="user-avatar-badge">ðŸ‘¤</span>
-        <div class="user-info-text">
-          <span class="user-name-title" id="headerCashierName">Store Manager</span>
-          <span class="user-email-tag" id="headerCashierEmail" style="display: none;">admin@sugarcubes.com</span>
-          <span class="user-role-tag" id="headerCashierRole">SHIFT ACTIVE</span>
+      <!-- Logged-in Cashier / User Status Pill (Outer Box wrapping Shift Active & Logout buttons) -->
+      <div class="logged-user-pill" id="loggedUserPill" style="display: none;">
+        <span class="user-name-title" id="headerCashierName" style="display: none;">Store Manager</span>
+        <span class="user-email-tag" id="headerCashierEmail" style="display: none;">admin@sugarcubes.com</span>
+        
+        <div class="user-shift-badge" onclick="openShiftActionModal()" style="cursor: pointer;" title="Click to view Shift Details & Registered Staff Accounts (Laptop Web)">
+          <span class="pulse-dot-green" style="width: 6px; height: 6px; background: #10b981; border-radius: 50%; display: inline-block;"></span>
+          <span id="headerCashierRole">Shift Active</span>
         </div>
-        <button type="button" class="btn-logout-pill" onclick="event.stopPropagation(); logoutUser();" title="Logout & Lock Register">
+        
+        <button type="button" class="btn-logout-pill" onclick="logoutUser()" title="Logout & Lock Register">
           <span>ðŸ”’</span> <span>Logout</span>
         </button>
       </div>
@@ -11000,11 +11154,11 @@ html.auth-pending #loginAuthScreen {
       </div>
 
       <div class="kpi-page-header-right">
-        <button type="button" class="btn-reg-secondary" onclick="exportToExcel()" title="Export all sales to CSV spreadsheet">
-          ðŸ“ˆ Export CSV
+        <button type="button" class="btn-kpi-export-csv" onclick="exportToExcel()" title="Export all sales to CSV spreadsheet">
+          <span>ðŸ“ˆ</span> <span>Export CSV</span>
         </button>
-        <button type="button" class="btn-primary-action" onclick="openDailyReportModal('all')" title="Print certified daily closing statement">
-          ðŸ–¨ï¸ Print Sales Statement
+        <button type="button" class="btn-kpi-print-stmt" onclick="openDailyReportModal('all')" title="Print certified daily closing statement">
+          <span>ðŸ–¨ï¸</span> <span>Print Sales Statement</span>
         </button>
       </div>
     </div>
@@ -11550,7 +11704,7 @@ html.auth-pending #loginAuthScreen {
             <div class="profile-user-texts">
               <span class="profile-user-title" id="profileModalFullName">Store Manager</span>
               <span class="profile-user-email" id="profileModalEmail" style="font-size: 12px; color: #475569; font-weight: 500;">admin@sugarcubes.com</span>
-              <span class="profile-user-shift"><span class="prof-beacon-dot"></span> Live Shift â€¢ Counter #1</span>
+              <span class="profile-user-shift" onclick="closeUserProfileModal(); openShiftActionModal();" style="cursor: pointer;" title="Click to view Quick Actions & Store Directory"><span class="prof-beacon-dot"></span> Live Shift â€¢ Counter #1</span>
             </div>
           </div>
           <div class="profile-header-actions">
@@ -11573,9 +11727,72 @@ html.auth-pending #loginAuthScreen {
         </div>
       </div>
 
-      <!-- Modal Body: Metrics & All Date Order History -->
+      <!-- Modal Body: Quick Actions & All Functions -->
       <div class="profile-modal-body">
         
+        <!-- âš¡ Staff Quick Actions Container (Laptop Web Shift Action Buttons with All Functions) -->
+        <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 16px; padding: 18px; box-shadow: inset 0 2px 4px rgba(15, 23, 42, 0.02); margin-bottom: 16px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid #e2e8f0;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 1.1rem; color: #f59e0b;">âš¡</span>
+              <span style="font-weight: 800; font-size: 0.92rem; color: #0f172a; letter-spacing: -0.2px;">Quick Actions & Store Directory</span>
+            </div>
+            <span style="font-size: 0.7rem; font-weight: 700; color: #64748b; background: #e2e8f0; padding: 3px 10px; border-radius: 12px;">3 Directory Services</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+            
+            <!-- Action Card 1: Owner's Details -->
+            <button type="button" onclick="closeUserProfileModal(); openOwnerDetailsModal();" style="background: linear-gradient(145deg, #ffffff 0%, #f0fdf4 100%); border: 1.5px solid #a7f3d0; border-radius: 16px; padding: 20px 10px 16px 10px; position: relative; overflow: hidden; cursor: pointer; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.06);" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='#10b981'; this.style.boxShadow='0 10px 20px -4px rgba(16, 185, 129, 0.2)';" onmouseout="this.style.transform='none'; this.style.borderColor='#a7f3d0'; this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.06)';">
+              <div style="height: 4px; background: linear-gradient(90deg, #10b981, #34d399); position: absolute; top: 0; left: 0; right: 0;"></div>
+              
+              <div style="width: 48px; height: 48px; border-radius: 14px; background: rgba(16, 185, 129, 0.12); border: 1.5px solid rgba(16, 185, 129, 0.25); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.1); margin-bottom: 2px;">
+                ðŸ¢
+              </div>
+              
+              <span style="font-size: 0.84rem; font-weight: 800; color: #065f46; letter-spacing: -0.2px; line-height: 1.2;">Owner's Details</span>
+              <span style="font-size: 0.68rem; font-weight: 600; color: #059669;">Store Leadership</span>
+              
+              <div style="margin-top: 6px; font-size: 0.66rem; font-weight: 700; color: #047857; background: #dcfce7; border: 1px solid #a7f3d0; padding: 3px 10px; border-radius: 20px; display: inline-flex; align-items: center; gap: 4px;">
+                View Profile <span style="font-size: 0.72rem;">â†’</span>
+              </div>
+            </button>
+
+            <!-- Action Card 2: Employee Payslip Download -->
+            <button type="button" onclick="closeUserProfileModal(); downloadEmployeePayslip();" style="background: linear-gradient(145deg, #ffffff 0%, #eff6ff 100%); border: 1.5px solid #bfdbfe; border-radius: 16px; padding: 20px 10px 16px 10px; position: relative; overflow: hidden; cursor: pointer; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.06);" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='#3b82f6'; this.style.boxShadow='0 10px 20px -4px rgba(37, 99, 235, 0.2)';" onmouseout="this.style.transform='none'; this.style.borderColor='#bfdbfe'; this.style.boxShadow='0 4px 12px rgba(37, 99, 235, 0.06)';">
+              <div style="height: 4px; background: linear-gradient(90deg, #2563eb, #60a5fa); position: absolute; top: 0; left: 0; right: 0;"></div>
+              
+              <div style="width: 48px; height: 48px; border-radius: 14px; background: rgba(37, 99, 235, 0.12); border: 1.5px solid rgba(37, 99, 235, 0.25); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.1); margin-bottom: 2px;">
+                ðŸ“„
+              </div>
+              
+              <span style="font-size: 0.84rem; font-weight: 800; color: #1e40af; letter-spacing: -0.2px; line-height: 1.2;">Payslip Download</span>
+              <span style="font-size: 0.68rem; font-weight: 600; color: #2563eb;">Shift Statement</span>
+              
+              <div style="margin-top: 6px; font-size: 0.66rem; font-weight: 700; color: #1d4ed8; background: #dbeafe; border: 1px solid #bfdbfe; padding: 3px 10px; border-radius: 20px; display: inline-flex; align-items: center; gap: 4px;">
+                Download PDF <span style="font-size: 0.72rem;">â†’</span>
+              </div>
+            </button>
+
+            <!-- Action Card 3: Registered Accounts & Email Directory -->
+            <button type="button" onclick="closeUserProfileModal(); openResignReloginModal();" style="background: linear-gradient(145deg, #ffffff 0%, #fff1f2 100%); border: 1.5px solid #fecdd3; border-radius: 16px; padding: 20px 10px 16px 10px; position: relative; overflow: hidden; cursor: pointer; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 12px rgba(225, 29, 72, 0.06);" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='#e11d48'; this.style.boxShadow='0 10px 20px -4px rgba(225, 29, 72, 0.2)';" onmouseout="this.style.transform='none'; this.style.borderColor='#fecdd3'; this.style.boxShadow='0 4px 12px rgba(225, 29, 72, 0.06)';">
+              <div style="height: 4px; background: linear-gradient(90deg, #e11d48, #fb7185); position: absolute; top: 0; left: 0; right: 0;"></div>
+              
+              <div style="width: 48px; height: 48px; border-radius: 14px; background: rgba(225, 29, 72, 0.12); border: 1.5px solid rgba(225, 29, 72, 0.25); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 4px 10px rgba(225, 29, 72, 0.1); margin-bottom: 2px;">
+                ðŸ”‘
+              </div>
+              
+              <span style="font-size: 0.8rem; font-weight: 800; color: #9f1239; line-height: 1.2; letter-spacing: -0.2px;">Registered Accounts & Email Directory</span>
+              <span style="font-size: 0.68rem; font-weight: 600; color: #e11d48;">Resign & Re-login</span>
+              
+              <div style="margin-top: 6px; font-size: 0.66rem; font-weight: 700; color: #be123c; background: #ffe4e6; border: 1px solid #fecdd3; padding: 3px 10px; border-radius: 20px; display: inline-flex; align-items: center; gap: 4px;">
+                Manage Roster <span style="font-size: 0.72rem;">â†’</span>
+              </div>
+            </button>
+
+          </div>
+        </div>
+
         <!-- 4 Key Sales Performance Metrics (Total Sales, Order, Best Sales, Ava Order) -->
         <div class="prof-kpi-grid">
           <div class="prof-kpi-card kpi-sales kpi-clickable" onclick="openAllTotalSalesPageFromProfile()" title="Tap to view All Total Sales Statement & Audit Page">
@@ -11677,6 +11894,695 @@ html.auth-pending #loginAuthScreen {
           â† Back to Store Menu
         </button>
       </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       Modal: Laptop Web Shift Action & Cashier Cockpit Modal
+       (Opened by clicking Shift Active button on Laptop Web view)
+       ========================================================================= -->
+  <!-- =========================================================================
+       Modal: Laptop Web Shift Action & Cashier Cockpit Modal
+       (Opened by clicking Shift Active button on Laptop Web view)
+       ========================================================================= -->
+  <div id="shiftActionModal" class="modal-backdrop" style="display: none;" onclick="closeShiftActionModalOnBackdrop(event)">
+    <div class="modal-window-card" style="max-width: 660px; width: 92%; border-radius: 20px; overflow: hidden; box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.1); border: none;" onclick="event.stopPropagation()">
+      
+      <!-- Modal Header -->
+      <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0f172a 100%); color: #ffffff; padding: 20px 24px; border-bottom: 2px solid rgba(16, 185, 129, 0.4); display: flex; justify-content: space-between; align-items: center; position: relative;">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <div style="width: 46px; height: 46px; border-radius: 14px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(5, 150, 105, 0.15) 100%); border: 1.5px solid rgba(52, 211, 153, 0.4); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; box-shadow: 0 0 16px rgba(16, 185, 129, 0.25);">
+            âš¡
+          </div>
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <h3 style="margin: 0; font-size: 1.2rem; font-weight: 800; color: #ffffff; letter-spacing: -0.3px;">
+                Staff & Store Quick Actions
+              </h3>
+              <span style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.4); font-size: 0.65rem; font-weight: 700; padding: 2px 8px; border-radius: 12px; letter-spacing: 0.3px; text-transform: uppercase;">Portal</span>
+            </div>
+            <p style="margin: 3px 0 0; font-size: 0.78rem; color: #94a3b8; font-weight: 600;">
+              Cashier Utilities & Management Directory
+            </p>
+          </div>
+        </div>
+        <button type="button" class="modal-close-x" style="color: #cbd5e1; font-size: 1.2rem; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); width: 34px; height: 34px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;" onclick="closeShiftActionModal()" onmouseover="this.style.color='#fff'; this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.color='#cbd5e1'; this.style.background='rgba(255,255,255,0.08)'">âœ•</button>
+      </div>
+
+      <!-- Modal Body -->
+      <div style="padding: 22px; background: #ffffff; display: flex; flex-direction: column; gap: 16px;">
+        
+        <!-- âš¡ Staff Quick Actions Container -->
+        <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 16px; padding: 18px; box-shadow: inset 0 2px 4px rgba(15, 23, 42, 0.02);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid #e2e8f0;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 1.1rem; color: #f59e0b;">âš¡</span>
+              <span style="font-weight: 800; font-size: 0.92rem; color: #0f172a; letter-spacing: -0.2px;">Quick Actions & Store Directory</span>
+            </div>
+            <span style="font-size: 0.7rem; font-weight: 700; color: #64748b; background: #e2e8f0; padding: 3px 10px; border-radius: 12px;">3 Directory Services</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;">
+            
+            <!-- Action Card 1: Owner's Details -->
+            <button type="button" onclick="openOwnerDetailsModal();" style="background: linear-gradient(145deg, #ffffff 0%, #f0fdf4 100%); border: 1.5px solid #a7f3d0; border-radius: 16px; padding: 22px 12px 18px 12px; position: relative; overflow: hidden; cursor: pointer; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.06);" onmouseover="this.style.transform='translateY(-4px) scale(1.01)'; this.style.borderColor='#10b981'; this.style.boxShadow='0 12px 24px -4px rgba(16, 185, 129, 0.2)';" onmouseout="this.style.transform='none'; this.style.borderColor='#a7f3d0'; this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.06)';">
+              <div style="height: 4px; background: linear-gradient(90deg, #10b981, #34d399); position: absolute; top: 0; left: 0; right: 0;"></div>
+              
+              <div style="width: 52px; height: 52px; border-radius: 16px; background: rgba(16, 185, 129, 0.12); border: 1.5px solid rgba(16, 185, 129, 0.25); display: flex; align-items: center; justify-content: center; font-size: 1.7rem; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.1); margin-bottom: 2px;">
+                ðŸ¢
+              </div>
+              
+              <span style="font-size: 0.88rem; font-weight: 800; color: #065f46; letter-spacing: -0.2px; line-height: 1.2;">Owner's Details</span>
+              <span style="font-size: 0.7rem; font-weight: 600; color: #059669;">Store Leadership</span>
+              
+              <div style="margin-top: 6px; font-size: 0.68rem; font-weight: 700; color: #047857; background: #dcfce7; border: 1px solid #a7f3d0; padding: 4px 12px; border-radius: 20px; display: inline-flex; align-items: center; gap: 4px;">
+                View Profile <span style="font-size: 0.75rem;">â†’</span>
+              </div>
+            </button>
+
+            <!-- Action Card 2: Employee Payslip Download -->
+            <button type="button" onclick="downloadEmployeePayslip();" style="background: linear-gradient(145deg, #ffffff 0%, #eff6ff 100%); border: 1.5px solid #bfdbfe; border-radius: 16px; padding: 22px 12px 18px 12px; position: relative; overflow: hidden; cursor: pointer; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.06);" onmouseover="this.style.transform='translateY(-4px) scale(1.01)'; this.style.borderColor='#3b82f6'; this.style.boxShadow='0 12px 24px -4px rgba(37, 99, 235, 0.2)';" onmouseout="this.style.transform='none'; this.style.borderColor='#bfdbfe'; this.style.boxShadow='0 4px 12px rgba(37, 99, 235, 0.06)';">
+              <div style="height: 4px; background: linear-gradient(90deg, #2563eb, #60a5fa); position: absolute; top: 0; left: 0; right: 0;"></div>
+              
+              <div style="width: 52px; height: 52px; border-radius: 16px; background: rgba(37, 99, 235, 0.12); border: 1.5px solid rgba(37, 99, 235, 0.25); display: flex; align-items: center; justify-content: center; font-size: 1.7rem; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.1); margin-bottom: 2px;">
+                ðŸ“„
+              </div>
+              
+              <span style="font-size: 0.88rem; font-weight: 800; color: #1e40af; letter-spacing: -0.2px; line-height: 1.2;">Payslip Download</span>
+              <span style="font-size: 0.7rem; font-weight: 600; color: #2563eb;">Shift Statement</span>
+              
+              <div style="margin-top: 6px; font-size: 0.68rem; font-weight: 700; color: #1d4ed8; background: #dbeafe; border: 1px solid #bfdbfe; padding: 4px 12px; border-radius: 20px; display: inline-flex; align-items: center; gap: 4px;">
+                Download PDF <span style="font-size: 0.75rem;">â†’</span>
+              </div>
+            </button>
+
+            <!-- Action Card 3: Registered Accounts & Email Directory -->
+            <button type="button" onclick="openResignReloginModal();" style="background: linear-gradient(145deg, #ffffff 0%, #fff1f2 100%); border: 1.5px solid #fecdd3; border-radius: 16px; padding: 22px 12px 18px 12px; position: relative; overflow: hidden; cursor: pointer; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 12px rgba(225, 29, 72, 0.06);" onmouseover="this.style.transform='translateY(-4px) scale(1.01)'; this.style.borderColor='#e11d48'; this.style.boxShadow='0 12px 24px -4px rgba(225, 29, 72, 0.2)';" onmouseout="this.style.transform='none'; this.style.borderColor='#fecdd3'; this.style.boxShadow='0 4px 12px rgba(225, 29, 72, 0.06)';">
+              <div style="height: 4px; background: linear-gradient(90deg, #e11d48, #fb7185); position: absolute; top: 0; left: 0; right: 0;"></div>
+              
+              <div style="width: 52px; height: 52px; border-radius: 16px; background: rgba(225, 29, 72, 0.12); border: 1.5px solid rgba(225, 29, 72, 0.25); display: flex; align-items: center; justify-content: center; font-size: 1.7rem; box-shadow: 0 4px 10px rgba(225, 29, 72, 0.1); margin-bottom: 2px;">
+                ðŸ”‘
+              </div>
+              
+              <span style="font-size: 0.82rem; font-weight: 800; color: #9f1239; line-height: 1.2; letter-spacing: -0.2px;">Registered Accounts & Email Directory</span>
+              <span style="font-size: 0.7rem; font-weight: 600; color: #e11d48;">Resign & Re-login</span>
+              
+              <div style="margin-top: 6px; font-size: 0.68rem; font-weight: 700; color: #be123c; background: #ffe4e6; border: 1px solid #fecdd3; padding: 4px 12px; border-radius: 20px; display: inline-flex; align-items: center; gap: 4px;">
+                Manage Roster <span style="font-size: 0.75rem;">â†’</span>
+              </div>
+            </button>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div style="padding: 16px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 0.78rem; font-weight: 700; color: #64748b;">
+          <span style="width: 8px; height: 8px; background: #10b981; border-radius: 50%; display: inline-block; box-shadow: 0 0 10px #10b981;"></span>
+          Store Management Portal
+        </div>
+        <button type="button" onclick="closeShiftActionModal()" style="background: #ffffff; color: #334155; border: 1.5px solid #cbd5e1; padding: 9px 22px; border-radius: 10px; font-weight: 800; font-size: 0.82rem; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.03);" onmouseover="this.style.background='#f1f5f9'; this.style.borderColor='#94a3b8';" onmouseout="this.style.background='#ffffff'; this.style.borderColor='#cbd5e1';">
+          âœ• Close Window
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       Modal: Registered Accounts & Email Directory Modal
+       ========================================================================= -->
+  <div id="resignReloginModal" class="modal-backdrop" style="display: none; z-index: 10005;" onclick="closeResignReloginModalOnBackdrop(event)">
+    <div class="modal-window-card" style="max-width: 520px; width: 92%; max-height: 90vh; display: flex; flex-direction: column; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 48px rgba(15, 23, 42, 0.35);" onclick="event.stopPropagation()">
+      
+      <!-- Modal Header -->
+      <div style="background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); color: #ffffff; padding: 16px 20px; border-bottom: 2.5px solid #60a5fa; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 40px; height: 40px; border-radius: 12px; background: rgba(255, 255, 255, 0.15); border: 1.5px solid rgba(255, 255, 255, 0.3); display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+            ðŸ‘¥
+          </div>
+          <div>
+            <h3 style="margin: 0; font-size: 1.1rem; font-weight: 800; color: #ffffff; letter-spacing: -0.3px;">
+              Registered Accounts & Email Directory
+            </h3>
+            <p style="margin: 2px 0 0; font-size: 0.74rem; color: #93c5fd;">
+              Select Account to Switch, Lock Register or Re-login
+            </p>
+          </div>
+        </div>
+        <button type="button" class="modal-close-x" style="color: #ffffff; font-size: 1.2rem; background: transparent; border: none; cursor: pointer;" onclick="closeResignReloginModal()">âœ•</button>
+      </div>
+
+      <!-- Modal Body -->
+      <div style="padding: 18px; overflow-y: auto; flex: 1; background: #ffffff; display: flex; flex-direction: column; gap: 14px;">
+        
+        <!-- ðŸ‘¥ Registered Accounts & Email Directory Card -->
+        <div style="background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid #f1f5f9;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 1.1rem;">ðŸ‘¥</span>
+              <span style="font-weight: 800; font-size: 0.88rem; color: #0f172a; letter-spacing: -0.2px;">Registered Accounts & Email Directory</span>
+            </div>
+            <span id="resignRegisteredCountBadge" style="background: #3b82f6; color: white; padding: 3px 10px; border-radius: 12px; font-size: 0.74rem; font-weight: 700;">1 Account</span>
+          </div>
+          <div id="resignRegisteredUsersListContainer" style="display: flex; flex-direction: column; gap: 8px; max-height: 320px; overflow-y: auto;">
+            <!-- Dynamic user accounts rendered by script.js -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div style="padding: 12px 16px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; align-items: center;">
+        <button type="button" onclick="closeResignReloginModal()" style="background: #ffffff; color: #334155; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer;">
+          âœ• Close Window
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       Modal: Employee Payslip Statement (Standard Corporate HR Format)
+       ========================================================================= -->
+  <div id="employeePayslipModal" class="modal-backdrop" style="display: none;" onclick="closeEmployeePayslipModalOnBackdrop(event)">
+    <div class="modal-window-card" style="max-width: 760px; width: 95%; max-height: 92vh; display: flex; flex-direction: column; border-radius: 18px; overflow: hidden; box-shadow: 0 24px 60px rgba(15, 23, 42, 0.4); border: none;" onclick="event.stopPropagation()">
+      
+      <!-- Modal Header -->
+      <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #ffffff; padding: 16px 22px; border-bottom: 2.5px solid #2563eb; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 42px; height: 42px; border-radius: 12px; background: rgba(37, 99, 235, 0.25); border: 1.5px solid rgba(96, 165, 250, 0.4); display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+            ðŸ“„
+          </div>
+          <div>
+            <h3 style="margin: 0; font-size: 1.1rem; font-weight: 800; color: #ffffff; letter-spacing: -0.3px;">
+              Shift Employee Payslip Statement
+            </h3>
+            <p style="margin: 2px 0 0; font-size: 0.74rem; color: #94a3b8;">
+              Standard Corporate HR Salary Slip Format
+            </p>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <button type="button" onclick="openPayslipEditMode()" style="background: rgba(255, 255, 255, 0.12); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.3); padding: 6px 14px; border-radius: 8px; font-weight: 700; font-size: 0.78rem; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.12)'">
+            âœï¸ Edit Payslip Details
+          </button>
+          <button type="button" class="modal-close-x" style="color: #ffffff; font-size: 1.2rem; background: rgba(255,255,255,0.1); border: none; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center;" onclick="closeEmployeePayslipModal()">âœ•</button>
+        </div>
+      </div>
+
+      <!-- Modal Body Container -->
+      <div id="payslipPrintArea" style="padding: 20px; overflow-y: auto; flex: 1; background: #ffffff; display: flex; flex-direction: column; gap: 16px;">
+        
+        <!-- CORPORATE PAYSLIP VIEW CONTAINER (Perfect Full-Width Corporate Table Format) -->
+        <div id="payslipViewContainer" style="width: 100%; background: #ffffff; color: #0f172a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; box-sizing: border-box;">
+          
+          <!-- Outer Master Border Box -->
+          <div style="border: 2px solid #0f172a; background: #ffffff; box-sizing: border-box; width: 100%;">
+            
+            <!-- 1. Header Section -->
+            <div style="padding: 16px 20px; border-bottom: 2px solid #0f172a; display: flex; align-items: center; gap: 20px; box-sizing: border-box;">
+              <div style="font-size: 2.5rem; line-height: 1; display: flex; align-items: center; justify-content: center; width: 62px; height: 62px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; flex-shrink: 0;">
+                ðŸ¢
+              </div>
+              <div style="flex: 1;">
+                <h2 id="psCompName" style="margin: 0; font-size: 1.4rem; font-weight: 900; color: #0f172a; letter-spacing: -0.3px; line-height: 1.2;">SUGAR CUBES BAKERY & CAFÃ‰</h2>
+                <p id="psCompAddr" style="margin: 4px 0 0; font-size: 0.82rem; color: #475569; font-weight: 500; line-height: 1.3;">Central Branch, Main Road â€¢ GSTIN: 33AAAAA0000A1Z5</p>
+                <p style="margin: 4px 0 0; font-size: 0.85rem; color: #334155; font-weight: 700; line-height: 1.3;">Pay Slip for <span id="psPayPeriodText" style="font-weight: 900; color: #0f172a;">September 2026</span></p>
+              </div>
+            </div>
+
+            <!-- 2. Employee Details Section (2 Columns with colon alignment) -->
+            <div style="padding: 12px 18px; border-bottom: 2px solid #0f172a; background: #ffffff; box-sizing: border-box;">
+              <table style="width: 100%; border-collapse: collapse; font-size: 0.84rem; color: #334155; table-layout: fixed;">
+                <tbody>
+                  <tr>
+                    <td style="padding: 5px 0; width: 17%; color: #475569; font-weight: 600;">Employee ID</td>
+                    <td style="padding: 5px 0; width: 3%; font-weight: 700;">:</td>
+                    <td style="padding: 5px 0; width: 30%; font-weight: 800; color: #0f172a;" id="psEmpId">SC-EMP-101</td>
+                    
+                    <td style="padding: 5px 0; width: 17%; color: #475569; font-weight: 600;">UAN</td>
+                    <td style="padding: 5px 0; width: 3%; font-weight: 700;">:</td>
+                    <td style="padding: 5px 0; width: 30%; font-weight: 700; color: #0f172a;" id="psUan">100987654321</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 5px 0; color: #475569; font-weight: 600;">Employee Name</td>
+                    <td style="padding: 5px 0; font-weight: 700;">:</td>
+                    <td style="padding: 5px 0; font-weight: 800; color: #0f172a;" id="psEmpName">Store Manager</td>
+                    
+                    <td style="padding: 5px 0; color: #475569; font-weight: 600;">PF No.</td>
+                    <td style="padding: 5px 0; font-weight: 700;">:</td>
+                    <td style="padding: 5px 0; font-weight: 700; color: #0f172a;" id="psPfNo">TN/MAS/0012345</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 5px 0; color: #475569; font-weight: 600;">Designation</td>
+                    <td style="padding: 5px 0; font-weight: 700;">:</td>
+                    <td style="padding: 5px 0; font-weight: 700; color: #2563eb;" id="psDesignation">Senior Cashier</td>
+                    
+                    <td style="padding: 5px 0; color: #475569; font-weight: 600;">ESI No.</td>
+                    <td style="padding: 5px 0; font-weight: 700;">:</td>
+                    <td style="padding: 5px 0; font-weight: 700; color: #0f172a;" id="psEsiNo">3100123456</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 5px 0; color: #475569; font-weight: 600;">Department</td>
+                    <td style="padding: 5px 0; font-weight: 700;">:</td>
+                    <td style="padding: 5px 0; font-weight: 700; color: #0f172a;" id="psDepartment">Store Operations</td>
+                    
+                    <td style="padding: 5px 0; color: #475569; font-weight: 600;">Bank</td>
+                    <td style="padding: 5px 0; font-weight: 700;">:</td>
+                    <td style="padding: 5px 0; font-weight: 700; color: #0f172a;" id="psBank">HDFC Bank</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 5px 0; color: #475569; font-weight: 600;">Date of Joining</td>
+                    <td style="padding: 5px 0; font-weight: 700;">:</td>
+                    <td style="padding: 5px 0; font-weight: 700; color: #0f172a;" id="psDoj">01 Jan 2024</td>
+                    
+                    <td style="padding: 5px 0; color: #475569; font-weight: 600;">Account No.</td>
+                    <td style="padding: 5px 0; font-weight: 700;">:</td>
+                    <td style="padding: 5px 0; font-weight: 700; color: #0f172a;" id="psAccNo">XXXXXX4321</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- 3. Attendance & Gross Wages Summary Grid -->
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.84rem; border-bottom: 2px solid #0f172a; table-layout: fixed;">
+              <tbody>
+                <tr style="border-bottom: 1px solid #0f172a;">
+                  <td style="padding: 7px 12px; width: 25%; color: #475569; font-weight: 600; border-right: 1px solid #0f172a;">Gross Wages</td>
+                  <td style="padding: 7px 12px; width: 25%; text-align: center; font-weight: 800; color: #0f172a; border-right: 2px solid #0f172a;" id="psGrossWages">â‚¹15,000</td>
+                  <td style="padding: 7px 12px; width: 25%; color: #475569; font-weight: 600; border-right: 1px solid #0f172a;"></td>
+                  <td style="padding: 7px 12px; width: 25%; text-align: center; font-weight: 700;"></td>
+                </tr>
+                <tr style="border-bottom: 1px solid #0f172a;">
+                  <td style="padding: 7px 12px; color: #475569; font-weight: 600; border-right: 1px solid #0f172a;">Total Working Days</td>
+                  <td style="padding: 7px 12px; text-align: center; font-weight: 700; color: #0f172a; border-right: 2px solid #0f172a;" id="psTotalWorkDays">30</td>
+                  <td style="padding: 7px 12px; color: #475569; font-weight: 600; border-right: 1px solid #0f172a;">Leaves</td>
+                  <td style="padding: 7px 12px; text-align: center; font-weight: 700; color: #0f172a;" id="psLeaves">0</td>
+                </tr>
+                <tr>
+                  <td style="padding: 7px 12px; color: #475569; font-weight: 600; border-right: 1px solid #0f172a;">LOP Days</td>
+                  <td style="padding: 7px 12px; text-align: center; font-weight: 700; color: #0f172a; border-right: 2px solid #0f172a;" id="psLopDays">0</td>
+                  <td style="padding: 7px 12px; color: #475569; font-weight: 600; border-right: 1px solid #0f172a;">Paid Days</td>
+                  <td style="padding: 7px 12px; text-align: center; font-weight: 700; color: #0f172a;" id="psPaidDays">30</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <!-- 4. Dual Table: Earnings vs Deductions -->
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.84rem; table-layout: fixed;">
+              <thead>
+                <tr style="background: #ffffff; border-bottom: 1px solid #0f172a; font-weight: 900; color: #0f172a;">
+                  <th style="padding: 9px 12px; text-align: center; width: 50%; border-right: 2px solid #0f172a;" colspan="2">Earnings</th>
+                  <th style="padding: 9px 12px; text-align: center; width: 50%;" colspan="2">Deductions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom: 1px solid #e2e8f0;">
+                  <td style="padding: 7px 12px; color: #475569; border-right: 1px solid #cbd5e1; width: 33%;">Basic</td>
+                  <td style="padding: 7px 12px; text-align: right; font-weight: 700; border-right: 2px solid #0f172a; width: 17%;" id="psBasic">â‚¹7,500</td>
+                  <td style="padding: 7px 12px; color: #475569; border-right: 1px solid #cbd5e1; width: 33%;">EPF</td>
+                  <td style="padding: 7px 12px; text-align: right; font-weight: 700; width: 17%;" id="psEpf">â‚¹900</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #e2e8f0;">
+                  <td style="padding: 7px 12px; color: #475569; border-right: 1px solid #cbd5e1;">HRA</td>
+                  <td style="padding: 7px 12px; text-align: right; font-weight: 700; border-right: 2px solid #0f172a;" id="psHra">â‚¹3,000</td>
+                  <td style="padding: 7px 12px; color: #475569; border-right: 1px solid #cbd5e1;">ESI</td>
+                  <td style="padding: 7px 12px; text-align: right; font-weight: 700;" id="psEsi">â‚¹113</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #e2e8f0;">
+                  <td style="padding: 7px 12px; color: #475569; border-right: 1px solid #cbd5e1;">Conveyance Allowance</td>
+                  <td style="padding: 7px 12px; text-align: right; font-weight: 700; border-right: 2px solid #0f172a;" id="psConveyance">â‚¹1,600</td>
+                  <td style="padding: 7px 12px; color: #475569; border-right: 1px solid #cbd5e1;">Professional Tax</td>
+                  <td style="padding: 7px 12px; text-align: right; font-weight: 700;" id="psProfTax">â‚¹0</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #e2e8f0;">
+                  <td style="padding: 7px 12px; color: #475569; border-right: 1px solid #cbd5e1;">Medical Allowance</td>
+                  <td style="padding: 7px 12px; text-align: right; font-weight: 700; border-right: 2px solid #0f172a;" id="psMedical">â‚¹1,250</td>
+                  <td style="padding: 7px 12px; color: #475569; border-right: 1px solid #cbd5e1;"></td>
+                  <td style="padding: 7px 12px; text-align: right;"></td>
+                </tr>
+                <tr style="border-bottom: 1px solid #0f172a;">
+                  <td style="padding: 7px 12px; color: #475569; border-right: 1px solid #cbd5e1;">Other Allowances</td>
+                  <td style="padding: 7px 12px; text-align: right; font-weight: 700; border-right: 2px solid #0f172a;" id="psOtherAllow">â‚¹1,650</td>
+                  <td style="padding: 7px 12px; color: #475569; border-right: 1px solid #cbd5e1;"></td>
+                  <td style="padding: 7px 12px; text-align: right;"></td>
+                </tr>
+                <!-- Total Row -->
+                <tr style="border-bottom: 2px solid #0f172a; font-weight: 900; background: #ffffff;">
+                  <td style="padding: 9px 12px; color: #0f172a; border-right: 1px solid #0f172a; text-align: center;">Total Earnings</td>
+                  <td style="padding: 9px 12px; text-align: right; color: #0f172a; border-right: 2px solid #0f172a;" id="psTotalEarnings">â‚¹15,000</td>
+                  <td style="padding: 9px 12px; color: #0f172a; border-right: 1px solid #0f172a; text-align: center;">Total Deductions</td>
+                  <td style="padding: 9px 12px; text-align: right; color: #0f172a;" id="psTotalDeductions">â‚¹1,013</td>
+                </tr>
+                <!-- Net Salary Row -->
+                <tr style="font-weight: 900; background: #ffffff;">
+                  <td style="padding: 9px 12px; border-right: 2px solid #0f172a;" colspan="2"></td>
+                  <td style="padding: 9px 12px; color: #0f172a; border-right: 1px solid #0f172a; text-align: right; font-size: 0.92rem;">Net Salary</td>
+                  <td style="padding: 9px 12px; text-align: right; color: #0f172a; font-size: 1.05rem; background: #f0fdf4;" id="psNetSalary">â‚¹13,987</td>
+                </tr>
+              </tbody>
+            </table>
+
+          </div>
+
+        </div>
+
+        <!-- EDIT MODE CONTAINER (Form to edit all payslip details) -->
+        <div id="payslipEditContainer" style="display: none; flex-direction: column; gap: 16px; background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 14px; padding: 18px;">
+          
+          <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 1.2rem; color: #2563eb;">âš™ï¸</span>
+              <h4 style="margin: 0; font-size: 0.95rem; font-weight: 800; color: #0f172a;">Edit Corporate Payslip Parameters</h4>
+            </div>
+            <span style="font-size: 0.7rem; font-weight: 700; color: #64748b; background: #e2e8f0; padding: 2px 8px; border-radius: 10px;">HR Payroll Config</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; font-size: 0.78rem;">
+            
+            <div style="grid-column: span 2;">
+              <label style="font-weight: 700; color: #334155; display: block; margin-bottom: 3px;">Company Name</label>
+              <input type="text" id="editPsCompName" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.82rem; font-weight: 700; color: #0f172a; box-sizing: border-box;" placeholder="SUGAR CUBES BAKERY & CAFÃ‰">
+            </div>
+
+            <div style="grid-column: span 2;">
+              <label style="font-weight: 700; color: #334155; display: block; margin-bottom: 3px;">Company Address & GSTIN</label>
+              <input type="text" id="editPsCompAddr" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; color: #334155; box-sizing: border-box;" placeholder="Central Branch, Main Road â€¢ GSTIN: 33AAAAA0000A1Z5">
+            </div>
+
+            <div>
+              <label style="font-weight: 700; color: #334155; display: block; margin-bottom: 3px;">Pay Period (Month & Year)</label>
+              <input type="text" id="editPsPayPeriod" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; box-sizing: border-box;" placeholder="September 2026">
+            </div>
+
+            <div>
+              <label style="font-weight: 700; color: #334155; display: block; margin-bottom: 3px;">Employee ID</label>
+              <input type="text" id="editPsEmpId" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; box-sizing: border-box;" placeholder="SC-EMP-101">
+            </div>
+
+            <div>
+              <label style="font-weight: 700; color: #334155; display: block; margin-bottom: 3px;">Employee Name</label>
+              <input type="text" id="editPsEmpName" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; font-weight: 700; box-sizing: border-box;" placeholder="Store Manager">
+            </div>
+
+            <div>
+              <label style="font-weight: 700; color: #334155; display: block; margin-bottom: 3px;">Designation</label>
+              <input type="text" id="editPsDesignation" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; color: #2563eb; font-weight: 700; box-sizing: border-box;" placeholder="Senior Cashier">
+            </div>
+
+            <div>
+              <label style="font-weight: 700; color: #334155; display: block; margin-bottom: 3px;">Department</label>
+              <input type="text" id="editPsDepartment" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; box-sizing: border-box;" placeholder="Store Operations">
+            </div>
+
+            <div>
+              <label style="font-weight: 700; color: #334155; display: block; margin-bottom: 3px;">Date of Joining</label>
+              <input type="text" id="editPsDoj" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; box-sizing: border-box;" placeholder="01 Jan 2024">
+            </div>
+
+            <div>
+              <label style="font-weight: 700; color: #334155; display: block; margin-bottom: 3px;">UAN Number</label>
+              <input type="text" id="editPsUan" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; box-sizing: border-box;" placeholder="100987654321">
+            </div>
+
+            <div>
+              <label style="font-weight: 700; color: #334155; display: block; margin-bottom: 3px;">PF Number</label>
+              <input type="text" id="editPsPfNo" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; box-sizing: border-box;" placeholder="TN/MAS/0012345">
+            </div>
+
+            <div>
+              <label style="font-weight: 700; color: #334155; display: block; margin-bottom: 3px;">ESI Number</label>
+              <input type="text" id="editPsEsiNo" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; box-sizing: border-box;" placeholder="3100123456">
+            </div>
+
+            <div>
+              <label style="font-weight: 700; color: #334155; display: block; margin-bottom: 3px;">Bank Name</label>
+              <input type="text" id="editPsBank" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; box-sizing: border-box;" placeholder="HDFC Bank">
+            </div>
+
+            <div style="grid-column: span 2;">
+              <label style="font-weight: 700; color: #334155; display: block; margin-bottom: 3px;">Account Number</label>
+              <input type="text" id="editPsAccNo" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; box-sizing: border-box;" placeholder="XXXXXX4321">
+            </div>
+
+            <!-- Attendance -->
+            <div>
+              <label style="font-weight: 700; color: #334155; display: block; margin-bottom: 3px;">Gross Wages (â‚¹)</label>
+              <input type="number" id="editPsGrossWages" step="1" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; font-weight: 700; box-sizing: border-box;" placeholder="15000">
+            </div>
+
+            <div>
+              <label style="font-weight: 700; color: #334155; display: block; margin-bottom: 3px;">Total Working Days</label>
+              <input type="number" id="editPsTotalWorkDays" step="1" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; box-sizing: border-box;" placeholder="30">
+            </div>
+
+            <div>
+              <label style="font-weight: 700; color: #334155; display: block; margin-bottom: 3px;">Leaves</label>
+              <input type="number" id="editPsLeaves" step="1" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; box-sizing: border-box;" placeholder="0">
+            </div>
+
+            <div>
+              <label style="font-weight: 700; color: #334155; display: block; margin-bottom: 3px;">LOP Days / Paid Days</label>
+              <div style="display: flex; gap: 6px;">
+                <input type="number" id="editPsLopDays" placeholder="LOP 0" style="width: 50%; padding: 7px 6px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.78rem;">
+                <input type="number" id="editPsPaidDays" placeholder="Paid 30" style="width: 50%; padding: 7px 6px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.78rem;">
+              </div>
+            </div>
+
+            <!-- Earnings -->
+            <div>
+              <label style="font-weight: 700; color: #047857; display: block; margin-bottom: 3px;">Basic Pay (â‚¹)</label>
+              <input type="number" id="editPsBasic" step="1" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; font-weight: 700; color: #047857; box-sizing: border-box;" placeholder="7500">
+            </div>
+
+            <div>
+              <label style="font-weight: 700; color: #047857; display: block; margin-bottom: 3px;">HRA (â‚¹)</label>
+              <input type="number" id="editPsHra" step="1" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; font-weight: 700; color: #047857; box-sizing: border-box;" placeholder="3000">
+            </div>
+
+            <div>
+              <label style="font-weight: 700; color: #047857; display: block; margin-bottom: 3px;">Conveyance Allowance (â‚¹)</label>
+              <input type="number" id="editPsConveyance" step="1" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; font-weight: 700; color: #047857; box-sizing: border-box;" placeholder="1600">
+            </div>
+
+            <div>
+              <label style="font-weight: 700; color: #047857; display: block; margin-bottom: 3px;">Medical Allowance (â‚¹)</label>
+              <input type="number" id="editPsMedical" step="1" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; font-weight: 700; color: #047857; box-sizing: border-box;" placeholder="1250">
+            </div>
+
+            <div style="grid-column: span 2;">
+              <label style="font-weight: 700; color: #047857; display: block; margin-bottom: 3px;">Other Allowances / Shift Comm (â‚¹)</label>
+              <input type="number" id="editPsOtherAllow" step="1" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; font-weight: 700; color: #047857; box-sizing: border-box;" placeholder="1650">
+            </div>
+
+            <!-- Deductions -->
+            <div>
+              <label style="font-weight: 700; color: #b91c1c; display: block; margin-bottom: 3px;">EPF Deduction (â‚¹)</label>
+              <input type="number" id="editPsEpf" step="1" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; font-weight: 700; color: #b91c1c; box-sizing: border-box;" placeholder="900">
+            </div>
+
+            <div>
+              <label style="font-weight: 700; color: #b91c1c; display: block; margin-bottom: 3px;">ESI Deduction (â‚¹)</label>
+              <input type="number" id="editPsEsi" step="1" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; font-weight: 700; color: #b91c1c; box-sizing: border-box;" placeholder="113">
+            </div>
+
+            <div style="grid-column: span 2;">
+              <label style="font-weight: 700; color: #b91c1c; display: block; margin-bottom: 3px;">Professional Tax (â‚¹)</label>
+              <input type="number" id="editPsProfTax" step="1" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; font-weight: 700; color: #b91c1c; box-sizing: border-box;" placeholder="0">
+            </div>
+
+          </div>
+
+          <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 6px; padding-top: 10px; border-top: 1px solid #e2e8f0;">
+            <button type="button" onclick="resetPayslipDefaults()" style="background: #f1f5f9; color: #dc2626; border: 1px solid #fca5a5; padding: 8px 14px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; cursor: pointer;">
+              â†º Reset Defaults
+            </button>
+            <button type="button" onclick="cancelPayslipEditMode()" style="background: #ffffff; color: #475569; border: 1px solid #cbd5e1; padding: 8px 14px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; cursor: pointer;">
+              âœ• Cancel
+            </button>
+            <button type="button" onclick="savePayslipEditForm()" style="background: #2563eb; color: #ffffff; border: none; padding: 8px 18px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer; box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);">
+              ðŸ’¾ Save & Calculate Payslip
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div style="padding: 14px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+        <button type="button" onclick="printPayslipDocument()" style="background: #2563eb; color: #ffffff; border: none; padding: 9px 20px; border-radius: 10px; font-weight: 800; font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(37, 99, 235, 0.2);">
+          <span>ðŸ–¨ï¸ Print / Save Payslip PDF</span>
+        </button>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" onclick="openPayslipEditMode()" style="background: #f1f5f9; color: #2563eb; border: 1.5px solid #bfdbfe; padding: 9px 16px; border-radius: 10px; font-weight: 800; font-size: 0.82rem; cursor: pointer;">
+            âœï¸ Edit Details
+          </button>
+          <button type="button" onclick="closeEmployeePayslipModal()" style="background: #ffffff; color: #475569; border: 1.5px solid #cbd5e1; padding: 9px 16px; border-radius: 10px; font-weight: 800; font-size: 0.82rem; cursor: pointer;">
+            âœ• Close Statement
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       Modal: Owner's Contact & Business Details
+       ========================================================================= -->
+  <div id="ownerDetailsModal" class="modal-backdrop" style="display: none;" onclick="closeOwnerDetailsModalOnBackdrop(event)">
+    <div class="modal-window-card" style="max-width: 500px; width: 92%; max-height: 90vh; display: flex; flex-direction: column; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 48px rgba(15, 23, 42, 0.35);" onclick="event.stopPropagation()">
+      
+      <!-- Modal Header -->
+      <div style="background: linear-gradient(135deg, #065f46 0%, #047857 100%); color: #ffffff; padding: 16px 20px; border-bottom: 2.5px solid #34d399; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 40px; height: 40px; border-radius: 12px; background: rgba(255, 255, 255, 0.15); border: 1.5px solid rgba(255, 255, 255, 0.3); display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+            ðŸ¢
+          </div>
+          <div>
+            <h3 style="margin: 0; font-size: 1.1rem; font-weight: 800; color: #ffffff; letter-spacing: -0.3px;">
+              Owner & Business Details
+            </h3>
+            <p style="margin: 2px 0 0; font-size: 0.74rem; color: #a7f3d0;">
+              Sugar Cubes Franchise Leadership Directory
+            </p>
+          </div>
+        </div>
+        <button type="button" class="modal-close-x" style="color: #ffffff; font-size: 1.2rem; background: transparent; border: none; cursor: pointer;" onclick="closeOwnerDetailsModal()">âœ•</button>
+      </div>
+
+      <!-- Modal Body -->
+      <div style="padding: 20px; overflow-y: auto; flex: 1; background: #ffffff; display: flex; flex-direction: column; gap: 14px;">
+        
+        <!-- Multi-Owner Selector Tabs -->
+        <div>
+          <span style="font-size: 0.72rem; font-weight: 800; color: #64748b; display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">
+            ðŸ‘¥ Select Store Owner / Managing Partner:
+          </span>
+          <div id="ownerTabsContainer" style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px;">
+            <!-- Buttons dynamically populated by script.js -->
+          </div>
+        </div>
+
+        <!-- Selected Owner Details Card -->
+        <div id="ownerDetailsCardContainer" style="display: flex; flex-direction: column; gap: 14px;">
+          <!-- Dynamically populated by script.js -->
+        </div>
+
+        <!-- All Store Owners Directory Card -->
+        <div style="background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 14px; margin-top: 4px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid #f1f5f9;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 1.1rem;">ðŸ¢</span>
+              <span style="font-weight: 800; font-size: 0.86rem; color: #0f172a;">All Store Owners & Partners Directory</span>
+            </div>
+            <span style="background: #d1fae5; color: #065f46; padding: 2px 8px; border-radius: 10px; font-size: 0.72rem; font-weight: 800;">3 Owners</span>
+          </div>
+          <div id="allOwnersListContainer" style="display: flex; flex-direction: column; gap: 8px;">
+            <!-- Dynamic owners list populated by script.js -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div style="padding: 12px 16px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+        <button type="button" onclick="openAddOwnerModal()" style="background: #eff6ff; color: #2563eb; border: 1.5px solid #93c5fd; padding: 8px 14px; border-radius: 8px; font-weight: 800; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+          <span>âž• Add New Owner</span>
+        </button>
+        <button type="button" onclick="closeOwnerDetailsModal()" style="background: #059669; color: #ffffff; border: none; padding: 9px 20px; border-radius: 8px; font-weight: 700; font-size: 0.82rem; cursor: pointer;">
+          âœ• Close Details
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       Modal: Add / Edit Store Owner Form
+       ========================================================================= -->
+  <div id="addEditOwnerModal" class="modal-backdrop" style="display: none; z-index: 10005;" onclick="closeAddEditOwnerModalOnBackdrop(event)">
+    <div class="modal-window-card" style="max-width: 460px; width: 92%; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 48px rgba(15, 23, 42, 0.4);" onclick="event.stopPropagation()">
+      
+      <div style="background: linear-gradient(135deg, #065f46 0%, #047857 100%); color: #ffffff; padding: 16px 20px; border-bottom: 2.5px solid #34d399; display: flex; justify-content: space-between; align-items: center;">
+        <h3 id="addEditOwnerModalTitle" style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #ffffff;">
+          âž• Add New Store Owner
+        </h3>
+        <button type="button" style="color: #ffffff; font-size: 1.2rem; background: transparent; border: none; cursor: pointer;" onclick="closeAddEditOwnerModal()">âœ•</button>
+      </div>
+
+      <form onsubmit="saveOwnerForm(event)" style="padding: 18px; display: flex; flex-direction: column; gap: 12px; background: #ffffff;">
+        <input type="hidden" id="ownerEditIdInput" value="">
+        <input type="hidden" id="ownerPhotoBase64Input" value="">
+
+        <!-- ðŸ“¸ Owner Profile Photo Upload Section -->
+        <div style="background: #f8fafc; border: 1.5px dashed #cbd5e1; border-radius: 10px; padding: 10px 12px;">
+          <label style="font-size: 0.72rem; font-weight: 800; color: #475569; display: block; margin-bottom: 6px;">ðŸ“¸ OWNER PROFILE PHOTO</label>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div id="ownerPhotoPreviewCircle" style="width: 54px; height: 54px; border-radius: 50%; background: #e2e8f0; border: 2px solid #cbd5e1; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; overflow: hidden; flex-shrink: 0; background-size: cover; background-position: center; color: #64748b;">
+              ðŸ‘¤
+            </div>
+            <div style="flex: 1;">
+              <input type="file" id="ownerPhotoFileInput" accept="image/*" onchange="handleOwnerPhotoUpload(event)" style="display: none;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <button type="button" onclick="document.getElementById('ownerPhotoFileInput').click()" style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; padding: 6px 12px; border-radius: 6px; font-weight: 800; font-size: 0.76rem; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                  ðŸ“ Choose / Upload Photo
+                </button>
+                <button type="button" id="btnRemoveOwnerPhoto" onclick="removeOwnerPhoto()" style="display: none; background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; padding: 6px 10px; border-radius: 6px; font-weight: 800; font-size: 0.76rem; cursor: pointer;">
+                  âœ• Remove
+                </button>
+              </div>
+              <span style="display: block; font-size: 0.68rem; color: #64748b; margin-top: 4px; font-weight: 600;">JPG, PNG, or WebP format supported</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label style="font-size: 0.72rem; font-weight: 800; color: #475569; display: block; margin-bottom: 4px;">ðŸ‘¤ OWNER FULL NAME *</label>
+          <input type="text" id="ownerNameInput" required placeholder="e.g. Mr. Sugan Rithvik K" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1.5px solid #cbd5e1; font-weight: 700; font-size: 0.85rem; box-sizing: border-box;">
+        </div>
+
+        <div>
+          <label style="font-size: 0.72rem; font-weight: 800; color: #475569; display: block; margin-bottom: 4px;">ðŸ’¼ DESIGNATION / ROLE *</label>
+          <input type="text" id="ownerRoleInput" required placeholder="e.g. Founder & Managing Director" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1.5px solid #cbd5e1; font-weight: 700; font-size: 0.85rem; box-sizing: border-box;">
+        </div>
+
+        <div>
+          <label style="font-size: 0.72rem; font-weight: 800; color: #475569; display: block; margin-bottom: 4px;">ðŸ·ï¸ OWNER BADGE / TAG</label>
+          <input type="text" id="ownerTagInput" placeholder="e.g. PRIMARY STORE OWNER / CO-OWNER" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1.5px solid #cbd5e1; font-weight: 700; font-size: 0.85rem; box-sizing: border-box;">
+        </div>
+
+        <div>
+          <label style="font-size: 0.72rem; font-weight: 800; color: #475569; display: block; margin-bottom: 4px;">ðŸ“ž PHONE & WHATSAPP NUMBER *</label>
+          <input type="text" id="ownerPhoneInput" required placeholder="e.g. +91 98765 43210" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1.5px solid #cbd5e1; font-weight: 700; font-size: 0.85rem; box-sizing: border-box;">
+        </div>
+
+        <div>
+          <label style="font-size: 0.72rem; font-weight: 800; color: #475569; display: block; margin-bottom: 4px;">ðŸ“§ OFFICIAL EMAIL ADDRESS *</label>
+          <input type="email" id="ownerEmailInput" required placeholder="e.g. owner@sugarcubes.com" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1.5px solid #cbd5e1; font-weight: 700; font-size: 0.85rem; box-sizing: border-box;">
+        </div>
+
+        <div>
+          <label style="font-size: 0.72rem; font-weight: 800; color: #475569; display: block; margin-bottom: 4px;">ðŸ“ STORE BRANCH / ADDRESS</label>
+          <input type="text" id="ownerBranchInput" placeholder="e.g. Sugar Cubes Bakery, Main Road, Chennai Central" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1.5px solid #cbd5e1; font-weight: 700; font-size: 0.85rem; box-sizing: border-box;">
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px;">
+          <button type="button" onclick="closeAddEditOwnerModal()" style="background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer;">
+            Cancel
+          </button>
+          <button type="submit" style="background: #059669; color: #ffffff; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 800; font-size: 0.8rem; cursor: pointer;">
+            ðŸ’¾ Save Owner Details
+          </button>
+        </div>
+      </form>
 
     </div>
   </div>
@@ -15183,6 +16089,9 @@ let currentDesktopPage = 'store'; // 'store' or 'sales'
 
 function switchDesktopPage(page) {
   currentDesktopPage = page;
+  try {
+    sessionStorage.setItem('sugarCubesCurrentDesktopPage', page);
+  } catch (e) {}
   const storeView = document.getElementById('posWorkspaceGrid');
   const salesView = document.getElementById('desktopKpiPageView');
   const btnStore = document.getElementById('btnNavPosStore');
@@ -16645,14 +17554,17 @@ function checkAuthSession() {
     console.error('Auth session error:', err);
   }
 
-  // Web link always opens directly on Sign In page online
-  const saved = localStorage.getItem('sugarCubesActiveUser') || sessionStorage.getItem('sugarCubesActiveUser');
+  // Active tab session check (sessionStorage survives F5/Reloads, but clears on tab/browser close)
+  const saved = sessionStorage.getItem('sugarCubesActiveUser');
   if (saved) {
     try {
       const u = JSON.parse(saved);
-      showAuthScreen('signin');
-      const loginInput = document.getElementById('loginIdInput');
-      if (loginInput && (u.email || u.id)) loginInput.value = u.email || u.id;
+      applyAuthenticatedState(u, false);
+
+      const lastPage = sessionStorage.getItem('sugarCubesCurrentDesktopPage');
+      if (lastPage && window.innerWidth > 768) {
+        setTimeout(() => switchDesktopPage(lastPage), 30);
+      }
       return;
     } catch (e) {}
   }
@@ -16812,12 +17724,8 @@ function handleSignInSubmit(e) {
   );
 
   if (matched) {
-    if (remember) {
-      localStorage.setItem('sugarCubesActiveUser', JSON.stringify(matched));
-    } else {
-      sessionStorage.setItem('sugarCubesActiveUser', JSON.stringify(matched));
-      localStorage.removeItem('sugarCubesActiveUser');
-    }
+    sessionStorage.setItem('sugarCubesActiveUser', JSON.stringify(matched));
+    localStorage.removeItem('sugarCubesActiveUser');
 
     try {
       playBeep('success');
@@ -16952,7 +17860,8 @@ function quickDemoLogin() {
   if (!admin) {
     admin = { id: 'admin', email: 'admin@sugarcubes.com', password: 'admin123', name: 'Store Manager', role: 'Store Manager' };
   }
-  localStorage.setItem('sugarCubesActiveUser', JSON.stringify(admin));
+  sessionStorage.setItem('sugarCubesActiveUser', JSON.stringify(admin));
+  localStorage.removeItem('sugarCubesActiveUser');
   try {
     playBeep('success');
   } catch (soundErr) {}
@@ -16966,7 +17875,8 @@ function logoutUser() {
     activeUser = null;
     localStorage.removeItem('sugarCubesActiveUser');
     sessionStorage.removeItem('sugarCubesActiveUser');
-    showAuthScreen();
+    sessionStorage.removeItem('sugarCubesCurrentDesktopPage');
+    showAuthScreen('signin');
     showToast('ðŸ”’ Cashier logged out. Register locked.');
   }
 }
@@ -17025,7 +17935,905 @@ function renderRegisteredUsersList() {
 window.getRegisteredEmailAccounts = getUsersList;
 window.getRegisteredUsers = getUsersList;
 
+function openShiftActionModal() {
+  if (window.innerWidth <= 768) return; // Laptop Web View only
+  const modal = document.getElementById('shiftActionModal');
+  if (modal) modal.style.display = 'flex';
+}
+
+function closeShiftActionModal() {
+  const modal = document.getElementById('shiftActionModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function closeShiftActionModalOnBackdrop(e) {
+  if (e && e.target && e.target.id === 'shiftActionModal') {
+    closeShiftActionModal();
+  }
+}
+
+// ==========================================================================
+// Cashier Shift Resign & Re-login Modal Handlers
+// ==========================================================================
+
+function openResignReloginModal() {
+  closeShiftActionModal();
+
+  const currentU = activeUser || { name: 'Store Manager', role: 'Store Manager', id: 'admin', email: 'admin@sugarcubes.com' };
+  
+  const emailEl = document.getElementById('resignActiveUserEmail');
+  if (emailEl) emailEl.textContent = currentU.email || (currentU.id && currentU.id.includes('@') ? currentU.id : `${currentU.id || 'admin'}@sugarcubes.com`);
+
+  const nameEl = document.getElementById('resignActiveUserName');
+  if (nameEl) nameEl.textContent = `${currentU.name || currentU.id || 'Store Manager'} â€¢ ${currentU.role || 'Cashier'}`;
+
+  renderResignRegisteredUsersList();
+
+  const modal = document.getElementById('resignReloginModal');
+  if (modal) modal.style.display = 'flex';
+}
+
+function closeResignReloginModal() {
+  const modal = document.getElementById('resignReloginModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function closeResignReloginModalOnBackdrop(e) {
+  if (e && e.target && e.target.id === 'resignReloginModal') {
+    closeResignReloginModal();
+  }
+}
+
+function renderResignRegisteredUsersList() {
+  const container = document.getElementById('resignRegisteredUsersListContainer');
+  const countBadge = document.getElementById('resignRegisteredCountBadge');
+  if (!container) return;
+
+  const users = getUsersList();
+  if (countBadge) countBadge.textContent = `${users.length} ${users.length === 1 ? 'Account' : 'Accounts'}`;
+
+  container.innerHTML = users.map(u => {
+    const email = u.email || (u.id && u.id.includes('@') ? u.id : `${u.id}@sugarcubes.com`);
+    const name = u.name || u.id || 'User';
+    const role = u.role || 'Cashier';
+    const isCurrent = activeUser && ((activeUser.email && activeUser.email.toLowerCase() === email.toLowerCase()) || (activeUser.id && activeUser.id.toLowerCase() === (u.id || '').toLowerCase()));
+    
+    return `
+      <div style="display: flex; align-items: center; justify-content: space-between; background: ${isCurrent ? '#fef2f2' : '#f8fafc'}; padding: 10px 12px; border-radius: 8px; border: 1px solid ${isCurrent ? '#fca5a5' : '#e2e8f0'}; font-size: 0.82rem;">
+        <div style="display: flex; flex-direction: column; min-width: 0; flex: 1; padding-right: 8px;">
+          <span style="font-weight: 800; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            ðŸ“§ ${escapeHtml(email)} ${isCurrent ? '<span style="color: #dc2626; font-size: 0.68rem; font-weight: 800; background: #fee2e2; padding: 2px 6px; border-radius: 4px; margin-left: 4px;">â— Active Session</span>' : ''}
+          </span>
+          <span style="font-size: 0.72rem; color: #64748b;">
+            ðŸ‘¤ ${escapeHtml(name)} â€¢ <span style="color: #475569; font-weight: 600;">${escapeHtml(role)}</span>
+          </span>
+        </div>
+        ${isCurrent ? `
+          <button type="button" onclick="closeResignReloginModal(); logoutUser();" style="background: #dc2626; color: white; border: none; padding: 5px 10px; border-radius: 6px; font-size: 0.74rem; font-weight: 800; cursor: pointer; white-space: nowrap;">
+            ðŸ”’ Logout
+          </button>
+        ` : `
+          <button type="button" onclick="switchAccountRelogin('${escapeHtml(email)}')" style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; padding: 5px 10px; border-radius: 6px; font-size: 0.74rem; font-weight: 800; cursor: pointer; white-space: nowrap;">
+            ðŸ”‘ Switch & Re-login
+          </button>
+        `}
+      </div>
+    `;
+  }).join('');
+}
+
+function switchAccountRelogin(targetEmail) {
+  closeResignReloginModal();
+  clearMobileModalStack();
+  activeUser = null;
+  localStorage.removeItem('sugarCubesActiveUser');
+  sessionStorage.removeItem('sugarCubesActiveUser');
+  sessionStorage.removeItem('sugarCubesCurrentDesktopPage');
+  
+  showAuthScreen('signin');
+  const loginIdInput = document.getElementById('loginIdInput');
+  const loginPassInput = document.getElementById('loginPassInput');
+  if (loginIdInput) loginIdInput.value = targetEmail;
+  if (loginPassInput) {
+    loginPassInput.value = '';
+    loginPassInput.focus();
+  }
+  showToast(`ðŸ”‘ Register locked. Pre-selected <strong>${escapeHtml(targetEmail)}</strong> for re-login.`);
+}
+
+// ==========================================================================
+// Employee Payslip & Owner Details Modal Handlers
+// ==========================================================================
+
+const DEFAULT_PAYSLIP_CONFIG = {
+  compName: 'SUGAR CUBES BAKERY & CAFÃ‰',
+  compAddr: 'Central Branch, Main Road â€¢ GSTIN: 33AAAAA0000A1Z5',
+  payPeriod: 'September 2026',
+
+  empId: 'SC-EMP-101',
+  empName: '',
+  designation: 'Senior Cashier',
+  department: 'Store Operations',
+  doj: '01 Jan 2024',
+
+  uan: '100987654321',
+  pfNo: 'TN/MAS/0012345',
+  esiNo: '3100123456',
+  bank: 'HDFC Bank',
+  accNo: 'XXXXXX4321',
+
+  grossWages: 15000,
+  totalWorkDays: 30,
+  leaves: 0,
+  lopDays: 0,
+  paidDays: 30,
+
+  basic: 7500,
+  hra: 3000,
+  conveyance: 1600,
+  medical: 1250,
+  otherAllow: 1650,
+
+  epf: 900,
+  esi: 113,
+  profTax: 0
+};
+
+function getStoredPayslipConfig() {
+  try {
+    const raw = localStorage.getItem('sugarCubesPayslipConfig');
+    if (raw) return { ...DEFAULT_PAYSLIP_CONFIG, ...JSON.parse(raw) };
+  } catch (e) {}
+  return { ...DEFAULT_PAYSLIP_CONFIG };
+}
+
+function saveStoredPayslipConfig(cfg) {
+  try {
+    localStorage.setItem('sugarCubesPayslipConfig', JSON.stringify(cfg));
+  } catch (e) {}
+}
+
+function downloadEmployeePayslip() {
+  const currentU = activeUser || { name: 'Store Manager', role: 'Store Manager', id: 'admin', email: 'admin@sugarcubes.com' };
+  const cfg = getStoredPayslipConfig();
+
+  // Header & Company
+  const compNameEl = document.getElementById('psCompName');
+  if (compNameEl) compNameEl.textContent = cfg.compName || DEFAULT_PAYSLIP_CONFIG.compName;
+
+  const compAddrEl = document.getElementById('psCompAddr');
+  if (compAddrEl) compAddrEl.textContent = cfg.compAddr || DEFAULT_PAYSLIP_CONFIG.compAddr;
+
+  const periodEl = document.getElementById('psPayPeriodText');
+  if (periodEl) periodEl.textContent = cfg.payPeriod || `${new Date().toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}`;
+
+  // Employee details
+  const empIdEl = document.getElementById('psEmpId');
+  if (empIdEl) empIdEl.textContent = cfg.empId || 'SC-EMP-101';
+
+  const nameEl = document.getElementById('psEmpName');
+  if (nameEl) nameEl.textContent = cfg.empName || currentU.name || currentU.id || 'Store Manager';
+
+  const desigEl = document.getElementById('psDesignation');
+  if (desigEl) desigEl.textContent = cfg.designation || currentU.role || 'Senior Cashier';
+
+  const deptEl = document.getElementById('psDepartment');
+  if (deptEl) deptEl.textContent = cfg.department || 'Store Operations';
+
+  const dojEl = document.getElementById('psDoj');
+  if (dojEl) dojEl.textContent = cfg.doj || '01 Jan 2024';
+
+  const uanEl = document.getElementById('psUan');
+  if (uanEl) uanEl.textContent = cfg.uan || '100987654321';
+
+  const pfEl = document.getElementById('psPfNo');
+  if (pfEl) pfEl.textContent = cfg.pfNo || 'TN/MAS/0012345';
+
+  const esiEl = document.getElementById('psEsiNo');
+  if (esiEl) esiEl.textContent = cfg.esiNo || '3100123456';
+
+  const bankEl = document.getElementById('psBank');
+  if (bankEl) bankEl.textContent = cfg.bank || 'HDFC Bank';
+
+  const accEl = document.getElementById('psAccNo');
+  if (accEl) accEl.textContent = cfg.accNo || 'XXXXXX4321';
+
+  // Wages & Attendance
+  const grossWages = parseFloat(cfg.grossWages) || 15000;
+  const grossEl = document.getElementById('psGrossWages');
+  if (grossEl) grossEl.textContent = `â‚¹${grossWages.toLocaleString('en-IN')}`;
+
+  const workDaysEl = document.getElementById('psTotalWorkDays');
+  if (workDaysEl) workDaysEl.textContent = cfg.totalWorkDays !== undefined ? cfg.totalWorkDays : 30;
+
+  const leavesEl = document.getElementById('psLeaves');
+  if (leavesEl) leavesEl.textContent = cfg.leaves !== undefined ? cfg.leaves : 0;
+
+  const lopEl = document.getElementById('psLopDays');
+  if (lopEl) lopEl.textContent = cfg.lopDays !== undefined ? cfg.lopDays : 0;
+
+  const paidDaysEl = document.getElementById('psPaidDays');
+  if (paidDaysEl) paidDaysEl.textContent = cfg.paidDays !== undefined ? cfg.paidDays : 30;
+
+  // Earnings
+  const basic = parseFloat(cfg.basic) || 7500;
+  const hra = parseFloat(cfg.hra) || 3000;
+  const conveyance = parseFloat(cfg.conveyance) || 1600;
+  const medical = parseFloat(cfg.medical) || 1250;
+  const otherAllow = parseFloat(cfg.otherAllow) || 1650;
+
+  const basicEl = document.getElementById('psBasic');
+  if (basicEl) basicEl.textContent = `â‚¹${basic.toLocaleString('en-IN')}`;
+
+  const hraEl = document.getElementById('psHra');
+  if (hraEl) hraEl.textContent = `â‚¹${hra.toLocaleString('en-IN')}`;
+
+  const convEl = document.getElementById('psConveyance');
+  if (convEl) convEl.textContent = `â‚¹${conveyance.toLocaleString('en-IN')}`;
+
+  const medEl = document.getElementById('psMedical');
+  if (medEl) medEl.textContent = `â‚¹${medical.toLocaleString('en-IN')}`;
+
+  const otherEl = document.getElementById('psOtherAllow');
+  if (otherEl) otherEl.textContent = `â‚¹${otherAllow.toLocaleString('en-IN')}`;
+
+  const totalEarnings = basic + hra + conveyance + medical + otherAllow;
+  const totalEarnEl = document.getElementById('psTotalEarnings');
+  if (totalEarnEl) totalEarnEl.textContent = `â‚¹${totalEarnings.toLocaleString('en-IN')}`;
+
+  // Deductions
+  const epf = parseFloat(cfg.epf) || 900;
+  const esi = parseFloat(cfg.esi) || 113;
+  const profTax = parseFloat(cfg.profTax) || 0;
+
+  const epfEl = document.getElementById('psEpf');
+  if (epfEl) epfEl.textContent = `â‚¹${epf.toLocaleString('en-IN')}`;
+
+  const esiDeductionEl = document.getElementById('psEsi');
+  if (esiDeductionEl) esiDeductionEl.textContent = `â‚¹${esi.toLocaleString('en-IN')}`;
+
+  const profTaxEl = document.getElementById('psProfTax');
+  if (profTaxEl) profTaxEl.textContent = `â‚¹${profTax.toLocaleString('en-IN')}`;
+
+  const totalDeductions = epf + esi + profTax;
+  const totalDedEl = document.getElementById('psTotalDeductions');
+  if (totalDedEl) totalDedEl.textContent = `â‚¹${totalDeductions.toLocaleString('en-IN')}`;
+
+  // Net Salary
+  const netSalary = totalEarnings - totalDeductions;
+  const netSalEl = document.getElementById('psNetSalary');
+  if (netSalEl) netSalEl.textContent = `â‚¹${netSalary.toLocaleString('en-IN')}`;
+
+  // View Containers
+  const viewContainer = document.getElementById('payslipViewContainer');
+  const editContainer = document.getElementById('payslipEditContainer');
+  if (viewContainer) viewContainer.style.display = 'flex';
+  if (editContainer) editContainer.style.display = 'none';
+
+  const modal = document.getElementById('employeePayslipModal');
+  if (modal) modal.style.display = 'flex';
+}
+
+function openPayslipEditMode() {
+  const cfg = getStoredPayslipConfig();
+  const currentU = activeUser || { name: 'Store Manager', role: 'Store Manager', id: 'admin', email: 'admin@sugarcubes.com' };
+
+  const compNameInput = document.getElementById('editPsCompName');
+  if (compNameInput) compNameInput.value = cfg.compName || DEFAULT_PAYSLIP_CONFIG.compName;
+
+  const compAddrInput = document.getElementById('editPsCompAddr');
+  if (compAddrInput) compAddrInput.value = cfg.compAddr || DEFAULT_PAYSLIP_CONFIG.compAddr;
+
+  const periodInput = document.getElementById('editPsPayPeriod');
+  if (periodInput) periodInput.value = cfg.payPeriod || 'September 2026';
+
+  const empIdInput = document.getElementById('editPsEmpId');
+  if (empIdInput) empIdInput.value = cfg.empId || 'SC-EMP-101';
+
+  const nameInput = document.getElementById('editPsEmpName');
+  if (nameInput) nameInput.value = cfg.empName || currentU.name || currentU.id || 'Store Manager';
+
+  const desigInput = document.getElementById('editPsDesignation');
+  if (desigInput) desigInput.value = cfg.designation || currentU.role || 'Senior Cashier';
+
+  const deptInput = document.getElementById('editPsDepartment');
+  if (deptInput) deptInput.value = cfg.department || 'Store Operations';
+
+  const dojInput = document.getElementById('editPsDoj');
+  if (dojInput) dojInput.value = cfg.doj || '01 Jan 2024';
+
+  const uanInput = document.getElementById('editPsUan');
+  if (uanInput) uanInput.value = cfg.uan || '100987654321';
+
+  const pfInput = document.getElementById('editPsPfNo');
+  if (pfInput) pfInput.value = cfg.pfNo || 'TN/MAS/0012345';
+
+  const esiInput = document.getElementById('editPsEsiNo');
+  if (esiInput) esiInput.value = cfg.esiNo || '3100123456';
+
+  const bankInput = document.getElementById('editPsBank');
+  if (bankInput) bankInput.value = cfg.bank || 'HDFC Bank';
+
+  const accInput = document.getElementById('editPsAccNo');
+  if (accInput) accInput.value = cfg.accNo || 'XXXXXX4321';
+
+  const grossInput = document.getElementById('editPsGrossWages');
+  if (grossInput) grossInput.value = cfg.grossWages !== undefined ? cfg.grossWages : 15000;
+
+  const workDaysInput = document.getElementById('editPsTotalWorkDays');
+  if (workDaysInput) workDaysInput.value = cfg.totalWorkDays !== undefined ? cfg.totalWorkDays : 30;
+
+  const leavesInput = document.getElementById('editPsLeaves');
+  if (leavesInput) leavesInput.value = cfg.leaves !== undefined ? cfg.leaves : 0;
+
+  const lopInput = document.getElementById('editPsLopDays');
+  if (lopInput) lopInput.value = cfg.lopDays !== undefined ? cfg.lopDays : 0;
+
+  const paidDaysInput = document.getElementById('editPsPaidDays');
+  if (paidDaysInput) paidDaysInput.value = cfg.paidDays !== undefined ? cfg.paidDays : 30;
+
+  const basicInput = document.getElementById('editPsBasic');
+  if (basicInput) basicInput.value = cfg.basic !== undefined ? cfg.basic : 7500;
+
+  const hraInput = document.getElementById('editPsHra');
+  if (hraInput) hraInput.value = cfg.hra !== undefined ? cfg.hra : 3000;
+
+  const convInput = document.getElementById('editPsConveyance');
+  if (convInput) convInput.value = cfg.conveyance !== undefined ? cfg.conveyance : 1600;
+
+  const medInput = document.getElementById('editPsMedical');
+  if (medInput) medInput.value = cfg.medical !== undefined ? cfg.medical : 1250;
+
+  const otherAllowInput = document.getElementById('editPsOtherAllow');
+  if (otherAllowInput) otherAllowInput.value = cfg.otherAllow !== undefined ? cfg.otherAllow : 1650;
+
+  const epfInput = document.getElementById('editPsEpf');
+  if (epfInput) epfInput.value = cfg.epf !== undefined ? cfg.epf : 900;
+
+  const esiDedInput = document.getElementById('editPsEsi');
+  if (esiDedInput) esiDedInput.value = cfg.esi !== undefined ? cfg.esi : 113;
+
+  const profTaxInput = document.getElementById('editPsProfTax');
+  if (profTaxInput) profTaxInput.value = cfg.profTax !== undefined ? cfg.profTax : 0;
+
+  const viewContainer = document.getElementById('payslipViewContainer');
+  const editContainer = document.getElementById('payslipEditContainer');
+  if (viewContainer) viewContainer.style.display = 'none';
+  if (editContainer) editContainer.style.display = 'flex';
+}
+
+function cancelPayslipEditMode() {
+  const viewContainer = document.getElementById('payslipViewContainer');
+  const editContainer = document.getElementById('payslipEditContainer');
+  if (viewContainer) viewContainer.style.display = 'flex';
+  if (editContainer) editContainer.style.display = 'none';
+}
+
+function savePayslipEditForm() {
+  const newCfg = {
+    compName: document.getElementById('editPsCompName').value.trim() || DEFAULT_PAYSLIP_CONFIG.compName,
+    compAddr: document.getElementById('editPsCompAddr').value.trim() || DEFAULT_PAYSLIP_CONFIG.compAddr,
+    payPeriod: document.getElementById('editPsPayPeriod').value.trim() || 'September 2026',
+
+    empId: document.getElementById('editPsEmpId').value.trim() || 'SC-EMP-101',
+    empName: document.getElementById('editPsEmpName').value.trim(),
+    designation: document.getElementById('editPsDesignation').value.trim(),
+    department: document.getElementById('editPsDepartment').value.trim(),
+    doj: document.getElementById('editPsDoj').value.trim(),
+
+    uan: document.getElementById('editPsUan').value.trim(),
+    pfNo: document.getElementById('editPsPfNo').value.trim(),
+    esiNo: document.getElementById('editPsEsiNo').value.trim(),
+    bank: document.getElementById('editPsBank').value.trim(),
+    accNo: document.getElementById('editPsAccNo').value.trim(),
+
+    grossWages: parseFloat(document.getElementById('editPsGrossWages').value) || 0,
+    totalWorkDays: parseInt(document.getElementById('editPsTotalWorkDays').value, 10) || 0,
+    leaves: parseInt(document.getElementById('editPsLeaves').value, 10) || 0,
+    lopDays: parseInt(document.getElementById('editPsLopDays').value, 10) || 0,
+    paidDays: parseInt(document.getElementById('editPsPaidDays').value, 10) || 0,
+
+    basic: parseFloat(document.getElementById('editPsBasic').value) || 0,
+    hra: parseFloat(document.getElementById('editPsHra').value) || 0,
+    conveyance: parseFloat(document.getElementById('editPsConveyance').value) || 0,
+    medical: parseFloat(document.getElementById('editPsMedical').value) || 0,
+    otherAllow: parseFloat(document.getElementById('editPsOtherAllow').value) || 0,
+
+    epf: parseFloat(document.getElementById('editPsEpf').value) || 0,
+    esi: parseFloat(document.getElementById('editPsEsi').value) || 0,
+    profTax: parseFloat(document.getElementById('editPsProfTax').value) || 0
+  };
+
+  saveStoredPayslipConfig(newCfg);
+
+  if (typeof Swal !== 'undefined') {
+    Swal.fire({
+      icon: 'success',
+      title: 'Payslip Updated!',
+      text: 'Corporate Payslip parameters and earnings updated successfully.',
+      timer: 1500,
+      showConfirmButton: false
+    });
+  }
+
+  downloadEmployeePayslip();
+}
+
+function resetPayslipDefaults() {
+  if (confirm('Are you sure you want to reset all corporate payslip parameters to default values?')) {
+    localStorage.removeItem('sugarCubesPayslipConfig');
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({
+        icon: 'info',
+        title: 'Reset to Defaults',
+        text: 'Payslip parameters restored to default values.',
+        timer: 1500,
+        showConfirmButton: false
+      });
+    }
+    downloadEmployeePayslip();
+  }
+}
+
+function closeEmployeePayslipModal() {
+  const modal = document.getElementById('employeePayslipModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function closeEmployeePayslipModalOnBackdrop(e) {
+  if (e && e.target && e.target.id === 'employeePayslipModal') {
+    closeEmployeePayslipModal();
+  }
+}
+
+function printPayslipDocument() {
+  const viewContainer = document.getElementById('payslipViewContainer');
+  if (!viewContainer) {
+    window.print();
+    return;
+  }
+
+  const empName = (document.getElementById('psEmpName')?.textContent || 'Employee').trim();
+  const period = (document.getElementById('psPayPeriodText')?.textContent || 'September_2026').trim();
+  const filename = `Payslip_${empName.replace(/[^a-zA-Z0-9]/g, '_')}_${period.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+
+  try {
+    playBeep('success');
+  } catch (e) {}
+
+  // Ensure View mode container is active & visible
+  const editContainer = document.getElementById('payslipEditContainer');
+  if (viewContainer) viewContainer.style.display = 'block';
+  if (editContainer) editContainer.style.display = 'none';
+
+  if (typeof html2pdf !== 'undefined') {
+    const opt = {
+      margin:       [10, 10, 10, 10],
+      filename:     filename,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true, logging: false, backgroundColor: '#ffffff' },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(viewContainer).save().then(() => {
+      if (viewContainer) viewContainer.style.display = 'block';
+    }).catch((err) => {
+      console.error('html2pdf rendering error, fallback to print:', err);
+      window.print();
+    });
+  } else {
+    window.print();
+  }
+}
+
+const DEFAULT_STORE_OWNERS = [
+  {
+    id: 'owner_sugan',
+    name: 'Mr. Sugan Rithvik K',
+    role: 'Founder & Managing Director',
+    tag: 'PRIMARY STORE OWNER',
+    phone: '+91 98765 43210',
+    email: 'owner@sugarcubes.com',
+    branch: 'Sugar Cubes Bakery, Main Road, Chennai Central, TN 600001',
+    avatarBg: '#059669',
+    tagBg: '#d1fae5',
+    tagColor: '#065f46'
+  },
+  {
+    id: 'owner_ananya',
+    name: 'Ms. Ananya Sharma',
+    role: 'Co-Founder & Managing Partner',
+    tag: 'OPERATIONS & STORE HEAD',
+    phone: '+91 98123 45678',
+    email: 'ananya@sugarcubes.com',
+    branch: 'Sugar Cubes Bakery, Main Road, Chennai Central, TN 600001',
+    avatarBg: '#2563eb',
+    tagBg: '#dbeafe',
+    tagColor: '#1e40af'
+  },
+  {
+    id: 'owner_rajesh',
+    name: 'Mr. Rajesh Kumar',
+    role: 'Franchise Partner & Director',
+    tag: 'FINANCE & EXPANSION',
+    phone: '+91 98450 12345',
+    email: 'rajesh@sugarcubes.com',
+    branch: 'Sugar Cubes Bakery, Main Road, Chennai Central, TN 600001',
+    avatarBg: '#7c3aed',
+    tagBg: '#f3e8ff',
+    tagColor: '#6b21a8'
+  }
+];
+
+function getOwnersList() {
+  try {
+    const raw = localStorage.getItem('sugarCubesOwnersList');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch (err) {}
+  return DEFAULT_STORE_OWNERS;
+}
+
+function saveOwnersList(list) {
+  try {
+    localStorage.setItem('sugarCubesOwnersList', JSON.stringify(list));
+  } catch (err) {}
+}
+
+function handleOwnerPhotoUpload(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const dataUrl = e.target.result;
+    const base64Input = document.getElementById('ownerPhotoBase64Input');
+    const previewCircle = document.getElementById('ownerPhotoPreviewCircle');
+    const removeBtn = document.getElementById('btnRemoveOwnerPhoto');
+
+    if (base64Input) base64Input.value = dataUrl;
+    if (previewCircle) {
+      previewCircle.style.backgroundImage = `url('${dataUrl}')`;
+      previewCircle.textContent = '';
+    }
+    if (removeBtn) removeBtn.style.display = 'inline-block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeOwnerPhoto() {
+  const base64Input = document.getElementById('ownerPhotoBase64Input');
+  const previewCircle = document.getElementById('ownerPhotoPreviewCircle');
+  const removeBtn = document.getElementById('btnRemoveOwnerPhoto');
+  const fileInput = document.getElementById('ownerPhotoFileInput');
+
+  if (base64Input) base64Input.value = '';
+  if (fileInput) fileInput.value = '';
+  if (previewCircle) {
+    previewCircle.style.backgroundImage = 'none';
+    previewCircle.textContent = 'ðŸ‘¤';
+  }
+  if (removeBtn) removeBtn.style.display = 'none';
+}
+
+let selectedOwnerId = 'owner_sugan';
+
+function selectOwnerProfile(ownerId) {
+  selectedOwnerId = ownerId;
+  renderOwnerDetailsModal();
+}
+
+function openOwnerDetailsModal() {
+  renderOwnerDetailsModal();
+  const modal = document.getElementById('ownerDetailsModal');
+  if (modal) modal.style.display = 'flex';
+}
+
+function renderOwnerDetailsModal() {
+  const tabsContainer = document.getElementById('ownerTabsContainer');
+  const detailsContainer = document.getElementById('ownerDetailsCardContainer');
+  const listContainer = document.getElementById('allOwnersListContainer');
+  if (!tabsContainer || !detailsContainer) return;
+
+  const owners = getOwnersList();
+  const currentOwner = owners.find(o => o.id === selectedOwnerId) || owners[0];
+  if (!currentOwner) return;
+  selectedOwnerId = currentOwner.id;
+
+  // 1. Render Owner Tab Selector Buttons
+  tabsContainer.innerHTML = owners.map(o => {
+    const isSel = o.id === currentOwner.id;
+    const shortName = o.name.split(' ')[1] || o.name;
+    const thumbHtml = o.photo ? 
+      `<img src="${o.photo}" style="width: 18px; height: 18px; object-fit: cover; border-radius: 50%; display: inline-block; vertical-align: middle; margin-right: 4px;">` : 
+      `ðŸ‘¤ `;
+    return `
+      <button type="button" onclick="selectOwnerProfile('${o.id}')" style="background: ${isSel ? '#059669' : '#f8fafc'}; color: ${isSel ? '#ffffff' : '#334155'}; border: 1.5px solid ${isSel ? '#047857' : '#cbd5e1'}; padding: 8px 12px; border-radius: 8px; font-weight: 700; font-size: 0.78rem; cursor: pointer; transition: all 0.15s ease; flex: 1; min-width: 120px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 4px;">
+        ${thumbHtml}<span>${escapeHtml(shortName)}</span> ${isSel ? 'âœ“' : ''}
+      </button>
+    `;
+  }).join('');
+
+  const activeAvatarHtml = currentOwner.photo ? 
+    `<img src="${currentOwner.photo}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">` : 
+    `ðŸ‘¤`;
+
+  // 2. Render Active Owner Detail Card with Edit & Delete Action Buttons
+  detailsContainer.innerHTML = `
+    <div style="background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: 12px; padding: 16px; display: flex; align-items: center; justify-content: space-between; gap: 14px;">
+      <div style="display: flex; align-items: center; gap: 14px; min-width: 0; flex: 1;">
+        <div style="width: 56px; height: 56px; border-radius: 50%; background: ${currentOwner.avatarBg || '#059669'}; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.7rem; font-weight: 800; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.9); box-shadow: 0 2px 8px rgba(0,0,0,0.12); overflow: hidden;">
+          ${activeAvatarHtml}
+        </div>
+        <div style="min-width: 0; flex: 1;">
+          <h4 style="margin: 0 0 2px; font-size: 1.05rem; font-weight: 800; color: #065f46;">${escapeHtml(currentOwner.name)}</h4>
+          <p style="margin: 0; font-size: 0.78rem; color: #047857; font-weight: 700;">${escapeHtml(currentOwner.role)}</p>
+          <span style="display: inline-block; margin-top: 4px; background: ${currentOwner.tagBg || '#d1fae5'}; color: ${currentOwner.tagColor || '#065f46'}; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 800;">
+            â— ${escapeHtml(currentOwner.tag || 'STORE OWNER')}
+          </span>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 6px;">
+        <button type="button" onclick="openEditOwnerModal('${currentOwner.id}')" style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; padding: 6px 12px; border-radius: 6px; font-weight: 800; font-size: 0.74rem; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+          âœï¸ Edit
+        </button>
+        <button type="button" onclick="deleteOwnerProfile('${currentOwner.id}')" style="background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; padding: 6px 12px; border-radius: 6px; font-weight: 800; font-size: 0.74rem; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+          ðŸ—‘ï¸ Delete
+        </button>
+      </div>
+    </div>
+
+    <!-- Active Owner Meta Grid -->
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.3rem;">ðŸ“ž</span>
+          <div>
+            <span style="font-size: 0.7rem; font-weight: 700; color: #64748b; display: block;">OWNER PHONE & WHATSAPP</span>
+            <span style="font-size: 0.9rem; font-weight: 800; color: #0f172a;">${escapeHtml(currentOwner.phone)}</span>
+          </div>
+        </div>
+        <a href="tel:${currentOwner.phone.replace(/\s+/g, '')}" style="background: #dcfce7; color: #15803d; text-decoration: none; padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; border: 1px solid #86efac;">Call / WA</a>
+      </div>
+
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.3rem;">ðŸ“§</span>
+          <div>
+            <span style="font-size: 0.7rem; font-weight: 700; color: #64748b; display: block;">OFFICIAL EMAIL ADDRESS</span>
+            <span style="font-size: 0.88rem; font-weight: 800; color: #2563eb;">${escapeHtml(currentOwner.email)}</span>
+          </div>
+        </div>
+        <a href="mailto:${currentOwner.email}" style="background: #eff6ff; color: #1d4ed8; text-decoration: none; padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; border: 1px solid #93c5fd;">Email</a>
+      </div>
+
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; display: flex; align-items: center; gap: 12px;">
+        <span style="font-size: 1.3rem;">ðŸ§¾</span>
+        <div>
+          <span style="font-size: 0.7rem; font-weight: 700; color: #64748b; display: block;">GSTIN REGISTERED NUMBER</span>
+          <span style="font-size: 0.88rem; font-weight: 800; color: #0f172a;">33AAAAA0000A1Z5</span>
+        </div>
+      </div>
+
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; display: flex; align-items: center; gap: 12px;">
+        <span style="font-size: 1.3rem;">ðŸ“</span>
+        <div>
+          <span style="font-size: 0.7rem; font-weight: 700; color: #64748b; display: block;">STORE BRANCH & ADDRESS</span>
+          <span style="font-size: 0.82rem; font-weight: 700; color: #334155;">${escapeHtml(currentOwner.branch || 'Sugar Cubes Bakery, Main Road, Chennai Central, TN 600001')}</span>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // 3. Render All Owners Summary Directory below
+  if (listContainer) {
+    listContainer.innerHTML = owners.map(o => {
+      const listAvatarHtml = o.photo ? 
+        `<img src="${o.photo}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">` : 
+        `ðŸ‘¤`;
+      return `
+        <div style="display: flex; align-items: center; justify-content: space-between; background: ${o.id === currentOwner.id ? '#f0fdf4' : '#f8fafc'}; padding: 10px 12px; border-radius: 8px; border: 1px solid ${o.id === currentOwner.id ? '#86efac' : '#e2e8f0'}; font-size: 0.8rem;">
+          <div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1;">
+            <div style="width: 36px; height: 36px; border-radius: 50%; background: ${o.avatarBg || '#059669'}; color: white; display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 800; flex-shrink: 0; overflow: hidden; border: 1px solid rgba(0,0,0,0.1);">
+              ${listAvatarHtml}
+            </div>
+            <div style="min-width: 0; flex: 1;">
+              <div style="font-weight: 800; color: #0f172a;">${escapeHtml(o.name)}</div>
+              <div style="font-size: 0.72rem; color: #64748b;">${escapeHtml(o.role)} â€¢ <span style="font-weight: 700; color: #047857;">${escapeHtml(o.phone)}</span></div>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <button type="button" onclick="selectOwnerProfile('${o.id}')" style="background: #ffffff; color: #059669; border: 1px solid #6ee7b7; padding: 4px 8px; border-radius: 6px; font-weight: 800; font-size: 0.72rem; cursor: pointer;">
+              View
+            </button>
+            <button type="button" onclick="openEditOwnerModal('${o.id}')" style="background: #ffffff; color: #2563eb; border: 1px solid #bfdbfe; padding: 4px 8px; border-radius: 6px; font-weight: 800; font-size: 0.72rem; cursor: pointer;" title="Edit Owner">
+              âœï¸
+            </button>
+            <button type="button" onclick="deleteOwnerProfile('${o.id}')" style="background: #ffffff; color: #dc2626; border: 1px solid #fca5a5; padding: 4px 8px; border-radius: 6px; font-weight: 800; font-size: 0.72rem; cursor: pointer;" title="Delete Owner">
+              ðŸ—‘ï¸
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+}
+
+function openAddOwnerModal() {
+  const title = document.getElementById('addEditOwnerModalTitle');
+  if (title) title.textContent = 'âž• Add New Store Owner';
+
+  const editId = document.getElementById('ownerEditIdInput');
+  const nameIn = document.getElementById('ownerNameInput');
+  const roleIn = document.getElementById('ownerRoleInput');
+  const tagIn = document.getElementById('ownerTagInput');
+  const phoneIn = document.getElementById('ownerPhoneInput');
+  const emailIn = document.getElementById('ownerEmailInput');
+  const branchIn = document.getElementById('ownerBranchInput');
+
+  if (editId) editId.value = '';
+  if (nameIn) nameIn.value = '';
+  if (roleIn) roleIn.value = '';
+  if (tagIn) tagIn.value = 'STORE CO-OWNER';
+  if (phoneIn) phoneIn.value = '';
+  if (emailIn) emailIn.value = '';
+  if (branchIn) branchIn.value = 'Sugar Cubes Bakery, Main Road, Chennai Central, TN 600001';
+
+  removeOwnerPhoto();
+
+  const modal = document.getElementById('addEditOwnerModal');
+  if (modal) modal.style.display = 'flex';
+}
+
+function openEditOwnerModal(ownerId) {
+  const owners = getOwnersList();
+  const owner = owners.find(o => o.id === ownerId);
+  if (!owner) return;
+
+  const title = document.getElementById('addEditOwnerModalTitle');
+  if (title) title.textContent = `âœï¸ Edit Details: ${owner.name}`;
+
+  const editId = document.getElementById('ownerEditIdInput');
+  const nameIn = document.getElementById('ownerNameInput');
+  const roleIn = document.getElementById('ownerRoleInput');
+  const tagIn = document.getElementById('ownerTagInput');
+  const phoneIn = document.getElementById('ownerPhoneInput');
+  const emailIn = document.getElementById('ownerEmailInput');
+  const branchIn = document.getElementById('ownerBranchInput');
+
+  if (editId) editId.value = owner.id;
+  if (nameIn) nameIn.value = owner.name || '';
+  if (roleIn) roleIn.value = owner.role || '';
+  if (tagIn) tagIn.value = owner.tag || 'STORE OWNER';
+  if (phoneIn) phoneIn.value = owner.phone || '';
+  if (emailIn) emailIn.value = owner.email || '';
+  if (branchIn) branchIn.value = owner.branch || 'Sugar Cubes Bakery, Main Road, Chennai Central, TN 600001';
+
+  if (owner.photo) {
+    const base64Input = document.getElementById('ownerPhotoBase64Input');
+    const previewCircle = document.getElementById('ownerPhotoPreviewCircle');
+    const removeBtn = document.getElementById('btnRemoveOwnerPhoto');
+    if (base64Input) base64Input.value = owner.photo;
+    if (previewCircle) {
+      previewCircle.style.backgroundImage = `url('${owner.photo}')`;
+      previewCircle.textContent = '';
+    }
+    if (removeBtn) removeBtn.style.display = 'inline-block';
+  } else {
+    removeOwnerPhoto();
+  }
+
+  const modal = document.getElementById('addEditOwnerModal');
+  if (modal) modal.style.display = 'flex';
+}
+
+function closeAddEditOwnerModal() {
+  const modal = document.getElementById('addEditOwnerModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function closeAddEditOwnerModalOnBackdrop(e) {
+  if (e && e.target && e.target.id === 'addEditOwnerModal') {
+    closeAddEditOwnerModal();
+  }
+}
+
+function saveOwnerForm(e) {
+  if (e) e.preventDefault();
+
+  const editId = (document.getElementById('ownerEditIdInput').value || '').trim();
+  const name = (document.getElementById('ownerNameInput').value || '').trim();
+  const role = (document.getElementById('ownerRoleInput').value || '').trim();
+  const tag = (document.getElementById('ownerTagInput').value || '').trim() || 'STORE OWNER';
+  const phone = (document.getElementById('ownerPhoneInput').value || '').trim();
+  const email = (document.getElementById('ownerEmailInput').value || '').trim();
+  const branch = (document.getElementById('ownerBranchInput').value || '').trim() || 'Sugar Cubes Bakery, Main Road, Chennai Central, TN 600001';
+  const photo = (document.getElementById('ownerPhotoBase64Input').value || '').trim();
+
+  if (!name || !role || !phone || !email) {
+    alert('Please fill out all required fields (*)');
+    return;
+  }
+
+  const owners = getOwnersList();
+
+  if (editId) {
+    // Editing existing owner
+    const idx = owners.findIndex(o => o.id === editId);
+    if (idx !== -1) {
+      owners[idx].name = name;
+      owners[idx].role = role;
+      owners[idx].tag = tag;
+      owners[idx].phone = phone;
+      owners[idx].email = email;
+      owners[idx].branch = branch;
+      owners[idx].photo = photo;
+    }
+    showToast(`âœ¨ Updated owner details for <strong>${escapeHtml(name)}</strong>`);
+  } else {
+    // Adding new owner
+    const colors = ['#059669', '#2563eb', '#7c3aed', '#d97706', '#dc2626', '#0891b2'];
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+    const newOwner = {
+      id: 'owner_' + Date.now(),
+      name,
+      role,
+      tag,
+      phone,
+      email,
+      branch,
+      photo,
+      avatarBg: randomColor,
+      tagBg: '#eff6ff',
+      tagColor: '#1d4ed8'
+    };
+    owners.push(newOwner);
+    selectedOwnerId = newOwner.id;
+    showToast(`ðŸŽ‰ Added <strong>${escapeHtml(name)}</strong> as Store Owner!`);
+  }
+
+  saveOwnersList(owners);
+  closeAddEditOwnerModal();
+  renderOwnerDetailsModal();
+}
+
+function deleteOwnerProfile(ownerId) {
+  const owners = getOwnersList();
+  if (owners.length <= 1) {
+    alert('âš ï¸ Cannot delete store owner. At least 1 store owner is required in the directory!');
+    return;
+  }
+
+  const owner = owners.find(o => o.id === ownerId);
+  if (!owner) return;
+
+  if (confirm(`ðŸ—‘ï¸ Are you sure you want to remove "${owner.name}" from Store Owners Directory?`)) {
+    const updated = owners.filter(o => o.id !== ownerId);
+    saveOwnersList(updated);
+    if (selectedOwnerId === ownerId) {
+      selectedOwnerId = updated[0].id;
+    }
+    renderOwnerDetailsModal();
+    showToast(`ðŸ—‘ï¸ Removed ${owner.name} from Store Owners.`);
+  }
+}
+
+function closeOwnerDetailsModal() {
+  const modal = document.getElementById('ownerDetailsModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function closeOwnerDetailsModalOnBackdrop(e) {
+  if (e && e.target && e.target.id === 'ownerDetailsModal') {
+    closeOwnerDetailsModal();
+  }
+}
+
 function openUserProfileModal(fromRestore = false) {
+  if (window.innerWidth > 768) return; // Disabled on Laptop Web
   const modal = document.getElementById('userProfileModal');
   if (!modal) return;
 
@@ -17399,7 +19207,39 @@ document.addEventListener('keydown', (e) => {
     }
 
     // Desktop: Dismiss topmost modal
-    // 0. Cashier / User Profile Modal (Top-Corner Profile)
+    // 0. Shift Action Modal, Payslip Modal, Owner Details Modal
+    const resignReloginModal = document.getElementById('resignReloginModal');
+    if (resignReloginModal && resignReloginModal.style.display && resignReloginModal.style.display !== 'none') {
+      e.preventDefault();
+      closeResignReloginModal();
+      return;
+    }
+    const payslipModal = document.getElementById('employeePayslipModal');
+    if (payslipModal && payslipModal.style.display && payslipModal.style.display !== 'none') {
+      e.preventDefault();
+      closeEmployeePayslipModal();
+      return;
+    }
+    const ownerModal = document.getElementById('ownerDetailsModal');
+    if (ownerModal && ownerModal.style.display && ownerModal.style.display !== 'none') {
+      e.preventDefault();
+      closeOwnerDetailsModal();
+      return;
+    }
+    const addEditOwnerModal = document.getElementById('addEditOwnerModal');
+    if (addEditOwnerModal && addEditOwnerModal.style.display && addEditOwnerModal.style.display !== 'none') {
+      e.preventDefault();
+      closeAddEditOwnerModal();
+      return;
+    }
+    const shiftActionModal = document.getElementById('shiftActionModal');
+    if (shiftActionModal && shiftActionModal.style.display && shiftActionModal.style.display !== 'none') {
+      e.preventDefault();
+      closeShiftActionModal();
+      return;
+    }
+
+    // 0.5. Cashier / User Profile Modal (Top-Corner Profile)
     const userProfileModal = document.getElementById('userProfileModal');
     if (userProfileModal && userProfileModal.style.display && userProfileModal.style.display !== 'none') {
       e.preventDefault();

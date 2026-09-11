@@ -2997,6 +2997,9 @@ let currentDesktopPage = 'store'; // 'store' or 'sales'
 
 function switchDesktopPage(page) {
   currentDesktopPage = page;
+  try {
+    sessionStorage.setItem('sugarCubesCurrentDesktopPage', page);
+  } catch (e) {}
   const storeView = document.getElementById('posWorkspaceGrid');
   const salesView = document.getElementById('desktopKpiPageView');
   const btnStore = document.getElementById('btnNavPosStore');
@@ -4459,14 +4462,17 @@ function checkAuthSession() {
     console.error('Auth session error:', err);
   }
 
-  // Web link always opens directly on Sign In page online
-  const saved = localStorage.getItem('sugarCubesActiveUser') || sessionStorage.getItem('sugarCubesActiveUser');
+  // Active tab session check (sessionStorage survives F5/Reloads, but clears on tab/browser close)
+  const saved = sessionStorage.getItem('sugarCubesActiveUser');
   if (saved) {
     try {
       const u = JSON.parse(saved);
-      showAuthScreen('signin');
-      const loginInput = document.getElementById('loginIdInput');
-      if (loginInput && (u.email || u.id)) loginInput.value = u.email || u.id;
+      applyAuthenticatedState(u, false);
+
+      const lastPage = sessionStorage.getItem('sugarCubesCurrentDesktopPage');
+      if (lastPage && window.innerWidth > 768) {
+        setTimeout(() => switchDesktopPage(lastPage), 30);
+      }
       return;
     } catch (e) {}
   }
@@ -4626,12 +4632,8 @@ function handleSignInSubmit(e) {
   );
 
   if (matched) {
-    if (remember) {
-      localStorage.setItem('sugarCubesActiveUser', JSON.stringify(matched));
-    } else {
-      sessionStorage.setItem('sugarCubesActiveUser', JSON.stringify(matched));
-      localStorage.removeItem('sugarCubesActiveUser');
-    }
+    sessionStorage.setItem('sugarCubesActiveUser', JSON.stringify(matched));
+    localStorage.removeItem('sugarCubesActiveUser');
 
     try {
       playBeep('success');
@@ -4766,7 +4768,8 @@ function quickDemoLogin() {
   if (!admin) {
     admin = { id: 'admin', email: 'admin@sugarcubes.com', password: 'admin123', name: 'Store Manager', role: 'Store Manager' };
   }
-  localStorage.setItem('sugarCubesActiveUser', JSON.stringify(admin));
+  sessionStorage.setItem('sugarCubesActiveUser', JSON.stringify(admin));
+  localStorage.removeItem('sugarCubesActiveUser');
   try {
     playBeep('success');
   } catch (soundErr) {}
@@ -4780,7 +4783,8 @@ function logoutUser() {
     activeUser = null;
     localStorage.removeItem('sugarCubesActiveUser');
     sessionStorage.removeItem('sugarCubesActiveUser');
-    showAuthScreen();
+    sessionStorage.removeItem('sugarCubesCurrentDesktopPage');
+    showAuthScreen('signin');
     showToast('🔒 Cashier logged out. Register locked.');
   }
 }
@@ -4839,7 +4843,905 @@ function renderRegisteredUsersList() {
 window.getRegisteredEmailAccounts = getUsersList;
 window.getRegisteredUsers = getUsersList;
 
+function openShiftActionModal() {
+  if (window.innerWidth <= 768) return; // Laptop Web View only
+  const modal = document.getElementById('shiftActionModal');
+  if (modal) modal.style.display = 'flex';
+}
+
+function closeShiftActionModal() {
+  const modal = document.getElementById('shiftActionModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function closeShiftActionModalOnBackdrop(e) {
+  if (e && e.target && e.target.id === 'shiftActionModal') {
+    closeShiftActionModal();
+  }
+}
+
+// ==========================================================================
+// Cashier Shift Resign & Re-login Modal Handlers
+// ==========================================================================
+
+function openResignReloginModal() {
+  closeShiftActionModal();
+
+  const currentU = activeUser || { name: 'Store Manager', role: 'Store Manager', id: 'admin', email: 'admin@sugarcubes.com' };
+  
+  const emailEl = document.getElementById('resignActiveUserEmail');
+  if (emailEl) emailEl.textContent = currentU.email || (currentU.id && currentU.id.includes('@') ? currentU.id : `${currentU.id || 'admin'}@sugarcubes.com`);
+
+  const nameEl = document.getElementById('resignActiveUserName');
+  if (nameEl) nameEl.textContent = `${currentU.name || currentU.id || 'Store Manager'} • ${currentU.role || 'Cashier'}`;
+
+  renderResignRegisteredUsersList();
+
+  const modal = document.getElementById('resignReloginModal');
+  if (modal) modal.style.display = 'flex';
+}
+
+function closeResignReloginModal() {
+  const modal = document.getElementById('resignReloginModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function closeResignReloginModalOnBackdrop(e) {
+  if (e && e.target && e.target.id === 'resignReloginModal') {
+    closeResignReloginModal();
+  }
+}
+
+function renderResignRegisteredUsersList() {
+  const container = document.getElementById('resignRegisteredUsersListContainer');
+  const countBadge = document.getElementById('resignRegisteredCountBadge');
+  if (!container) return;
+
+  const users = getUsersList();
+  if (countBadge) countBadge.textContent = `${users.length} ${users.length === 1 ? 'Account' : 'Accounts'}`;
+
+  container.innerHTML = users.map(u => {
+    const email = u.email || (u.id && u.id.includes('@') ? u.id : `${u.id}@sugarcubes.com`);
+    const name = u.name || u.id || 'User';
+    const role = u.role || 'Cashier';
+    const isCurrent = activeUser && ((activeUser.email && activeUser.email.toLowerCase() === email.toLowerCase()) || (activeUser.id && activeUser.id.toLowerCase() === (u.id || '').toLowerCase()));
+    
+    return `
+      <div style="display: flex; align-items: center; justify-content: space-between; background: ${isCurrent ? '#fef2f2' : '#f8fafc'}; padding: 10px 12px; border-radius: 8px; border: 1px solid ${isCurrent ? '#fca5a5' : '#e2e8f0'}; font-size: 0.82rem;">
+        <div style="display: flex; flex-direction: column; min-width: 0; flex: 1; padding-right: 8px;">
+          <span style="font-weight: 800; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            📧 ${escapeHtml(email)} ${isCurrent ? '<span style="color: #dc2626; font-size: 0.68rem; font-weight: 800; background: #fee2e2; padding: 2px 6px; border-radius: 4px; margin-left: 4px;">● Active Session</span>' : ''}
+          </span>
+          <span style="font-size: 0.72rem; color: #64748b;">
+            👤 ${escapeHtml(name)} • <span style="color: #475569; font-weight: 600;">${escapeHtml(role)}</span>
+          </span>
+        </div>
+        ${isCurrent ? `
+          <button type="button" onclick="closeResignReloginModal(); logoutUser();" style="background: #dc2626; color: white; border: none; padding: 5px 10px; border-radius: 6px; font-size: 0.74rem; font-weight: 800; cursor: pointer; white-space: nowrap;">
+            🔒 Logout
+          </button>
+        ` : `
+          <button type="button" onclick="switchAccountRelogin('${escapeHtml(email)}')" style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; padding: 5px 10px; border-radius: 6px; font-size: 0.74rem; font-weight: 800; cursor: pointer; white-space: nowrap;">
+            🔑 Switch & Re-login
+          </button>
+        `}
+      </div>
+    `;
+  }).join('');
+}
+
+function switchAccountRelogin(targetEmail) {
+  closeResignReloginModal();
+  clearMobileModalStack();
+  activeUser = null;
+  localStorage.removeItem('sugarCubesActiveUser');
+  sessionStorage.removeItem('sugarCubesActiveUser');
+  sessionStorage.removeItem('sugarCubesCurrentDesktopPage');
+  
+  showAuthScreen('signin');
+  const loginIdInput = document.getElementById('loginIdInput');
+  const loginPassInput = document.getElementById('loginPassInput');
+  if (loginIdInput) loginIdInput.value = targetEmail;
+  if (loginPassInput) {
+    loginPassInput.value = '';
+    loginPassInput.focus();
+  }
+  showToast(`🔑 Register locked. Pre-selected <strong>${escapeHtml(targetEmail)}</strong> for re-login.`);
+}
+
+// ==========================================================================
+// Employee Payslip & Owner Details Modal Handlers
+// ==========================================================================
+
+const DEFAULT_PAYSLIP_CONFIG = {
+  compName: 'SUGAR CUBES BAKERY & CAFÉ',
+  compAddr: 'Central Branch, Main Road • GSTIN: 33AAAAA0000A1Z5',
+  payPeriod: 'September 2026',
+
+  empId: 'SC-EMP-101',
+  empName: '',
+  designation: 'Senior Cashier',
+  department: 'Store Operations',
+  doj: '01 Jan 2024',
+
+  uan: '100987654321',
+  pfNo: 'TN/MAS/0012345',
+  esiNo: '3100123456',
+  bank: 'HDFC Bank',
+  accNo: 'XXXXXX4321',
+
+  grossWages: 15000,
+  totalWorkDays: 30,
+  leaves: 0,
+  lopDays: 0,
+  paidDays: 30,
+
+  basic: 7500,
+  hra: 3000,
+  conveyance: 1600,
+  medical: 1250,
+  otherAllow: 1650,
+
+  epf: 900,
+  esi: 113,
+  profTax: 0
+};
+
+function getStoredPayslipConfig() {
+  try {
+    const raw = localStorage.getItem('sugarCubesPayslipConfig');
+    if (raw) return { ...DEFAULT_PAYSLIP_CONFIG, ...JSON.parse(raw) };
+  } catch (e) {}
+  return { ...DEFAULT_PAYSLIP_CONFIG };
+}
+
+function saveStoredPayslipConfig(cfg) {
+  try {
+    localStorage.setItem('sugarCubesPayslipConfig', JSON.stringify(cfg));
+  } catch (e) {}
+}
+
+function downloadEmployeePayslip() {
+  const currentU = activeUser || { name: 'Store Manager', role: 'Store Manager', id: 'admin', email: 'admin@sugarcubes.com' };
+  const cfg = getStoredPayslipConfig();
+
+  // Header & Company
+  const compNameEl = document.getElementById('psCompName');
+  if (compNameEl) compNameEl.textContent = cfg.compName || DEFAULT_PAYSLIP_CONFIG.compName;
+
+  const compAddrEl = document.getElementById('psCompAddr');
+  if (compAddrEl) compAddrEl.textContent = cfg.compAddr || DEFAULT_PAYSLIP_CONFIG.compAddr;
+
+  const periodEl = document.getElementById('psPayPeriodText');
+  if (periodEl) periodEl.textContent = cfg.payPeriod || `${new Date().toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}`;
+
+  // Employee details
+  const empIdEl = document.getElementById('psEmpId');
+  if (empIdEl) empIdEl.textContent = cfg.empId || 'SC-EMP-101';
+
+  const nameEl = document.getElementById('psEmpName');
+  if (nameEl) nameEl.textContent = cfg.empName || currentU.name || currentU.id || 'Store Manager';
+
+  const desigEl = document.getElementById('psDesignation');
+  if (desigEl) desigEl.textContent = cfg.designation || currentU.role || 'Senior Cashier';
+
+  const deptEl = document.getElementById('psDepartment');
+  if (deptEl) deptEl.textContent = cfg.department || 'Store Operations';
+
+  const dojEl = document.getElementById('psDoj');
+  if (dojEl) dojEl.textContent = cfg.doj || '01 Jan 2024';
+
+  const uanEl = document.getElementById('psUan');
+  if (uanEl) uanEl.textContent = cfg.uan || '100987654321';
+
+  const pfEl = document.getElementById('psPfNo');
+  if (pfEl) pfEl.textContent = cfg.pfNo || 'TN/MAS/0012345';
+
+  const esiEl = document.getElementById('psEsiNo');
+  if (esiEl) esiEl.textContent = cfg.esiNo || '3100123456';
+
+  const bankEl = document.getElementById('psBank');
+  if (bankEl) bankEl.textContent = cfg.bank || 'HDFC Bank';
+
+  const accEl = document.getElementById('psAccNo');
+  if (accEl) accEl.textContent = cfg.accNo || 'XXXXXX4321';
+
+  // Wages & Attendance
+  const grossWages = parseFloat(cfg.grossWages) || 15000;
+  const grossEl = document.getElementById('psGrossWages');
+  if (grossEl) grossEl.textContent = `₹${grossWages.toLocaleString('en-IN')}`;
+
+  const workDaysEl = document.getElementById('psTotalWorkDays');
+  if (workDaysEl) workDaysEl.textContent = cfg.totalWorkDays !== undefined ? cfg.totalWorkDays : 30;
+
+  const leavesEl = document.getElementById('psLeaves');
+  if (leavesEl) leavesEl.textContent = cfg.leaves !== undefined ? cfg.leaves : 0;
+
+  const lopEl = document.getElementById('psLopDays');
+  if (lopEl) lopEl.textContent = cfg.lopDays !== undefined ? cfg.lopDays : 0;
+
+  const paidDaysEl = document.getElementById('psPaidDays');
+  if (paidDaysEl) paidDaysEl.textContent = cfg.paidDays !== undefined ? cfg.paidDays : 30;
+
+  // Earnings
+  const basic = parseFloat(cfg.basic) || 7500;
+  const hra = parseFloat(cfg.hra) || 3000;
+  const conveyance = parseFloat(cfg.conveyance) || 1600;
+  const medical = parseFloat(cfg.medical) || 1250;
+  const otherAllow = parseFloat(cfg.otherAllow) || 1650;
+
+  const basicEl = document.getElementById('psBasic');
+  if (basicEl) basicEl.textContent = `₹${basic.toLocaleString('en-IN')}`;
+
+  const hraEl = document.getElementById('psHra');
+  if (hraEl) hraEl.textContent = `₹${hra.toLocaleString('en-IN')}`;
+
+  const convEl = document.getElementById('psConveyance');
+  if (convEl) convEl.textContent = `₹${conveyance.toLocaleString('en-IN')}`;
+
+  const medEl = document.getElementById('psMedical');
+  if (medEl) medEl.textContent = `₹${medical.toLocaleString('en-IN')}`;
+
+  const otherEl = document.getElementById('psOtherAllow');
+  if (otherEl) otherEl.textContent = `₹${otherAllow.toLocaleString('en-IN')}`;
+
+  const totalEarnings = basic + hra + conveyance + medical + otherAllow;
+  const totalEarnEl = document.getElementById('psTotalEarnings');
+  if (totalEarnEl) totalEarnEl.textContent = `₹${totalEarnings.toLocaleString('en-IN')}`;
+
+  // Deductions
+  const epf = parseFloat(cfg.epf) || 900;
+  const esi = parseFloat(cfg.esi) || 113;
+  const profTax = parseFloat(cfg.profTax) || 0;
+
+  const epfEl = document.getElementById('psEpf');
+  if (epfEl) epfEl.textContent = `₹${epf.toLocaleString('en-IN')}`;
+
+  const esiDeductionEl = document.getElementById('psEsi');
+  if (esiDeductionEl) esiDeductionEl.textContent = `₹${esi.toLocaleString('en-IN')}`;
+
+  const profTaxEl = document.getElementById('psProfTax');
+  if (profTaxEl) profTaxEl.textContent = `₹${profTax.toLocaleString('en-IN')}`;
+
+  const totalDeductions = epf + esi + profTax;
+  const totalDedEl = document.getElementById('psTotalDeductions');
+  if (totalDedEl) totalDedEl.textContent = `₹${totalDeductions.toLocaleString('en-IN')}`;
+
+  // Net Salary
+  const netSalary = totalEarnings - totalDeductions;
+  const netSalEl = document.getElementById('psNetSalary');
+  if (netSalEl) netSalEl.textContent = `₹${netSalary.toLocaleString('en-IN')}`;
+
+  // View Containers
+  const viewContainer = document.getElementById('payslipViewContainer');
+  const editContainer = document.getElementById('payslipEditContainer');
+  if (viewContainer) viewContainer.style.display = 'flex';
+  if (editContainer) editContainer.style.display = 'none';
+
+  const modal = document.getElementById('employeePayslipModal');
+  if (modal) modal.style.display = 'flex';
+}
+
+function openPayslipEditMode() {
+  const cfg = getStoredPayslipConfig();
+  const currentU = activeUser || { name: 'Store Manager', role: 'Store Manager', id: 'admin', email: 'admin@sugarcubes.com' };
+
+  const compNameInput = document.getElementById('editPsCompName');
+  if (compNameInput) compNameInput.value = cfg.compName || DEFAULT_PAYSLIP_CONFIG.compName;
+
+  const compAddrInput = document.getElementById('editPsCompAddr');
+  if (compAddrInput) compAddrInput.value = cfg.compAddr || DEFAULT_PAYSLIP_CONFIG.compAddr;
+
+  const periodInput = document.getElementById('editPsPayPeriod');
+  if (periodInput) periodInput.value = cfg.payPeriod || 'September 2026';
+
+  const empIdInput = document.getElementById('editPsEmpId');
+  if (empIdInput) empIdInput.value = cfg.empId || 'SC-EMP-101';
+
+  const nameInput = document.getElementById('editPsEmpName');
+  if (nameInput) nameInput.value = cfg.empName || currentU.name || currentU.id || 'Store Manager';
+
+  const desigInput = document.getElementById('editPsDesignation');
+  if (desigInput) desigInput.value = cfg.designation || currentU.role || 'Senior Cashier';
+
+  const deptInput = document.getElementById('editPsDepartment');
+  if (deptInput) deptInput.value = cfg.department || 'Store Operations';
+
+  const dojInput = document.getElementById('editPsDoj');
+  if (dojInput) dojInput.value = cfg.doj || '01 Jan 2024';
+
+  const uanInput = document.getElementById('editPsUan');
+  if (uanInput) uanInput.value = cfg.uan || '100987654321';
+
+  const pfInput = document.getElementById('editPsPfNo');
+  if (pfInput) pfInput.value = cfg.pfNo || 'TN/MAS/0012345';
+
+  const esiInput = document.getElementById('editPsEsiNo');
+  if (esiInput) esiInput.value = cfg.esiNo || '3100123456';
+
+  const bankInput = document.getElementById('editPsBank');
+  if (bankInput) bankInput.value = cfg.bank || 'HDFC Bank';
+
+  const accInput = document.getElementById('editPsAccNo');
+  if (accInput) accInput.value = cfg.accNo || 'XXXXXX4321';
+
+  const grossInput = document.getElementById('editPsGrossWages');
+  if (grossInput) grossInput.value = cfg.grossWages !== undefined ? cfg.grossWages : 15000;
+
+  const workDaysInput = document.getElementById('editPsTotalWorkDays');
+  if (workDaysInput) workDaysInput.value = cfg.totalWorkDays !== undefined ? cfg.totalWorkDays : 30;
+
+  const leavesInput = document.getElementById('editPsLeaves');
+  if (leavesInput) leavesInput.value = cfg.leaves !== undefined ? cfg.leaves : 0;
+
+  const lopInput = document.getElementById('editPsLopDays');
+  if (lopInput) lopInput.value = cfg.lopDays !== undefined ? cfg.lopDays : 0;
+
+  const paidDaysInput = document.getElementById('editPsPaidDays');
+  if (paidDaysInput) paidDaysInput.value = cfg.paidDays !== undefined ? cfg.paidDays : 30;
+
+  const basicInput = document.getElementById('editPsBasic');
+  if (basicInput) basicInput.value = cfg.basic !== undefined ? cfg.basic : 7500;
+
+  const hraInput = document.getElementById('editPsHra');
+  if (hraInput) hraInput.value = cfg.hra !== undefined ? cfg.hra : 3000;
+
+  const convInput = document.getElementById('editPsConveyance');
+  if (convInput) convInput.value = cfg.conveyance !== undefined ? cfg.conveyance : 1600;
+
+  const medInput = document.getElementById('editPsMedical');
+  if (medInput) medInput.value = cfg.medical !== undefined ? cfg.medical : 1250;
+
+  const otherAllowInput = document.getElementById('editPsOtherAllow');
+  if (otherAllowInput) otherAllowInput.value = cfg.otherAllow !== undefined ? cfg.otherAllow : 1650;
+
+  const epfInput = document.getElementById('editPsEpf');
+  if (epfInput) epfInput.value = cfg.epf !== undefined ? cfg.epf : 900;
+
+  const esiDedInput = document.getElementById('editPsEsi');
+  if (esiDedInput) esiDedInput.value = cfg.esi !== undefined ? cfg.esi : 113;
+
+  const profTaxInput = document.getElementById('editPsProfTax');
+  if (profTaxInput) profTaxInput.value = cfg.profTax !== undefined ? cfg.profTax : 0;
+
+  const viewContainer = document.getElementById('payslipViewContainer');
+  const editContainer = document.getElementById('payslipEditContainer');
+  if (viewContainer) viewContainer.style.display = 'none';
+  if (editContainer) editContainer.style.display = 'flex';
+}
+
+function cancelPayslipEditMode() {
+  const viewContainer = document.getElementById('payslipViewContainer');
+  const editContainer = document.getElementById('payslipEditContainer');
+  if (viewContainer) viewContainer.style.display = 'flex';
+  if (editContainer) editContainer.style.display = 'none';
+}
+
+function savePayslipEditForm() {
+  const newCfg = {
+    compName: document.getElementById('editPsCompName').value.trim() || DEFAULT_PAYSLIP_CONFIG.compName,
+    compAddr: document.getElementById('editPsCompAddr').value.trim() || DEFAULT_PAYSLIP_CONFIG.compAddr,
+    payPeriod: document.getElementById('editPsPayPeriod').value.trim() || 'September 2026',
+
+    empId: document.getElementById('editPsEmpId').value.trim() || 'SC-EMP-101',
+    empName: document.getElementById('editPsEmpName').value.trim(),
+    designation: document.getElementById('editPsDesignation').value.trim(),
+    department: document.getElementById('editPsDepartment').value.trim(),
+    doj: document.getElementById('editPsDoj').value.trim(),
+
+    uan: document.getElementById('editPsUan').value.trim(),
+    pfNo: document.getElementById('editPsPfNo').value.trim(),
+    esiNo: document.getElementById('editPsEsiNo').value.trim(),
+    bank: document.getElementById('editPsBank').value.trim(),
+    accNo: document.getElementById('editPsAccNo').value.trim(),
+
+    grossWages: parseFloat(document.getElementById('editPsGrossWages').value) || 0,
+    totalWorkDays: parseInt(document.getElementById('editPsTotalWorkDays').value, 10) || 0,
+    leaves: parseInt(document.getElementById('editPsLeaves').value, 10) || 0,
+    lopDays: parseInt(document.getElementById('editPsLopDays').value, 10) || 0,
+    paidDays: parseInt(document.getElementById('editPsPaidDays').value, 10) || 0,
+
+    basic: parseFloat(document.getElementById('editPsBasic').value) || 0,
+    hra: parseFloat(document.getElementById('editPsHra').value) || 0,
+    conveyance: parseFloat(document.getElementById('editPsConveyance').value) || 0,
+    medical: parseFloat(document.getElementById('editPsMedical').value) || 0,
+    otherAllow: parseFloat(document.getElementById('editPsOtherAllow').value) || 0,
+
+    epf: parseFloat(document.getElementById('editPsEpf').value) || 0,
+    esi: parseFloat(document.getElementById('editPsEsi').value) || 0,
+    profTax: parseFloat(document.getElementById('editPsProfTax').value) || 0
+  };
+
+  saveStoredPayslipConfig(newCfg);
+
+  if (typeof Swal !== 'undefined') {
+    Swal.fire({
+      icon: 'success',
+      title: 'Payslip Updated!',
+      text: 'Corporate Payslip parameters and earnings updated successfully.',
+      timer: 1500,
+      showConfirmButton: false
+    });
+  }
+
+  downloadEmployeePayslip();
+}
+
+function resetPayslipDefaults() {
+  if (confirm('Are you sure you want to reset all corporate payslip parameters to default values?')) {
+    localStorage.removeItem('sugarCubesPayslipConfig');
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({
+        icon: 'info',
+        title: 'Reset to Defaults',
+        text: 'Payslip parameters restored to default values.',
+        timer: 1500,
+        showConfirmButton: false
+      });
+    }
+    downloadEmployeePayslip();
+  }
+}
+
+function closeEmployeePayslipModal() {
+  const modal = document.getElementById('employeePayslipModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function closeEmployeePayslipModalOnBackdrop(e) {
+  if (e && e.target && e.target.id === 'employeePayslipModal') {
+    closeEmployeePayslipModal();
+  }
+}
+
+function printPayslipDocument() {
+  const viewContainer = document.getElementById('payslipViewContainer');
+  if (!viewContainer) {
+    window.print();
+    return;
+  }
+
+  const empName = (document.getElementById('psEmpName')?.textContent || 'Employee').trim();
+  const period = (document.getElementById('psPayPeriodText')?.textContent || 'September_2026').trim();
+  const filename = `Payslip_${empName.replace(/[^a-zA-Z0-9]/g, '_')}_${period.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+
+  try {
+    playBeep('success');
+  } catch (e) {}
+
+  // Ensure View mode container is active & visible
+  const editContainer = document.getElementById('payslipEditContainer');
+  if (viewContainer) viewContainer.style.display = 'block';
+  if (editContainer) editContainer.style.display = 'none';
+
+  if (typeof html2pdf !== 'undefined') {
+    const opt = {
+      margin:       [10, 10, 10, 10],
+      filename:     filename,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true, logging: false, backgroundColor: '#ffffff' },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(viewContainer).save().then(() => {
+      if (viewContainer) viewContainer.style.display = 'block';
+    }).catch((err) => {
+      console.error('html2pdf rendering error, fallback to print:', err);
+      window.print();
+    });
+  } else {
+    window.print();
+  }
+}
+
+const DEFAULT_STORE_OWNERS = [
+  {
+    id: 'owner_sugan',
+    name: 'Mr. Sugan Rithvik K',
+    role: 'Founder & Managing Director',
+    tag: 'PRIMARY STORE OWNER',
+    phone: '+91 98765 43210',
+    email: 'owner@sugarcubes.com',
+    branch: 'Sugar Cubes Bakery, Main Road, Chennai Central, TN 600001',
+    avatarBg: '#059669',
+    tagBg: '#d1fae5',
+    tagColor: '#065f46'
+  },
+  {
+    id: 'owner_ananya',
+    name: 'Ms. Ananya Sharma',
+    role: 'Co-Founder & Managing Partner',
+    tag: 'OPERATIONS & STORE HEAD',
+    phone: '+91 98123 45678',
+    email: 'ananya@sugarcubes.com',
+    branch: 'Sugar Cubes Bakery, Main Road, Chennai Central, TN 600001',
+    avatarBg: '#2563eb',
+    tagBg: '#dbeafe',
+    tagColor: '#1e40af'
+  },
+  {
+    id: 'owner_rajesh',
+    name: 'Mr. Rajesh Kumar',
+    role: 'Franchise Partner & Director',
+    tag: 'FINANCE & EXPANSION',
+    phone: '+91 98450 12345',
+    email: 'rajesh@sugarcubes.com',
+    branch: 'Sugar Cubes Bakery, Main Road, Chennai Central, TN 600001',
+    avatarBg: '#7c3aed',
+    tagBg: '#f3e8ff',
+    tagColor: '#6b21a8'
+  }
+];
+
+function getOwnersList() {
+  try {
+    const raw = localStorage.getItem('sugarCubesOwnersList');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch (err) {}
+  return DEFAULT_STORE_OWNERS;
+}
+
+function saveOwnersList(list) {
+  try {
+    localStorage.setItem('sugarCubesOwnersList', JSON.stringify(list));
+  } catch (err) {}
+}
+
+function handleOwnerPhotoUpload(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const dataUrl = e.target.result;
+    const base64Input = document.getElementById('ownerPhotoBase64Input');
+    const previewCircle = document.getElementById('ownerPhotoPreviewCircle');
+    const removeBtn = document.getElementById('btnRemoveOwnerPhoto');
+
+    if (base64Input) base64Input.value = dataUrl;
+    if (previewCircle) {
+      previewCircle.style.backgroundImage = `url('${dataUrl}')`;
+      previewCircle.textContent = '';
+    }
+    if (removeBtn) removeBtn.style.display = 'inline-block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeOwnerPhoto() {
+  const base64Input = document.getElementById('ownerPhotoBase64Input');
+  const previewCircle = document.getElementById('ownerPhotoPreviewCircle');
+  const removeBtn = document.getElementById('btnRemoveOwnerPhoto');
+  const fileInput = document.getElementById('ownerPhotoFileInput');
+
+  if (base64Input) base64Input.value = '';
+  if (fileInput) fileInput.value = '';
+  if (previewCircle) {
+    previewCircle.style.backgroundImage = 'none';
+    previewCircle.textContent = '👤';
+  }
+  if (removeBtn) removeBtn.style.display = 'none';
+}
+
+let selectedOwnerId = 'owner_sugan';
+
+function selectOwnerProfile(ownerId) {
+  selectedOwnerId = ownerId;
+  renderOwnerDetailsModal();
+}
+
+function openOwnerDetailsModal() {
+  renderOwnerDetailsModal();
+  const modal = document.getElementById('ownerDetailsModal');
+  if (modal) modal.style.display = 'flex';
+}
+
+function renderOwnerDetailsModal() {
+  const tabsContainer = document.getElementById('ownerTabsContainer');
+  const detailsContainer = document.getElementById('ownerDetailsCardContainer');
+  const listContainer = document.getElementById('allOwnersListContainer');
+  if (!tabsContainer || !detailsContainer) return;
+
+  const owners = getOwnersList();
+  const currentOwner = owners.find(o => o.id === selectedOwnerId) || owners[0];
+  if (!currentOwner) return;
+  selectedOwnerId = currentOwner.id;
+
+  // 1. Render Owner Tab Selector Buttons
+  tabsContainer.innerHTML = owners.map(o => {
+    const isSel = o.id === currentOwner.id;
+    const shortName = o.name.split(' ')[1] || o.name;
+    const thumbHtml = o.photo ? 
+      `<img src="${o.photo}" style="width: 18px; height: 18px; object-fit: cover; border-radius: 50%; display: inline-block; vertical-align: middle; margin-right: 4px;">` : 
+      `👤 `;
+    return `
+      <button type="button" onclick="selectOwnerProfile('${o.id}')" style="background: ${isSel ? '#059669' : '#f8fafc'}; color: ${isSel ? '#ffffff' : '#334155'}; border: 1.5px solid ${isSel ? '#047857' : '#cbd5e1'}; padding: 8px 12px; border-radius: 8px; font-weight: 700; font-size: 0.78rem; cursor: pointer; transition: all 0.15s ease; flex: 1; min-width: 120px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 4px;">
+        ${thumbHtml}<span>${escapeHtml(shortName)}</span> ${isSel ? '✓' : ''}
+      </button>
+    `;
+  }).join('');
+
+  const activeAvatarHtml = currentOwner.photo ? 
+    `<img src="${currentOwner.photo}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">` : 
+    `👤`;
+
+  // 2. Render Active Owner Detail Card with Edit & Delete Action Buttons
+  detailsContainer.innerHTML = `
+    <div style="background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: 12px; padding: 16px; display: flex; align-items: center; justify-content: space-between; gap: 14px;">
+      <div style="display: flex; align-items: center; gap: 14px; min-width: 0; flex: 1;">
+        <div style="width: 56px; height: 56px; border-radius: 50%; background: ${currentOwner.avatarBg || '#059669'}; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.7rem; font-weight: 800; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.9); box-shadow: 0 2px 8px rgba(0,0,0,0.12); overflow: hidden;">
+          ${activeAvatarHtml}
+        </div>
+        <div style="min-width: 0; flex: 1;">
+          <h4 style="margin: 0 0 2px; font-size: 1.05rem; font-weight: 800; color: #065f46;">${escapeHtml(currentOwner.name)}</h4>
+          <p style="margin: 0; font-size: 0.78rem; color: #047857; font-weight: 700;">${escapeHtml(currentOwner.role)}</p>
+          <span style="display: inline-block; margin-top: 4px; background: ${currentOwner.tagBg || '#d1fae5'}; color: ${currentOwner.tagColor || '#065f46'}; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 800;">
+            ● ${escapeHtml(currentOwner.tag || 'STORE OWNER')}
+          </span>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 6px;">
+        <button type="button" onclick="openEditOwnerModal('${currentOwner.id}')" style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; padding: 6px 12px; border-radius: 6px; font-weight: 800; font-size: 0.74rem; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+          ✏️ Edit
+        </button>
+        <button type="button" onclick="deleteOwnerProfile('${currentOwner.id}')" style="background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; padding: 6px 12px; border-radius: 6px; font-weight: 800; font-size: 0.74rem; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+          🗑️ Delete
+        </button>
+      </div>
+    </div>
+
+    <!-- Active Owner Meta Grid -->
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.3rem;">📞</span>
+          <div>
+            <span style="font-size: 0.7rem; font-weight: 700; color: #64748b; display: block;">OWNER PHONE & WHATSAPP</span>
+            <span style="font-size: 0.9rem; font-weight: 800; color: #0f172a;">${escapeHtml(currentOwner.phone)}</span>
+          </div>
+        </div>
+        <a href="tel:${currentOwner.phone.replace(/\s+/g, '')}" style="background: #dcfce7; color: #15803d; text-decoration: none; padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; border: 1px solid #86efac;">Call / WA</a>
+      </div>
+
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.3rem;">📧</span>
+          <div>
+            <span style="font-size: 0.7rem; font-weight: 700; color: #64748b; display: block;">OFFICIAL EMAIL ADDRESS</span>
+            <span style="font-size: 0.88rem; font-weight: 800; color: #2563eb;">${escapeHtml(currentOwner.email)}</span>
+          </div>
+        </div>
+        <a href="mailto:${currentOwner.email}" style="background: #eff6ff; color: #1d4ed8; text-decoration: none; padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; border: 1px solid #93c5fd;">Email</a>
+      </div>
+
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; display: flex; align-items: center; gap: 12px;">
+        <span style="font-size: 1.3rem;">🧾</span>
+        <div>
+          <span style="font-size: 0.7rem; font-weight: 700; color: #64748b; display: block;">GSTIN REGISTERED NUMBER</span>
+          <span style="font-size: 0.88rem; font-weight: 800; color: #0f172a;">33AAAAA0000A1Z5</span>
+        </div>
+      </div>
+
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; display: flex; align-items: center; gap: 12px;">
+        <span style="font-size: 1.3rem;">📍</span>
+        <div>
+          <span style="font-size: 0.7rem; font-weight: 700; color: #64748b; display: block;">STORE BRANCH & ADDRESS</span>
+          <span style="font-size: 0.82rem; font-weight: 700; color: #334155;">${escapeHtml(currentOwner.branch || 'Sugar Cubes Bakery, Main Road, Chennai Central, TN 600001')}</span>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // 3. Render All Owners Summary Directory below
+  if (listContainer) {
+    listContainer.innerHTML = owners.map(o => {
+      const listAvatarHtml = o.photo ? 
+        `<img src="${o.photo}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">` : 
+        `👤`;
+      return `
+        <div style="display: flex; align-items: center; justify-content: space-between; background: ${o.id === currentOwner.id ? '#f0fdf4' : '#f8fafc'}; padding: 10px 12px; border-radius: 8px; border: 1px solid ${o.id === currentOwner.id ? '#86efac' : '#e2e8f0'}; font-size: 0.8rem;">
+          <div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1;">
+            <div style="width: 36px; height: 36px; border-radius: 50%; background: ${o.avatarBg || '#059669'}; color: white; display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 800; flex-shrink: 0; overflow: hidden; border: 1px solid rgba(0,0,0,0.1);">
+              ${listAvatarHtml}
+            </div>
+            <div style="min-width: 0; flex: 1;">
+              <div style="font-weight: 800; color: #0f172a;">${escapeHtml(o.name)}</div>
+              <div style="font-size: 0.72rem; color: #64748b;">${escapeHtml(o.role)} • <span style="font-weight: 700; color: #047857;">${escapeHtml(o.phone)}</span></div>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <button type="button" onclick="selectOwnerProfile('${o.id}')" style="background: #ffffff; color: #059669; border: 1px solid #6ee7b7; padding: 4px 8px; border-radius: 6px; font-weight: 800; font-size: 0.72rem; cursor: pointer;">
+              View
+            </button>
+            <button type="button" onclick="openEditOwnerModal('${o.id}')" style="background: #ffffff; color: #2563eb; border: 1px solid #bfdbfe; padding: 4px 8px; border-radius: 6px; font-weight: 800; font-size: 0.72rem; cursor: pointer;" title="Edit Owner">
+              ✏️
+            </button>
+            <button type="button" onclick="deleteOwnerProfile('${o.id}')" style="background: #ffffff; color: #dc2626; border: 1px solid #fca5a5; padding: 4px 8px; border-radius: 6px; font-weight: 800; font-size: 0.72rem; cursor: pointer;" title="Delete Owner">
+              🗑️
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+}
+
+function openAddOwnerModal() {
+  const title = document.getElementById('addEditOwnerModalTitle');
+  if (title) title.textContent = '➕ Add New Store Owner';
+
+  const editId = document.getElementById('ownerEditIdInput');
+  const nameIn = document.getElementById('ownerNameInput');
+  const roleIn = document.getElementById('ownerRoleInput');
+  const tagIn = document.getElementById('ownerTagInput');
+  const phoneIn = document.getElementById('ownerPhoneInput');
+  const emailIn = document.getElementById('ownerEmailInput');
+  const branchIn = document.getElementById('ownerBranchInput');
+
+  if (editId) editId.value = '';
+  if (nameIn) nameIn.value = '';
+  if (roleIn) roleIn.value = '';
+  if (tagIn) tagIn.value = 'STORE CO-OWNER';
+  if (phoneIn) phoneIn.value = '';
+  if (emailIn) emailIn.value = '';
+  if (branchIn) branchIn.value = 'Sugar Cubes Bakery, Main Road, Chennai Central, TN 600001';
+
+  removeOwnerPhoto();
+
+  const modal = document.getElementById('addEditOwnerModal');
+  if (modal) modal.style.display = 'flex';
+}
+
+function openEditOwnerModal(ownerId) {
+  const owners = getOwnersList();
+  const owner = owners.find(o => o.id === ownerId);
+  if (!owner) return;
+
+  const title = document.getElementById('addEditOwnerModalTitle');
+  if (title) title.textContent = `✏️ Edit Details: ${owner.name}`;
+
+  const editId = document.getElementById('ownerEditIdInput');
+  const nameIn = document.getElementById('ownerNameInput');
+  const roleIn = document.getElementById('ownerRoleInput');
+  const tagIn = document.getElementById('ownerTagInput');
+  const phoneIn = document.getElementById('ownerPhoneInput');
+  const emailIn = document.getElementById('ownerEmailInput');
+  const branchIn = document.getElementById('ownerBranchInput');
+
+  if (editId) editId.value = owner.id;
+  if (nameIn) nameIn.value = owner.name || '';
+  if (roleIn) roleIn.value = owner.role || '';
+  if (tagIn) tagIn.value = owner.tag || 'STORE OWNER';
+  if (phoneIn) phoneIn.value = owner.phone || '';
+  if (emailIn) emailIn.value = owner.email || '';
+  if (branchIn) branchIn.value = owner.branch || 'Sugar Cubes Bakery, Main Road, Chennai Central, TN 600001';
+
+  if (owner.photo) {
+    const base64Input = document.getElementById('ownerPhotoBase64Input');
+    const previewCircle = document.getElementById('ownerPhotoPreviewCircle');
+    const removeBtn = document.getElementById('btnRemoveOwnerPhoto');
+    if (base64Input) base64Input.value = owner.photo;
+    if (previewCircle) {
+      previewCircle.style.backgroundImage = `url('${owner.photo}')`;
+      previewCircle.textContent = '';
+    }
+    if (removeBtn) removeBtn.style.display = 'inline-block';
+  } else {
+    removeOwnerPhoto();
+  }
+
+  const modal = document.getElementById('addEditOwnerModal');
+  if (modal) modal.style.display = 'flex';
+}
+
+function closeAddEditOwnerModal() {
+  const modal = document.getElementById('addEditOwnerModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function closeAddEditOwnerModalOnBackdrop(e) {
+  if (e && e.target && e.target.id === 'addEditOwnerModal') {
+    closeAddEditOwnerModal();
+  }
+}
+
+function saveOwnerForm(e) {
+  if (e) e.preventDefault();
+
+  const editId = (document.getElementById('ownerEditIdInput').value || '').trim();
+  const name = (document.getElementById('ownerNameInput').value || '').trim();
+  const role = (document.getElementById('ownerRoleInput').value || '').trim();
+  const tag = (document.getElementById('ownerTagInput').value || '').trim() || 'STORE OWNER';
+  const phone = (document.getElementById('ownerPhoneInput').value || '').trim();
+  const email = (document.getElementById('ownerEmailInput').value || '').trim();
+  const branch = (document.getElementById('ownerBranchInput').value || '').trim() || 'Sugar Cubes Bakery, Main Road, Chennai Central, TN 600001';
+  const photo = (document.getElementById('ownerPhotoBase64Input').value || '').trim();
+
+  if (!name || !role || !phone || !email) {
+    alert('Please fill out all required fields (*)');
+    return;
+  }
+
+  const owners = getOwnersList();
+
+  if (editId) {
+    // Editing existing owner
+    const idx = owners.findIndex(o => o.id === editId);
+    if (idx !== -1) {
+      owners[idx].name = name;
+      owners[idx].role = role;
+      owners[idx].tag = tag;
+      owners[idx].phone = phone;
+      owners[idx].email = email;
+      owners[idx].branch = branch;
+      owners[idx].photo = photo;
+    }
+    showToast(`✨ Updated owner details for <strong>${escapeHtml(name)}</strong>`);
+  } else {
+    // Adding new owner
+    const colors = ['#059669', '#2563eb', '#7c3aed', '#d97706', '#dc2626', '#0891b2'];
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+    const newOwner = {
+      id: 'owner_' + Date.now(),
+      name,
+      role,
+      tag,
+      phone,
+      email,
+      branch,
+      photo,
+      avatarBg: randomColor,
+      tagBg: '#eff6ff',
+      tagColor: '#1d4ed8'
+    };
+    owners.push(newOwner);
+    selectedOwnerId = newOwner.id;
+    showToast(`🎉 Added <strong>${escapeHtml(name)}</strong> as Store Owner!`);
+  }
+
+  saveOwnersList(owners);
+  closeAddEditOwnerModal();
+  renderOwnerDetailsModal();
+}
+
+function deleteOwnerProfile(ownerId) {
+  const owners = getOwnersList();
+  if (owners.length <= 1) {
+    alert('⚠️ Cannot delete store owner. At least 1 store owner is required in the directory!');
+    return;
+  }
+
+  const owner = owners.find(o => o.id === ownerId);
+  if (!owner) return;
+
+  if (confirm(`🗑️ Are you sure you want to remove "${owner.name}" from Store Owners Directory?`)) {
+    const updated = owners.filter(o => o.id !== ownerId);
+    saveOwnersList(updated);
+    if (selectedOwnerId === ownerId) {
+      selectedOwnerId = updated[0].id;
+    }
+    renderOwnerDetailsModal();
+    showToast(`🗑️ Removed ${owner.name} from Store Owners.`);
+  }
+}
+
+function closeOwnerDetailsModal() {
+  const modal = document.getElementById('ownerDetailsModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function closeOwnerDetailsModalOnBackdrop(e) {
+  if (e && e.target && e.target.id === 'ownerDetailsModal') {
+    closeOwnerDetailsModal();
+  }
+}
+
 function openUserProfileModal(fromRestore = false) {
+  if (window.innerWidth > 768) return; // Disabled on Laptop Web
   const modal = document.getElementById('userProfileModal');
   if (!modal) return;
 
@@ -5213,7 +6115,39 @@ document.addEventListener('keydown', (e) => {
     }
 
     // Desktop: Dismiss topmost modal
-    // 0. Cashier / User Profile Modal (Top-Corner Profile)
+    // 0. Shift Action Modal, Payslip Modal, Owner Details Modal
+    const resignReloginModal = document.getElementById('resignReloginModal');
+    if (resignReloginModal && resignReloginModal.style.display && resignReloginModal.style.display !== 'none') {
+      e.preventDefault();
+      closeResignReloginModal();
+      return;
+    }
+    const payslipModal = document.getElementById('employeePayslipModal');
+    if (payslipModal && payslipModal.style.display && payslipModal.style.display !== 'none') {
+      e.preventDefault();
+      closeEmployeePayslipModal();
+      return;
+    }
+    const ownerModal = document.getElementById('ownerDetailsModal');
+    if (ownerModal && ownerModal.style.display && ownerModal.style.display !== 'none') {
+      e.preventDefault();
+      closeOwnerDetailsModal();
+      return;
+    }
+    const addEditOwnerModal = document.getElementById('addEditOwnerModal');
+    if (addEditOwnerModal && addEditOwnerModal.style.display && addEditOwnerModal.style.display !== 'none') {
+      e.preventDefault();
+      closeAddEditOwnerModal();
+      return;
+    }
+    const shiftActionModal = document.getElementById('shiftActionModal');
+    if (shiftActionModal && shiftActionModal.style.display && shiftActionModal.style.display !== 'none') {
+      e.preventDefault();
+      closeShiftActionModal();
+      return;
+    }
+
+    // 0.5. Cashier / User Profile Modal (Top-Corner Profile)
     const userProfileModal = document.getElementById('userProfileModal');
     if (userProfileModal && userProfileModal.style.display && userProfileModal.style.display !== 'none') {
       e.preventDefault();
