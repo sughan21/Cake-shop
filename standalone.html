@@ -412,6 +412,7 @@ body {
   flex-shrink: 0;
   box-sizing: border-box;
   transition: var(--transition);
+  cursor: pointer;
 }
 
 .logged-user-pill:hover {
@@ -10508,7 +10509,26 @@ html.auth-pending #loginAuthScreen {
     height: 72px;
     min-width: 72px;
   }
+
+/* ==========================================================================
+   Registered Accounts & Email Directory - Laptop Web View Only (>768px)
+   ========================================================================== */
+.prof-registered-users-card {
+  display: block;
 }
+
+@media (max-width: 768px) {
+  .prof-registered-users-card {
+    display: none !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .prof-registered-users-card {
+    display: block !important;
+  }
+}
+
 
 
 
@@ -10564,15 +10584,15 @@ html.auth-pending #loginAuthScreen {
     </div>
 
     <div class="header-controls">
-      <!-- Logged-in Cashier / User Badge with Logout button -->
-      <div class="logged-user-pill" id="loggedUserPill" style="display: none;">
+      <!-- Logged-in Cashier / User Badge with Logout button (Clicking opens Account Details & Registered Email Directory) -->
+      <div class="logged-user-pill" id="loggedUserPill" style="display: none;" onclick="openUserProfileModal()" title="Click to view Shift Account Details & Registered Accounts">
         <span class="user-avatar-badge">ðŸ‘¤</span>
         <div class="user-info-text">
           <span class="user-name-title" id="headerCashierName">Store Manager</span>
           <span class="user-email-tag" id="headerCashierEmail" style="display: none;">admin@sugarcubes.com</span>
           <span class="user-role-tag" id="headerCashierRole">SHIFT ACTIVE</span>
         </div>
-        <button type="button" class="btn-logout-pill" onclick="logoutUser()" title="Logout & Lock Register">
+        <button type="button" class="btn-logout-pill" onclick="event.stopPropagation(); logoutUser();" title="Logout & Lock Register">
           <span>ðŸ”’</span> <span>Logout</span>
         </button>
       </div>
@@ -12015,7 +12035,7 @@ html.auth-pending #loginAuthScreen {
           <label for="loginIdInput">Email ID / Login ID</label>
           <div class="auth-input-inner">
             <span class="auth-field-icon">ðŸ“§</span>
-            <input type="text" id="loginIdInput" value="" placeholder="Enter Email ID or Username" autocomplete="username">
+            <input type="text" id="loginIdInput" value="" placeholder="Enter Email ID or Username" autocomplete="username" onkeydown="if(event.key==='Enter'){ handleSignInSubmit(event); }">
           </div>
         </div>
 
@@ -12023,7 +12043,7 @@ html.auth-pending #loginAuthScreen {
           <label for="loginPasswordInput">Password</label>
           <div class="auth-input-inner">
             <span class="auth-field-icon">ðŸ”‘</span>
-            <input type="password" id="loginPasswordInput" value="" placeholder="Enter Password" autocomplete="current-password">
+            <input type="password" id="loginPasswordInput" value="" placeholder="Enter Password" autocomplete="current-password" onkeydown="if(event.key==='Enter'){ handleSignInSubmit(event); }">
             <button type="button" class="auth-eye-btn" onclick="togglePasswordVisibility('loginPasswordInput', this)" title="Show/Hide Password">ðŸ‘ï¸</button>
           </div>
         </div>
@@ -12035,7 +12055,7 @@ html.auth-pending #loginAuthScreen {
           </label>
         </div>
 
-        <button type="button" class="btn-auth-primary" id="btnSubmitLogin" onclick="handleSignInSubmit(event)">
+        <button type="submit" class="btn-auth-primary" id="btnSubmitLogin" onclick="handleSignInSubmit(event)">
           <span>ðŸš€ Sign In to POS Register</span>
         </button>
 
@@ -12061,7 +12081,7 @@ html.auth-pending #loginAuthScreen {
           <label for="regFullName">Full Name</label>
           <div class="auth-input-inner">
             <span class="auth-field-icon">ðŸ·ï¸</span>
-            <input type="text" id="regFullName" placeholder="e.g. Rachel Green" required>
+            <input type="text" id="regFullName" placeholder="e.g. Rachel Green" required onkeydown="if(event.key==='Enter'){ handleRegisterSubmit(event); }">
           </div>
         </div>
 
@@ -12069,7 +12089,7 @@ html.auth-pending #loginAuthScreen {
           <label for="regEmail">Email Address</label>
           <div class="auth-input-inner">
             <span class="auth-field-icon">ðŸ“§</span>
-            <input type="email" id="regEmail" placeholder="e.g. rachel@sugarcubes.com" required>
+            <input type="email" id="regEmail" placeholder="e.g. rachel@sugarcubes.com" required onkeydown="if(event.key==='Enter'){ handleRegisterSubmit(event); }">
           </div>
         </div>
 
@@ -12077,12 +12097,12 @@ html.auth-pending #loginAuthScreen {
           <label for="regPassword">Create Password</label>
           <div class="auth-input-inner">
             <span class="auth-field-icon">ðŸ”’</span>
-            <input type="password" id="regPassword" placeholder="Minimum 4 characters" required minlength="4">
+            <input type="password" id="regPassword" placeholder="Minimum 4 characters" required minlength="4" onkeydown="if(event.key==='Enter'){ handleRegisterSubmit(event); }">
             <button type="button" class="auth-eye-btn" onclick="togglePasswordVisibility('regPassword', this)" title="Show/Hide Password">ðŸ‘ï¸</button>
           </div>
         </div>
 
-        <button type="button" class="btn-auth-primary" id="btnSubmitRegister" onclick="handleRegisterSubmit(event)">
+        <button type="submit" class="btn-auth-primary" id="btnSubmitRegister" onclick="handleRegisterSubmit(event)">
           <span>âœ¨ Create Account & Proceed to Sign In</span>
         </button>
       </form>
