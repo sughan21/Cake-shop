@@ -4459,18 +4459,18 @@ function checkAuthSession() {
     console.error('Auth session error:', err);
   }
 
-  // Web link always opens on Login Portal page only
+  // Web link always opens directly on Sign In page online
   const saved = localStorage.getItem('sugarCubesActiveUser') || sessionStorage.getItem('sugarCubesActiveUser');
   if (saved) {
     try {
       const u = JSON.parse(saved);
       showAuthScreen('signin');
       const loginInput = document.getElementById('loginIdInput');
-      if (loginInput && (u.email || u.id)) loginIdInput.value = u.email || u.id;
+      if (loginInput && (u.email || u.id)) loginInput.value = u.email || u.id;
       return;
     } catch (e) {}
   }
-  showAuthScreen('register');
+  showAuthScreen('signin');
 }
 
 function applyAuthenticatedState(user, isInteractiveLogin = false) {
@@ -4524,7 +4524,7 @@ function playRegisterAudioBeep() {
   playBeep('success');
 }
 
-function showAuthScreen(defaultTab = 'register') {
+function showAuthScreen(defaultTab = 'signin') {
   try {
     document.documentElement.classList.remove('auth-pending');
   } catch (e) {}
@@ -4671,17 +4671,15 @@ function handleRegisterSubmit(e) {
 
   const nameInput = document.getElementById('regFullName');
   const emailInput = document.getElementById('regEmail');
-  const idInput = document.getElementById('regLoginId');
   const passInput = document.getElementById('regPassword');
-  const roleSelect = document.getElementById('regRole');
 
   const name = nameInput ? nameInput.value.trim() : '';
   const email = emailInput ? emailInput.value.trim() : '';
-  const id = idInput ? idInput.value.trim() : '';
+  const id = email;
   const password = passInput ? passInput.value.trim() : '';
-  const role = roleSelect ? roleSelect.value : 'Cashier';
+  const role = 'Store User';
 
-  if (!name || !email || !id || !password) {
+  if (!name || !email || !password) {
     showAuthAlert('⚠️ Please fill in all required registration fields including Email Address.', 'error');
     return;
   }
@@ -4693,11 +4691,6 @@ function handleRegisterSubmit(e) {
     return;
   }
 
-  if (id.length < 3) {
-    showAuthAlert('⚠️ Login ID must be at least 3 characters long.', 'error');
-    return;
-  }
-
   if (password.length < 4) {
     showAuthAlert('⚠️ Password must be at least 4 characters long.', 'error');
     return;
@@ -4705,11 +4698,11 @@ function handleRegisterSubmit(e) {
 
   const users = getUsersList();
   const exists = users.some(u => 
-    (u.id && u.id.toLowerCase() === id.toLowerCase()) || 
-    (u.email && u.email.toLowerCase() === email.toLowerCase())
+    (u.email && u.email.toLowerCase() === email.toLowerCase()) ||
+    (u.id && u.id.toLowerCase() === email.toLowerCase())
   );
   if (exists) {
-    showAuthAlert(`⚠️ An account with Email <strong>${escapeHtml(email)}</strong> or ID <strong>${escapeHtml(id)}</strong> already exists.`, 'error');
+    showAuthAlert(`⚠️ An account with Email <strong>${escapeHtml(email)}</strong> already exists.`, 'error');
     return;
   }
 

@@ -12039,6 +12039,13 @@ html.auth-pending #loginAuthScreen {
           <span>ðŸš€ Sign In to POS Register</span>
         </button>
 
+        <!-- Redirect to Create Account Page Button -->
+        <div class="auth-redirect-wrap" style="margin-top: 14px; text-align: center;">
+          <button type="button" class="btn-auth-redirect" onclick="switchAuthTab('register')" style="background: transparent; border: none; color: #2563eb; font-weight: 700; font-size: 0.86rem; cursor: pointer; text-decoration: underline; padding: 4px 8px;">
+            âœ¨ Don't have an account? Create an Account
+          </button>
+        </div>
+
         <!-- Quick 1-Click Demo Login Button -->
         <div class="auth-demo-divider">
           <span>OR QUICK ACCESS</span>
@@ -12051,7 +12058,7 @@ html.auth-pending #loginAuthScreen {
       <!-- ================= TAB 2: CREATE ACCOUNT FORM ================= -->
       <form id="registerForm" class="auth-form-body" style="display: none;" onsubmit="event.preventDefault(); handleRegisterSubmit(event); return false;">
         <div class="auth-field-wrap">
-          <label for="regFullName">Cashier / Staff Name</label>
+          <label for="regFullName">Full Name</label>
           <div class="auth-input-inner">
             <span class="auth-field-icon">ðŸ·ï¸</span>
             <input type="text" id="regFullName" placeholder="e.g. Rachel Green" required>
@@ -12067,31 +12074,11 @@ html.auth-pending #loginAuthScreen {
         </div>
 
         <div class="auth-field-wrap">
-          <label for="regLoginId">Create New Login ID / Username</label>
-          <div class="auth-input-inner">
-            <span class="auth-field-icon">ðŸ†”</span>
-            <input type="text" id="regLoginId" placeholder="e.g. rachel01 (letters/numbers)" required>
-          </div>
-        </div>
-
-        <div class="auth-field-wrap">
           <label for="regPassword">Create Password</label>
           <div class="auth-input-inner">
             <span class="auth-field-icon">ðŸ”’</span>
             <input type="password" id="regPassword" placeholder="Minimum 4 characters" required minlength="4">
             <button type="button" class="auth-eye-btn" onclick="togglePasswordVisibility('regPassword', this)" title="Show/Hide Password">ðŸ‘ï¸</button>
-          </div>
-        </div>
-
-        <div class="auth-field-wrap">
-          <label for="regRole">Role / Terminal Permission</label>
-          <div class="auth-input-inner select-wrap">
-            <span class="auth-field-icon">ðŸ’¼</span>
-            <select id="regRole">
-              <option value="Cashier">Cashier (Front Counter)</option>
-              <option value="Supervisor">Shift Supervisor</option>
-              <option value="Store Manager">Store Manager</option>
-            </select>
           </div>
         </div>
 
@@ -16638,18 +16625,18 @@ function checkAuthSession() {
     console.error('Auth session error:', err);
   }
 
-  // Web link always opens on Login Portal page only
+  // Web link always opens directly on Sign In page online
   const saved = localStorage.getItem('sugarCubesActiveUser') || sessionStorage.getItem('sugarCubesActiveUser');
   if (saved) {
     try {
       const u = JSON.parse(saved);
       showAuthScreen('signin');
       const loginInput = document.getElementById('loginIdInput');
-      if (loginInput && (u.email || u.id)) loginIdInput.value = u.email || u.id;
+      if (loginInput && (u.email || u.id)) loginInput.value = u.email || u.id;
       return;
     } catch (e) {}
   }
-  showAuthScreen('register');
+  showAuthScreen('signin');
 }
 
 function applyAuthenticatedState(user, isInteractiveLogin = false) {
@@ -16703,7 +16690,7 @@ function playRegisterAudioBeep() {
   playBeep('success');
 }
 
-function showAuthScreen(defaultTab = 'register') {
+function showAuthScreen(defaultTab = 'signin') {
   try {
     document.documentElement.classList.remove('auth-pending');
   } catch (e) {}
@@ -16850,17 +16837,15 @@ function handleRegisterSubmit(e) {
 
   const nameInput = document.getElementById('regFullName');
   const emailInput = document.getElementById('regEmail');
-  const idInput = document.getElementById('regLoginId');
   const passInput = document.getElementById('regPassword');
-  const roleSelect = document.getElementById('regRole');
 
   const name = nameInput ? nameInput.value.trim() : '';
   const email = emailInput ? emailInput.value.trim() : '';
-  const id = idInput ? idInput.value.trim() : '';
+  const id = email;
   const password = passInput ? passInput.value.trim() : '';
-  const role = roleSelect ? roleSelect.value : 'Cashier';
+  const role = 'Store User';
 
-  if (!name || !email || !id || !password) {
+  if (!name || !email || !password) {
     showAuthAlert('âš ï¸ Please fill in all required registration fields including Email Address.', 'error');
     return;
   }
@@ -16872,11 +16857,6 @@ function handleRegisterSubmit(e) {
     return;
   }
 
-  if (id.length < 3) {
-    showAuthAlert('âš ï¸ Login ID must be at least 3 characters long.', 'error');
-    return;
-  }
-
   if (password.length < 4) {
     showAuthAlert('âš ï¸ Password must be at least 4 characters long.', 'error');
     return;
@@ -16884,11 +16864,11 @@ function handleRegisterSubmit(e) {
 
   const users = getUsersList();
   const exists = users.some(u => 
-    (u.id && u.id.toLowerCase() === id.toLowerCase()) || 
-    (u.email && u.email.toLowerCase() === email.toLowerCase())
+    (u.email && u.email.toLowerCase() === email.toLowerCase()) ||
+    (u.id && u.id.toLowerCase() === email.toLowerCase())
   );
   if (exists) {
-    showAuthAlert(`âš ï¸ An account with Email <strong>${escapeHtml(email)}</strong> or ID <strong>${escapeHtml(id)}</strong> already exists.`, 'error');
+    showAuthAlert(`âš ï¸ An account with Email <strong>${escapeHtml(email)}</strong> already exists.`, 'error');
     return;
   }
 

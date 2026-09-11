@@ -1532,6 +1532,13 @@
           <span>🚀 Sign In to POS Register</span>
         </button>
 
+        <!-- Redirect to Create Account Page Button -->
+        <div class="auth-redirect-wrap" style="margin-top: 14px; text-align: center;">
+          <button type="button" class="btn-auth-redirect" onclick="switchAuthTab('register')" style="background: transparent; border: none; color: #2563eb; font-weight: 700; font-size: 0.86rem; cursor: pointer; text-decoration: underline; padding: 4px 8px;">
+            ✨ Don't have an account? Create an Account
+          </button>
+        </div>
+
         <!-- Quick 1-Click Demo Login Button -->
         <div class="auth-demo-divider">
           <span>OR QUICK ACCESS</span>
@@ -1544,7 +1551,7 @@
       <!-- ================= TAB 2: CREATE ACCOUNT FORM ================= -->
       <form id="registerForm" class="auth-form-body" style="display: none;" onsubmit="event.preventDefault(); handleRegisterSubmit(event); return false;">
         <div class="auth-field-wrap">
-          <label for="regFullName">Cashier / Staff Name</label>
+          <label for="regFullName">Full Name</label>
           <div class="auth-input-inner">
             <span class="auth-field-icon">🏷️</span>
             <input type="text" id="regFullName" placeholder="e.g. Rachel Green" required>
@@ -1560,31 +1567,11 @@
         </div>
 
         <div class="auth-field-wrap">
-          <label for="regLoginId">Create New Login ID / Username</label>
-          <div class="auth-input-inner">
-            <span class="auth-field-icon">🆔</span>
-            <input type="text" id="regLoginId" placeholder="e.g. rachel01 (letters/numbers)" required>
-          </div>
-        </div>
-
-        <div class="auth-field-wrap">
           <label for="regPassword">Create Password</label>
           <div class="auth-input-inner">
             <span class="auth-field-icon">🔒</span>
             <input type="password" id="regPassword" placeholder="Minimum 4 characters" required minlength="4">
             <button type="button" class="auth-eye-btn" onclick="togglePasswordVisibility('regPassword', this)" title="Show/Hide Password">👁️</button>
-          </div>
-        </div>
-
-        <div class="auth-field-wrap">
-          <label for="regRole">Role / Terminal Permission</label>
-          <div class="auth-input-inner select-wrap">
-            <span class="auth-field-icon">💼</span>
-            <select id="regRole">
-              <option value="Cashier">Cashier (Front Counter)</option>
-              <option value="Supervisor">Shift Supervisor</option>
-              <option value="Store Manager">Store Manager</option>
-            </select>
           </div>
         </div>
 
