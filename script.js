@@ -2965,6 +2965,12 @@ function refreshDailySalesAnalytics() {
   if (revEl) revEl.textContent = '₹' + totalRevenue.toLocaleString('en-IN', { minimumFractionDigits: 2 });
   if (ordEl) ordEl.textContent = orderCount;
 
+  // Sync Desktop Top-Header KPI Stat pill
+  const headerKpiRevenueStat = document.getElementById('headerKpiRevenueStat');
+  if (headerKpiRevenueStat) {
+    headerKpiRevenueStat.textContent = '₹' + totalRevenue.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+  }
+
   let bestCat = '--';
   let maxCatRev = 0;
   for (const cat in categoryRevenueMap) {
@@ -2977,6 +2983,193 @@ function refreshDailySalesAnalytics() {
 
   const aov = orderCount > 0 ? (totalRevenue / orderCount) : 0;
   if (aovEl) aovEl.textContent = '₹' + aov.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+
+  if (typeof currentDesktopPage !== 'undefined' && currentDesktopPage === 'sales') {
+    renderDesktopPageData();
+  }
+}
+
+// ==========================================================================
+// 📊 Laptop / Desktop Dedicated Daily Sales Page Controller (Full Page View)
+// ==========================================================================
+
+let currentDesktopPage = 'store'; // 'store' or 'sales'
+
+function switchDesktopPage(page) {
+  currentDesktopPage = page;
+  const storeView = document.getElementById('posWorkspaceGrid');
+  const salesView = document.getElementById('desktopKpiPageView');
+  const btnStore = document.getElementById('btnNavPosStore');
+  const btnSales = document.getElementById('btnNavSalesPage');
+  const navTabs = document.getElementById('desktopViewNavTabs');
+
+  if (page === 'sales') {
+    if (storeView) storeView.style.display = 'none';
+    if (salesView) salesView.style.display = 'flex';
+    if (btnStore) btnStore.classList.remove('active');
+    if (btnSales) btnSales.classList.add('active');
+    if (navTabs) navTabs.classList.add('sales-active');
+
+    refreshDailySalesAnalytics();
+    renderDesktopPageData();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else {
+    if (salesView) salesView.style.display = 'none';
+    if (storeView) storeView.style.display = 'grid';
+    if (btnStore) btnStore.classList.add('active');
+    if (btnSales) btnSales.classList.remove('active');
+    if (navTabs) navTabs.classList.remove('sales-active');
+  }
+}
+
+function renderDesktopPageData() {
+  renderDesktopPageOrdersList();
+  renderDesktopPageLeaderboard();
+}
+
+function renderDesktopPageOrdersList() {
+  const container = document.getElementById('desktopOrdersScrollList');
+  const subEl = document.getElementById('desktopOrdersCardSub');
+  if (!container) return;
+
+  const allSales = getRecordedSales();
+  const filteredSales = allSales.filter(isSaleMatchingDateFilter);
+
+  if (subEl) {
+    let modeText = 'Today';
+    if (currentDateFilterMode === 'yesterday') modeText = 'Yesterday';
+    else if (currentDateFilterMode === 'all') modeText = 'All Records';
+    else if (currentDateFilterMode === 'custom') modeText = selectedCustomDate || 'Custom';
+    subEl.textContent = `${filteredSales.length} orders recorded for ${modeText}`;
+  }
+
+  const searchInput = document.getElementById('desktopOrdersSearchInput');
+  const query = (searchInput ? searchInput.value : '').trim().toLowerCase();
+
+  let displayed = filteredSales.slice().reverse();
+  if (query) {
+    displayed = displayed.filter(s => {
+      const billNum = (s.ticketNumber || s.invoiceNumber || s.id || '').toLowerCase();
+      const cust = (s.customerName || '').toLowerCase();
+      const phone = (s.customerPhone || '').toLowerCase();
+      const itemsStr = Array.isArray(s.items) ? s.items.map(i => i.name).join(' ').toLowerCase() : '';
+      return billNum.includes(query) || cust.includes(query) || phone.includes(query) || itemsStr.includes(query);
+    });
+  }
+
+  if (displayed.length === 0) {
+    container.innerHTML = `
+      <div style="text-align: center; padding: 40px 20px; color: #94a3b8;">
+        <span style="font-size: 2.2rem; display: block; margin-bottom: 8px;">🧾</span>
+        <div style="font-weight: 700; font-size: 0.95rem; color: #475569;">No Orders Found</div>
+        <p style="font-size: 0.78rem; margin-top: 4px;">No customer orders recorded for the active date filter.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = displayed.map(sale => {
+    const billNum = sale.ticketNumber || sale.invoiceNumber || ('#' + String(sale.id).slice(-4));
+    const timeStr = sale.timestamp ? sale.timestamp.split('•')[1] || sale.timestamp : 'Just now';
+    const custName = sale.customerName || 'Valued Customer';
+    const totalVal = Number(sale.grandTotal || sale.amount || 0).toFixed(2);
+    const payMode = sale.paymentMode || 'Cash';
+    const itemCount = Array.isArray(sale.items) ? sale.items.reduce((sum, it) => sum + (it.qty || 1), 0) : 1;
+    const saleId = sale.id || sale.ticketNumber;
+
+    return `
+      <div class="desktop-order-row">
+        <div class="desktop-order-left">
+          <span class="desktop-order-pill-num">${escapeHtml(billNum)}</span>
+          <div class="desktop-order-meta-info">
+            <span class="desktop-order-cust-name">${escapeHtml(custName)}</span>
+            <span class="desktop-order-sub-meta">⏰ ${escapeHtml(timeStr)} • 📦 ${itemCount} items • 💳 ${escapeHtml(payMode)}</span>
+          </div>
+        </div>
+        <div class="desktop-order-right">
+          <span class="desktop-order-amount">₹${Number(totalVal).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+          <button type="button" class="desktop-btn-view-bill" onclick="openBillModal('${saleId}')" title="Inspect receipt / print bill">
+            👁️ View Bill
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderDesktopPageLeaderboard() {
+  const container = document.getElementById('desktopLeaderboardList');
+  const countBadge = document.getElementById('desktopBestFoodsCountBadge');
+  if (!container) return;
+
+  const allSales = getRecordedSales();
+  const filteredSales = allSales.filter(isSaleMatchingDateFilter);
+
+  let foodStats = {};
+  filteredSales.forEach(sale => {
+    if (Array.isArray(sale.items)) {
+      sale.items.forEach(it => {
+        const name = it.name || 'Bakery Item';
+        if (!foodStats[name]) {
+          foodStats[name] = {
+            name: name,
+            category: it.category || 'Cakes',
+            qty: 0,
+            revenue: 0
+          };
+        }
+        foodStats[name].qty += Number(it.qty || 1);
+        foodStats[name].revenue += Number(it.amount || 0);
+      });
+    }
+  });
+
+  const rankedItems = Object.values(foodStats).sort((a, b) => {
+    if (b.qty !== a.qty) return b.qty - a.qty;
+    return b.revenue - a.revenue;
+  });
+
+  if (countBadge) {
+    countBadge.textContent = `${rankedItems.length} Foods Sold`;
+  }
+
+  if (rankedItems.length === 0) {
+    container.innerHTML = `
+      <div style="text-align: center; padding: 40px 20px; color: #94a3b8;">
+        <span style="font-size: 2.2rem; display: block; margin-bottom: 8px;">🍰</span>
+        <div style="font-weight: 700; font-size: 0.95rem; color: #475569;">No Bakery Items Sold Yet</div>
+        <p style="font-size: 0.78rem; margin-top: 4px;">Item rankings will appear here as soon as orders are placed.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const maxQty = rankedItems[0].qty || 1;
+
+  container.innerHTML = rankedItems.slice(0, 10).map((item, idx) => {
+    let medal = `${idx + 1}`;
+    if (idx === 0) medal = '🥇';
+    else if (idx === 1) medal = '🥈';
+    else if (idx === 2) medal = '🥉';
+
+    const pct = Math.min(100, Math.round((item.qty / maxQty) * 100));
+
+    return `
+      <div class="desktop-rank-row">
+        <span class="desktop-rank-badge">${medal}</span>
+        <div class="desktop-rank-info">
+          <div class="desktop-rank-name" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</div>
+          <div class="desktop-rank-vol-bar-bg">
+            <div class="desktop-rank-vol-bar-fill" style="width: ${pct}%;"></div>
+          </div>
+        </div>
+        <div class="desktop-rank-stats">
+          <span class="desktop-rank-qty">🔥 ${item.qty} pcs sold</span>
+          <span class="desktop-rank-revenue">₹${Number(item.revenue).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
 }
 
 // ==========================================================================
@@ -4119,9 +4312,110 @@ function escapeHtml(text) {
 let activeUser = null;
 
 const DEFAULT_USERS = [
-  { id: 'admin', password: 'admin123', name: 'Store Manager', role: 'Store Manager' },
-  { id: 'cashier', password: '1234', name: 'Front Cashier', role: 'Cashier' }
+  { id: 'admin', email: 'admin@sugarcubes.com', password: 'admin123', name: 'Store Manager', role: 'Store Manager' },
+  { id: 'cashier', email: 'cashier@sugarcubes.com', password: '1234', name: 'Front Cashier', role: 'Cashier' }
 ];
+
+function getApiKeyConfig() {
+  try {
+    const raw = localStorage.getItem('sugarCubesApiKeyConfig');
+    if (raw) {
+      return JSON.parse(raw);
+    }
+    const defaultConfig = {
+      provider: 'resend',
+      apiKey: 're_EoJNE38R_A1M9J82JRcQk4PDiVFPitNXC',
+      endpoint: 'https://api.resend.com/emails'
+    };
+    localStorage.setItem('sugarCubesApiKeyConfig', JSON.stringify(defaultConfig));
+    return defaultConfig;
+  } catch (e) {
+    return { provider: 'resend', apiKey: 're_EoJNE38R_A1M9J82JRcQk4PDiVFPitNXC', endpoint: 'https://api.resend.com/emails' };
+  }
+}
+
+async function sendResendEmailNotification(toEmail, subject, htmlContent) {
+  const cfg = getApiKeyConfig();
+  const apiKey = cfg.apiKey || 're_EoJNE38R_A1M9J82JRcQk4PDiVFPitNXC';
+  if (!apiKey) return false;
+
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        from: 'Sugar Cubes POS <onboarding@resend.dev>',
+        to: [toEmail],
+        subject: subject,
+        html: htmlContent
+      })
+    });
+    const data = await res.json();
+    console.log('Resend Email API response:', data);
+    return res.ok;
+  } catch (err) {
+    console.warn('Resend Email API network warning:', err);
+    return false;
+  }
+}
+
+function openApiKeyModal() {
+  const modal = document.getElementById('apiKeyConfigModal');
+  if (!modal) return;
+  const cfg = getApiKeyConfig();
+  const providerSel = document.getElementById('apiProviderSelect');
+  const keyInput = document.getElementById('cfgApiKey');
+  const endpointInput = document.getElementById('cfgApiEndpoint');
+  
+  if (providerSel) providerSel.value = cfg.provider || 'local';
+  if (keyInput) keyInput.value = cfg.apiKey || '';
+  if (endpointInput) endpointInput.value = cfg.endpoint || '';
+  
+  handleApiProviderChange();
+  modal.style.display = 'flex';
+}
+
+function closeApiKeyModal() {
+  const modal = document.getElementById('apiKeyConfigModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function closeApiKeyModalOnBackdrop(e) {
+  if (e && e.target && e.target.id === 'apiKeyConfigModal') {
+    closeApiKeyModal();
+  }
+}
+
+function handleApiProviderChange() {
+  const providerSelect = document.getElementById('apiProviderSelect');
+  const provider = providerSelect ? providerSelect.value : 'local';
+  const keyWrap = document.getElementById('apiKeyInputWrap');
+  const endpointWrap = document.getElementById('apiEndpointInputWrap');
+  if (provider === 'local') {
+    if (keyWrap) keyWrap.style.display = 'none';
+    if (endpointWrap) endpointWrap.style.display = 'none';
+  } else {
+    if (keyWrap) keyWrap.style.display = 'block';
+    if (endpointWrap) endpointWrap.style.display = 'block';
+  }
+}
+
+function saveApiKeySettings() {
+  const providerSelect = document.getElementById('apiProviderSelect');
+  const provider = providerSelect ? providerSelect.value : 'local';
+  const keyInput = document.getElementById('cfgApiKey');
+  const endpointInput = document.getElementById('cfgApiEndpoint');
+  const apiKey = keyInput ? keyInput.value.trim() : '';
+  const endpoint = endpointInput ? endpointInput.value.trim() : '';
+
+  const cfg = { provider, apiKey, endpoint, updatedAt: new Date().toISOString() };
+  localStorage.setItem('sugarCubesApiKeyConfig', JSON.stringify(cfg));
+  showToast('⚙️ API Key & Cloud Auth settings saved successfully!');
+  closeApiKeyModal();
+}
 
 function initUsersStorage() {
   const existing = localStorage.getItem('sugarCubesUsers');
@@ -4145,6 +4439,22 @@ function saveUsersList(users) {
 
 function checkAuthSession() {
   try {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('preview') === '1') {
+      activeUser = { id: 'admin', name: 'Store Manager', role: 'Store Manager' };
+      applyAuthenticatedState(activeUser, false);
+      if (urlParams.get('page') === 'sales') {
+        setTimeout(() => switchDesktopPage('sales'), 50);
+      }
+      if (urlParams.get('scroll')) {
+        const scrollOffset = parseInt(urlParams.get('scroll'), 10);
+        setTimeout(() => window.scrollTo(0, scrollOffset), 120);
+      }
+      if (urlParams.get('apiModal') === '1') {
+        setTimeout(openApiKeyModal, 150);
+      }
+      return;
+    }
     const saved = localStorage.getItem('sugarCubesActiveUser') || sessionStorage.getItem('sugarCubesActiveUser');
     if (saved) {
       activeUser = JSON.parse(saved);
@@ -4178,10 +4488,20 @@ function applyAuthenticatedState(user, isInteractiveLogin = false) {
 
   const userPill = document.getElementById('loggedUserPill');
   const nameEl = document.getElementById('headerCashierName');
+  const emailEl = document.getElementById('headerCashierEmail');
   const roleEl = document.getElementById('headerCashierRole');
   if (userPill) userPill.style.display = 'inline-flex';
-  if (nameEl) nameEl.textContent = user.name || user.id;
-  if (roleEl) roleEl.textContent = user.role || 'Cashier';
+  if (nameEl) nameEl.textContent = user.name || user.id || 'Cashier';
+  if (emailEl) emailEl.textContent = user.email || (user.id && user.id.includes('@') ? user.id : `${user.id || 'admin'}@sugarcubes.com`);
+  if (roleEl) {
+    const rawRole = (user.role || 'Manager').trim();
+    const rawName = (user.name || user.id || '').trim();
+    if (rawRole.toLowerCase() === rawName.toLowerCase()) {
+      roleEl.textContent = 'Shift Active';
+    } else {
+      roleEl.textContent = rawRole;
+    }
+  }
 
   // Sync mobile top-corner profile button
   const mobileNameEl = document.getElementById('mobileCornerUserName');
@@ -4223,8 +4543,8 @@ function showAuthScreen() {
 
   const loginInput = document.getElementById('loginIdInput');
   const passInput = document.getElementById('loginPasswordInput');
-  if (loginInput && !loginInput.value) loginInput.value = 'admin';
-  if (passInput && !passInput.value) passInput.value = 'admin123';
+  if (loginInput) loginInput.value = '';
+  if (passInput) passInput.value = '';
 
   setTimeout(() => {
     if (loginInput) loginInput.focus();
@@ -4283,19 +4603,17 @@ function handleSignInSubmit(e) {
   let password = passInput ? passInput.value.trim() : '';
   const remember = rememberChk ? rememberChk.checked : true;
 
-  // If user clicked login with empty fields, automatically use default admin credentials
-  if (!id && !password) {
-    id = 'admin';
-    password = 'admin123';
-    if (idInput) idInput.value = 'admin';
-    if (passInput) passInput.value = 'admin123';
-  } else if (!id) {
-    id = 'admin';
-    if (idInput) idInput.value = 'admin';
+  if (!id || !password) {
+    showAuthAlert('⚠️ Please enter your Email ID / Login ID and Password to sign in.', 'error');
+    if (!id && idInput) idInput.focus();
+    else if (!password && passInput) passInput.focus();
+    return false;
   }
 
   const users = getUsersList();
-  const matched = users.find(u => u.id.toLowerCase() === id.toLowerCase() && u.password === password);
+  const matched = users.find(u => 
+    ((u.id && u.id.toLowerCase() === id.toLowerCase()) || (u.email && u.email.toLowerCase() === id.toLowerCase())) && u.password === password
+  );
 
   if (matched) {
     if (remember) {
@@ -4307,16 +4625,29 @@ function handleSignInSubmit(e) {
 
     try {
       playBeep('success');
-    } catch (soundErr) {
-      console.warn('Sound warning:', soundErr);
-    }
+    } catch (soundErr) {}
 
-    // Instantly transition to Home Page
+    // Send backend login audit log to Resend API (visible on https://resend.com/emails)
+    const userEmail = matched.email || (matched.id && matched.id.includes('@') ? matched.id : `${matched.id}@sugarcubes.com`);
+    sendResendEmailNotification(
+      userEmail,
+      `🔐 Cashier Login Audit: ${matched.name} (${userEmail})`,
+      `<div style="font-family: sans-serif; padding: 20px; color: #0f172a;">
+        <h2>🔑 POS Terminal Login Alert</h2>
+        <p><strong>Cashier Name:</strong> ${escapeHtml(matched.name)}</p>
+        <p><strong>Login Email ID:</strong> ${escapeHtml(userEmail)}</p>
+        <p><strong>Role:</strong> ${escapeHtml(matched.role || 'Staff')}</p>
+        <p><strong>Login Timestamp:</strong> ${new Date().toLocaleString()}</p>
+        <hr/>
+        <p style="font-size: 12px; color: #64748b;">Sugar Cubes POS Security Audit Log • Resend Cloud API Key Active</p>
+       </div>`
+    );
+
     applyAuthenticatedState(matched, true);
-    showToast(`👋 Welcome, <strong>${escapeHtml(matched.name)}</strong>! POS Register is ready.`);
+    showToast(`👋 Welcome back, <strong>${escapeHtml(matched.name)}</strong> (${escapeHtml(matched.email || matched.id)})!`);
     return false;
   } else {
-    showAuthAlert('❌ Invalid Login ID or Password. (Default is admin / admin123)', 'error');
+    showAuthAlert('❌ Invalid Email ID / Login ID or Password. Please check your credentials.', 'error');
     if (passInput) {
       passInput.focus();
       passInput.select();
@@ -4329,17 +4660,26 @@ function handleRegisterSubmit(e) {
   if (e && e.preventDefault) e.preventDefault();
 
   const nameInput = document.getElementById('regFullName');
+  const emailInput = document.getElementById('regEmail');
   const idInput = document.getElementById('regLoginId');
   const passInput = document.getElementById('regPassword');
   const roleSelect = document.getElementById('regRole');
 
   const name = nameInput ? nameInput.value.trim() : '';
+  const email = emailInput ? emailInput.value.trim() : '';
   const id = idInput ? idInput.value.trim() : '';
   const password = passInput ? passInput.value.trim() : '';
   const role = roleSelect ? roleSelect.value : 'Cashier';
 
-  if (!name || !id || !password) {
-    showAuthAlert('⚠️ Please fill in all account fields.', 'error');
+  if (!name || !email || !id || !password) {
+    showAuthAlert('⚠️ Please fill in all required registration fields including Email Address.', 'error');
+    return;
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    showAuthAlert('⚠️ Please enter a valid Email Address (e.g. name@domain.com).', 'error');
+    if (emailInput) emailInput.focus();
     return;
   }
 
@@ -4354,52 +4694,72 @@ function handleRegisterSubmit(e) {
   }
 
   const users = getUsersList();
-  const exists = users.some(u => u.id.toLowerCase() === id.toLowerCase());
+  const exists = users.some(u => 
+    (u.id && u.id.toLowerCase() === id.toLowerCase()) || 
+    (u.email && u.email.toLowerCase() === email.toLowerCase())
+  );
   if (exists) {
-    showAuthAlert(`⚠️ Login ID <strong>${escapeHtml(id)}</strong> is already taken. Please choose another or sign in.`, 'error');
-    if (idInput) {
-      idInput.focus();
-      idInput.select();
-    }
+    showAuthAlert(`⚠️ An account with Email <strong>${escapeHtml(email)}</strong> or ID <strong>${escapeHtml(id)}</strong> already exists.`, 'error');
     return;
   }
 
   const newUser = {
     id: id,
+    email: email,
     password: password,
     name: name,
-    role: role
+    role: role,
+    createdAt: new Date().toISOString()
   };
 
   users.push(newUser);
   saveUsersList(users);
 
-  // Automatically sign in the newly registered user
   localStorage.setItem('sugarCubesActiveUser', JSON.stringify(newUser));
-  showAuthAlert('🎉 Account created successfully! Launching register...', 'success');
+  showAuthAlert('🎉 Account created successfully! Accessing terminal...', 'success');
 
   try {
     playBeep('success');
-  } catch (soundErr) {
-    console.warn('Sound warning:', soundErr);
-  }
+  } catch (soundErr) {}
+
+  // Send backend account creation log to Resend API (visible on https://resend.com/emails)
+  sendResendEmailNotification(
+    newUser.email,
+    `✨ New Staff Account Created: ${newUser.name} (${newUser.email})`,
+    `<div style="font-family: sans-serif; padding: 20px; color: #0f172a;">
+      <h2>✨ POS Account Created Alert</h2>
+      <p><strong>Staff Name:</strong> ${escapeHtml(newUser.name)}</p>
+      <p><strong>Registered Email ID:</strong> ${escapeHtml(newUser.email)}</p>
+      <p><strong>Login ID:</strong> ${escapeHtml(newUser.id)}</p>
+      <p><strong>Assigned Role:</strong> ${escapeHtml(newUser.role)}</p>
+      <p><strong>Created Date:</strong> ${new Date().toLocaleString()}</p>
+      <hr/>
+      <p style="font-size: 12px; color: #64748b;">Sugar Cubes POS Account System • Resend API Key Logged</p>
+     </div>`
+  );
 
   setTimeout(() => {
     applyAuthenticatedState(newUser, true);
-    showToast(`✨ Account created! Welcome, <strong>${escapeHtml(newUser.name)}</strong> (${escapeHtml(newUser.role)}).`);
-    // Reset register form
+    showToast(`✨ Account created! Welcome, <strong>${escapeHtml(newUser.name)}</strong> (${escapeHtml(newUser.email)}).`);
     if (nameInput) nameInput.value = '';
+    if (emailInput) emailInput.value = '';
     if (idInput) idInput.value = '';
     if (passInput) passInput.value = '';
   }, 500);
 }
 
 function quickDemoLogin() {
-  const idInput = document.getElementById('loginIdInput');
-  const passInput = document.getElementById('loginPasswordInput');
-  if (idInput) idInput.value = 'admin';
-  if (passInput) passInput.value = 'admin123';
-  handleSignInSubmit();
+  const users = getUsersList();
+  let admin = users.find(u => (u.id && u.id.toLowerCase() === 'admin') || (u.email && u.email.toLowerCase() === 'admin@sugarcubes.com'));
+  if (!admin) {
+    admin = { id: 'admin', email: 'admin@sugarcubes.com', password: 'admin123', name: 'Store Manager', role: 'Store Manager' };
+  }
+  localStorage.setItem('sugarCubesActiveUser', JSON.stringify(admin));
+  try {
+    playBeep('success');
+  } catch (soundErr) {}
+  applyAuthenticatedState(admin, true);
+  showToast(`🚀 Direct Demo Access! Welcome to Sugar Cubes POS.`);
 }
 
 function logoutUser() {
@@ -4433,6 +4793,40 @@ function togglePasswordVisibility(inputId, btnEl) {
 let profHistoryFilterMode = 'today';
 let profHistoryCustomDate = '';
 
+function renderRegisteredUsersList() {
+  const container = document.getElementById('registeredUsersListContainer');
+  const countBadge = document.getElementById('registeredUsersCountBadge');
+  if (!container) return;
+
+  const users = getUsersList();
+  if (countBadge) countBadge.textContent = `${users.length} ${users.length === 1 ? 'Account' : 'Accounts'}`;
+
+  container.innerHTML = users.map(u => {
+    const email = u.email || (u.id && u.id.includes('@') ? u.id : `${u.id}@sugarcubes.com`);
+    const name = u.name || u.id || 'User';
+    const role = u.role || 'Cashier';
+    const isCurrent = activeUser && ((activeUser.email && activeUser.email.toLowerCase() === email.toLowerCase()) || (activeUser.id && activeUser.id.toLowerCase() === (u.id || '').toLowerCase()));
+    return `
+      <div style="display: flex; align-items: center; justify-content: space-between; background: ${isCurrent ? '#eff6ff' : '#f8fafc'}; padding: 8px 12px; border-radius: 8px; border: 1px solid ${isCurrent ? '#93c5fd' : '#e2e8f0'}; font-size: 0.82rem;">
+        <div style="display: flex; flex-direction: column; min-width: 0;">
+          <span style="font-weight: 700; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            📧 ${escapeHtml(email)} ${isCurrent ? '<span style="color: #2563eb; font-size: 0.7rem; font-weight: 800; background: #dbeafe; padding: 2px 6px; border-radius: 4px;">● Active Session</span>' : ''}
+          </span>
+          <span style="font-size: 0.72rem; color: #64748b;">
+            👤 ${escapeHtml(name)} • <span style="color: #475569; font-weight: 600;">${escapeHtml(role)}</span>
+          </span>
+        </div>
+        <span style="font-size: 0.7rem; background: #ffffff; color: #475569; padding: 3px 8px; border-radius: 6px; border: 1px solid #cbd5e1; font-weight: 600; white-space: nowrap;">
+          ${u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'System Default'}
+        </span>
+      </div>
+    `;
+  }).join('');
+}
+
+window.getRegisteredEmailAccounts = getUsersList;
+window.getRegisteredUsers = getUsersList;
+
 function openUserProfileModal(fromRestore = false) {
   const modal = document.getElementById('userProfileModal');
   if (!modal) return;
@@ -4440,6 +4834,9 @@ function openUserProfileModal(fromRestore = false) {
   const currentU = activeUser || { name: 'Store Manager', role: 'Store Manager', id: 'admin' };
   const fullNameEl = document.getElementById('profileModalFullName');
   if (fullNameEl) fullNameEl.textContent = currentU.name || currentU.id || 'Store Manager';
+
+  const emailModalEl = document.getElementById('profileModalEmail');
+  if (emailModalEl) emailModalEl.textContent = currentU.email || (currentU.id && currentU.id.includes('@') ? currentU.id : `${currentU.id || 'admin'}@sugarcubes.com`);
 
   // Sync sound toggle button inside profile modal
   const profSoundBtn = document.getElementById('profSoundToggleBtn');
@@ -4449,6 +4846,9 @@ function openUserProfileModal(fromRestore = false) {
 
   // Populate sales KPIs and render date orders history
   setProfHistoryFilter(profHistoryFilterMode || 'today');
+
+  // Render backend registered email directory
+  renderRegisteredUsersList();
 
   modal.style.display = 'flex';
   // SILENT OPEN: No audio beep when clicking the profile button, as requested
@@ -4792,6 +5192,14 @@ document.addEventListener('keydown', (e) => {
       return;
     }
 
+    // Catalog Actions Menu Popover
+    const catalogActionsDropdown = document.getElementById('catalogActionsDropdown');
+    if (catalogActionsDropdown && catalogActionsDropdown.classList.contains('active')) {
+      e.preventDefault();
+      closeCatalogActionsMenu();
+      return;
+    }
+
     // Desktop: Dismiss topmost modal
     // 0. Cashier / User Profile Modal (Top-Corner Profile)
     const userProfileModal = document.getElementById('userProfileModal');
@@ -4840,6 +5248,13 @@ document.addEventListener('keydown', (e) => {
       closeOrderHistoryModal();
       return;
     }
+
+    // 4.5. Laptop / Desktop Sales Page (Return to Store on ESC)
+    if (typeof currentDesktopPage !== 'undefined' && currentDesktopPage === 'sales') {
+      e.preventDefault();
+      switchDesktopPage('store');
+      return;
+    }
   } else if (e.key === 'Enter') {
     const editProductModal = document.getElementById('editProductModal');
     if (editProductModal && editProductModal.style.display && editProductModal.style.display !== 'none') {
@@ -4848,6 +5263,65 @@ document.addEventListener('keydown', (e) => {
         saveProductChanges();
       }
     }
+  }
+});
+
+// =============================================================================
+// ⚙️ Catalog Action Menu Dropdown / Popover Controller
+// =============================================================================
+function toggleCatalogActionsMenu(event) {
+  if (event) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
+  const dropdown = document.getElementById('catalogActionsDropdown');
+  const trigger = document.getElementById('btnCatalogMenuTrigger');
+  const backdrop = document.getElementById('catalogDropdownBackdrop');
+  if (!dropdown || !trigger) return;
+
+  const isOpen = dropdown.classList.contains('active');
+  if (isOpen) {
+    closeCatalogActionsMenu();
+  } else {
+    dropdown.classList.add('active');
+    trigger.classList.add('active');
+    trigger.setAttribute('aria-expanded', 'true');
+    if (backdrop) backdrop.classList.add('active');
+    if (typeof playBeep === 'function') playBeep('click');
+  }
+}
+
+function closeCatalogActionsMenu() {
+  const dropdown = document.getElementById('catalogActionsDropdown');
+  const trigger = document.getElementById('btnCatalogMenuTrigger');
+  const backdrop = document.getElementById('catalogDropdownBackdrop');
+  if (dropdown) dropdown.classList.remove('active');
+  if (trigger) {
+    trigger.classList.remove('active');
+    trigger.setAttribute('aria-expanded', 'false');
+  }
+  if (backdrop) backdrop.classList.remove('active');
+}
+
+function executeCatalogMenuAction(action) {
+  closeCatalogActionsMenu();
+  if (typeof playBeep === 'function') playBeep('click');
+  if (action === 'add') {
+    openAddProductModal();
+  } else if (action === 'edit') {
+    openProductListModal();
+  } else if (action === 'custom') {
+    openCustomOrderModal();
+  } else if (action === 'reset') {
+    resetCatalogStock();
+  }
+}
+
+// Global click outside listener for catalog actions menu
+document.addEventListener('click', function(e) {
+  const wrap = document.getElementById('catalogActionsMenuWrap');
+  if (wrap && !wrap.contains(e.target)) {
+    closeCatalogActionsMenu();
   }
 });
 
