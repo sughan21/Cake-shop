@@ -4455,16 +4455,22 @@ function checkAuthSession() {
       }
       return;
     }
-    const saved = localStorage.getItem('sugarCubesActiveUser') || sessionStorage.getItem('sugarCubesActiveUser');
-    if (saved) {
-      activeUser = JSON.parse(saved);
-      applyAuthenticatedState(activeUser, false);
-      return;
-    }
   } catch (err) {
     console.error('Auth session error:', err);
   }
-  showAuthScreen();
+
+  // Web link always opens on Login Portal page only
+  const saved = localStorage.getItem('sugarCubesActiveUser') || sessionStorage.getItem('sugarCubesActiveUser');
+  if (saved) {
+    try {
+      const u = JSON.parse(saved);
+      showAuthScreen('signin');
+      const loginInput = document.getElementById('loginIdInput');
+      if (loginInput && (u.email || u.id)) loginIdInput.value = u.email || u.id;
+      return;
+    } catch (e) {}
+  }
+  showAuthScreen('register');
 }
 
 function applyAuthenticatedState(user, isInteractiveLogin = false) {

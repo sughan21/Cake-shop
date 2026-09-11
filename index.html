@@ -10,14 +10,11 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <!-- Client-Side QR Code Engine -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <!-- Anti-FOUC Auth Pre-Check: Prevents login overlay flash on page refresh -->
+  <!-- Mandatory Login Portal Gate: Web link always opens on Login/Register page -->
   <script>
     (function() {
       try {
-        var saved = localStorage.getItem('sugarCubesActiveUser') || sessionStorage.getItem('sugarCubesActiveUser');
-        if (!saved) {
-          document.documentElement.classList.add('auth-pending');
-        }
+        document.documentElement.classList.add('auth-pending');
       } catch (e) {}
     })();
   </script>
