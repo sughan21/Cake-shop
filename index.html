@@ -279,10 +279,11 @@
             <div class="register-order-tag" id="registerTicketNum" onclick="promptEditBillNumber()" title="Click to adjust starting Bill No">
               <span>BILL NO:</span> <strong>#SC-001</strong> <span style="font-size: 0.65rem; opacity: 0.7;">✏️</span>
             </div>
-            <div class="register-terminal-badge">
+            <button type="button" class="register-terminal-badge-btn" onclick="handleActivePosClick()" title="Click for POS Quick Actions & Terminal Status">
               <span class="live-dot-green"></span>
               <span>Active POS</span>
-            </div>
+              <span style="font-size: 0.62rem; opacity: 0.8; margin-left: 2px;">⚡</span>
+            </button>
           </div>
           <div class="order-type-box-container" id="orderTypeBoxContainer">
             <div class="order-type-slide-glider" id="orderTypeGlider"></div>
@@ -1193,53 +1194,44 @@
             <span style="font-size: 0.7rem; font-weight: 700; color: #64748b; background: #e2e8f0; padding: 3px 10px; border-radius: 12px;">3 Directory Services</span>
           </div>
 
-          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;">
+          <div class="shift-action-cards-grid">
             
             <!-- Action Card 1: Owner's Details -->
-            <button type="button" onclick="openOwnerDetailsModal();" style="background: linear-gradient(145deg, #ffffff 0%, #f0fdf4 100%); border: 1.5px solid #a7f3d0; border-radius: 16px; padding: 22px 12px 18px 12px; position: relative; overflow: hidden; cursor: pointer; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.06);" onmouseover="this.style.transform='translateY(-4px) scale(1.01)'; this.style.borderColor='#10b981'; this.style.boxShadow='0 12px 24px -4px rgba(16, 185, 129, 0.2)';" onmouseout="this.style.transform='none'; this.style.borderColor='#a7f3d0'; this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.06)';">
-              <div style="height: 4px; background: linear-gradient(90deg, #10b981, #34d399); position: absolute; top: 0; left: 0; right: 0;"></div>
-              
-              <div style="width: 52px; height: 52px; border-radius: 16px; background: rgba(16, 185, 129, 0.12); border: 1.5px solid rgba(16, 185, 129, 0.25); display: flex; align-items: center; justify-content: center; font-size: 1.7rem; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.1); margin-bottom: 2px;">
-                🏢
+            <button type="button" onclick="openOwnerDetailsModal();" class="shift-action-tile tile-green">
+              <div class="tile-top-bar"></div>
+              <div class="tile-icon-box">🏢</div>
+              <div class="tile-text-wrap">
+                <span class="tile-title">Owner's Details</span>
+                <span class="tile-sub">Store Leadership</span>
               </div>
-              
-              <span style="font-size: 0.88rem; font-weight: 800; color: #065f46; letter-spacing: -0.2px; line-height: 1.2;">Owner's Details</span>
-              <span style="font-size: 0.7rem; font-weight: 600; color: #059669;">Store Leadership</span>
-              
-              <div style="margin-top: 6px; font-size: 0.68rem; font-weight: 700; color: #047857; background: #dcfce7; border: 1px solid #a7f3d0; padding: 4px 12px; border-radius: 20px; display: inline-flex; align-items: center; gap: 4px;">
-                View Profile <span style="font-size: 0.75rem;">→</span>
+              <div class="tile-action-pill pill-green">
+                View Profile <span>→</span>
               </div>
             </button>
 
             <!-- Action Card 2: Employee Payslip Download -->
-            <button type="button" onclick="downloadEmployeePayslip();" style="background: linear-gradient(145deg, #ffffff 0%, #eff6ff 100%); border: 1.5px solid #bfdbfe; border-radius: 16px; padding: 22px 12px 18px 12px; position: relative; overflow: hidden; cursor: pointer; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.06);" onmouseover="this.style.transform='translateY(-4px) scale(1.01)'; this.style.borderColor='#3b82f6'; this.style.boxShadow='0 12px 24px -4px rgba(37, 99, 235, 0.2)';" onmouseout="this.style.transform='none'; this.style.borderColor='#bfdbfe'; this.style.boxShadow='0 4px 12px rgba(37, 99, 235, 0.06)';">
-              <div style="height: 4px; background: linear-gradient(90deg, #2563eb, #60a5fa); position: absolute; top: 0; left: 0; right: 0;"></div>
-              
-              <div style="width: 52px; height: 52px; border-radius: 16px; background: rgba(37, 99, 235, 0.12); border: 1.5px solid rgba(37, 99, 235, 0.25); display: flex; align-items: center; justify-content: center; font-size: 1.7rem; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.1); margin-bottom: 2px;">
-                📄
+            <button type="button" onclick="downloadEmployeePayslip();" class="shift-action-tile tile-blue">
+              <div class="tile-top-bar"></div>
+              <div class="tile-icon-box">📄</div>
+              <div class="tile-text-wrap">
+                <span class="tile-title">Payslip Download</span>
+                <span class="tile-sub">Shift Statement</span>
               </div>
-              
-              <span style="font-size: 0.88rem; font-weight: 800; color: #1e40af; letter-spacing: -0.2px; line-height: 1.2;">Payslip Download</span>
-              <span style="font-size: 0.7rem; font-weight: 600; color: #2563eb;">Shift Statement</span>
-              
-              <div style="margin-top: 6px; font-size: 0.68rem; font-weight: 700; color: #1d4ed8; background: #dbeafe; border: 1px solid #bfdbfe; padding: 4px 12px; border-radius: 20px; display: inline-flex; align-items: center; gap: 4px;">
-                Download PDF <span style="font-size: 0.75rem;">→</span>
+              <div class="tile-action-pill pill-blue">
+                Download PDF <span>→</span>
               </div>
             </button>
 
             <!-- Action Card 3: Registered Accounts & Email Directory -->
-            <button type="button" onclick="openResignReloginModal();" style="background: linear-gradient(145deg, #ffffff 0%, #fff1f2 100%); border: 1.5px solid #fecdd3; border-radius: 16px; padding: 22px 12px 18px 12px; position: relative; overflow: hidden; cursor: pointer; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 12px rgba(225, 29, 72, 0.06);" onmouseover="this.style.transform='translateY(-4px) scale(1.01)'; this.style.borderColor='#e11d48'; this.style.boxShadow='0 12px 24px -4px rgba(225, 29, 72, 0.2)';" onmouseout="this.style.transform='none'; this.style.borderColor='#fecdd3'; this.style.boxShadow='0 4px 12px rgba(225, 29, 72, 0.06)';">
-              <div style="height: 4px; background: linear-gradient(90deg, #e11d48, #fb7185); position: absolute; top: 0; left: 0; right: 0;"></div>
-              
-              <div style="width: 52px; height: 52px; border-radius: 16px; background: rgba(225, 29, 72, 0.12); border: 1.5px solid rgba(225, 29, 72, 0.25); display: flex; align-items: center; justify-content: center; font-size: 1.7rem; box-shadow: 0 4px 10px rgba(225, 29, 72, 0.1); margin-bottom: 2px;">
-                🔑
+            <button type="button" onclick="openResignReloginModal();" class="shift-action-tile tile-rose">
+              <div class="tile-top-bar"></div>
+              <div class="tile-icon-box">🔑</div>
+              <div class="tile-text-wrap">
+                <span class="tile-title">Registered Accounts & Email Directory</span>
+                <span class="tile-sub">Resign & Re-login</span>
               </div>
-              
-              <span style="font-size: 0.82rem; font-weight: 800; color: #9f1239; line-height: 1.2; letter-spacing: -0.2px;">Registered Accounts & Email Directory</span>
-              <span style="font-size: 0.7rem; font-weight: 600; color: #e11d48;">Resign & Re-login</span>
-              
-              <div style="margin-top: 6px; font-size: 0.68rem; font-weight: 700; color: #be123c; background: #ffe4e6; border: 1px solid #fecdd3; padding: 4px 12px; border-radius: 20px; display: inline-flex; align-items: center; gap: 4px;">
-                Manage Roster <span style="font-size: 0.75rem;">→</span>
+              <div class="tile-action-pill pill-rose">
+                Manage Roster <span>→</span>
               </div>
             </button>
 
@@ -1269,8 +1261,8 @@
        Modal: Registered Accounts & Email Directory Modal
        ========================================================================= -->
   <div id="resignReloginModal" class="modal-backdrop" style="display: none; z-index: 10005;" onclick="closeResignReloginModalOnBackdrop(event)">
-    <div class="modal-window-card" style="max-width: 520px; width: 92%; max-height: 90vh; display: flex; flex-direction: column; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 48px rgba(15, 23, 42, 0.35);" onclick="event.stopPropagation()">
-      
+    <div class="modal-window-card resign-relogin-modal-card" style="max-width: 520px; width: 92%; max-height: 90vh; display: flex; flex-direction: column; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 48px rgba(15, 23, 42, 0.35);" onclick="event.stopPropagation()">
+
       <!-- Modal Header -->
       <div style="background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); color: #ffffff; padding: 16px 20px; border-bottom: 2.5px solid #60a5fa; display: flex; justify-content: space-between; align-items: center;">
         <div style="display: flex; align-items: center; gap: 12px;">
@@ -1291,7 +1283,7 @@
 
       <!-- Modal Body -->
       <div style="padding: 18px; overflow-y: auto; flex: 1; background: #ffffff; display: flex; flex-direction: column; gap: 14px;">
-        
+
         <!-- 👥 Registered Accounts & Email Directory Card -->
         <div style="background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid #f1f5f9;">
@@ -1322,7 +1314,7 @@
        Modal: Employee Payslip Statement (Standard Corporate HR Format)
        ========================================================================= -->
   <div id="employeePayslipModal" class="modal-backdrop" style="display: none;" onclick="closeEmployeePayslipModalOnBackdrop(event)">
-    <div class="modal-window-card" style="max-width: 760px; width: 95%; max-height: 92vh; display: flex; flex-direction: column; border-radius: 18px; overflow: hidden; box-shadow: 0 24px 60px rgba(15, 23, 42, 0.4); border: none;" onclick="event.stopPropagation()">
+    <div class="modal-window-card employee-payslip-modal-card" style="max-width: 760px; width: 95%; max-height: 92vh; display: flex; flex-direction: column; border-radius: 18px; overflow: hidden; box-shadow: 0 24px 60px rgba(15, 23, 42, 0.4); border: none;" onclick="event.stopPropagation()">
       
       <!-- Modal Header -->
       <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #ffffff; padding: 16px 22px; border-bottom: 2.5px solid #2563eb; display: flex; justify-content: space-between; align-items: center;">
@@ -1340,7 +1332,7 @@
           </div>
         </div>
         <div style="display: flex; align-items: center; gap: 10px;">
-          <button type="button" onclick="openPayslipEditMode()" style="background: rgba(255, 255, 255, 0.12); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.3); padding: 6px 14px; border-radius: 8px; font-weight: 700; font-size: 0.78rem; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.12)'">
+          <button type="button" class="payslip-header-edit-btn" onclick="openPayslipEditMode()" style="background: rgba(255, 255, 255, 0.12); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.3); padding: 6px 14px; border-radius: 8px; font-weight: 700; font-size: 0.78rem; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.12)'">
             ✏️ Edit Payslip Details
           </button>
           <button type="button" class="modal-close-x" style="color: #ffffff; font-size: 1.2rem; background: rgba(255,255,255,0.1); border: none; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center;" onclick="closeEmployeePayslipModal()">✕</button>
@@ -1370,7 +1362,7 @@
 
             <!-- 2. Employee Details Section (2 Columns with colon alignment) -->
             <div style="padding: 12px 18px; border-bottom: 2px solid #0f172a; background: #ffffff; box-sizing: border-box;">
-              <table style="width: 100%; border-collapse: collapse; font-size: 0.84rem; color: #334155; table-layout: fixed;">
+              <table class="payslip-emp-table" style="width: 100%; border-collapse: collapse; font-size: 0.84rem; color: #334155; table-layout: fixed;">
                 <tbody>
                   <tr>
                     <td style="padding: 5px 0; width: 17%; color: #475569; font-weight: 600;">Employee ID</td>
@@ -1422,7 +1414,7 @@
             </div>
 
             <!-- 3. Attendance & Gross Wages Summary Grid -->
-            <table style="width: 100%; border-collapse: collapse; font-size: 0.84rem; border-bottom: 2px solid #0f172a; table-layout: fixed;">
+            <table class="payslip-summary-table" style="width: 100%; border-collapse: collapse; font-size: 0.84rem; border-bottom: 2px solid #0f172a; table-layout: fixed;">
               <tbody>
                 <tr style="border-bottom: 1px solid #0f172a;">
                   <td style="padding: 7px 12px; width: 25%; color: #475569; font-weight: 600; border-right: 1px solid #0f172a;">Gross Wages</td>
@@ -1446,7 +1438,7 @@
             </table>
 
             <!-- 4. Dual Table: Earnings vs Deductions -->
-            <table style="width: 100%; border-collapse: collapse; font-size: 0.84rem; table-layout: fixed;">
+            <table class="payslip-breakdown-table" style="width: 100%; border-collapse: collapse; font-size: 0.84rem; table-layout: fixed;">
               <thead>
                 <tr style="background: #ffffff; border-bottom: 1px solid #0f172a; font-weight: 900; color: #0f172a;">
                   <th style="padding: 9px 12px; text-align: center; width: 50%; border-right: 2px solid #0f172a;" colspan="2">Earnings</th>
@@ -1688,7 +1680,7 @@
        Modal: Owner's Contact & Business Details
        ========================================================================= -->
   <div id="ownerDetailsModal" class="modal-backdrop" style="display: none;" onclick="closeOwnerDetailsModalOnBackdrop(event)">
-    <div class="modal-window-card" style="max-width: 500px; width: 92%; max-height: 90vh; display: flex; flex-direction: column; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 48px rgba(15, 23, 42, 0.35);" onclick="event.stopPropagation()">
+    <div class="modal-window-card owner-details-modal-card" style="max-width: 500px; width: 92%; max-height: 90vh; display: flex; flex-direction: column; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 48px rgba(15, 23, 42, 0.35);" onclick="event.stopPropagation()">
       
       <!-- Modal Header -->
       <div style="background: linear-gradient(135deg, #065f46 0%, #047857 100%); color: #ffffff; padding: 16px 20px; border-bottom: 2.5px solid #34d399; display: flex; justify-content: space-between; align-items: center;">
@@ -2335,6 +2327,75 @@
         <button type="button" class="btn-auth-primary" onclick="saveApiKeySettings()" style="width: auto; padding: 8px 18px; height: 38px;">
           <span>💾 Save API Settings</span>
         </button>
+      </div>
+    </div>
+  <!-- =========================================================================
+       Modal: Active POS Terminal Quick Actions & Status
+       ========================================================================= -->
+  <div id="posQuickActionsModal" class="modal-backdrop" style="display: none; z-index: 10045;" onclick="closePosQuickActionsModalOnBackdrop(event)">
+    <div class="modal-window-card" style="max-width: 480px; width: 92%; border-radius: 18px; overflow: hidden;" onclick="event.stopPropagation()">
+      <div class="modal-card-top" style="background: linear-gradient(135deg, #064e3b 0%, #047857 100%); color: #fff; padding: 14px 18px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+              🟢
+            </div>
+            <div>
+              <h3 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #fff;">Active POS Terminal #1</h3>
+              <p style="margin: 2px 0 0; font-size: 0.75rem; color: #a7f3d0;">Live Register Shift Active & Ready</p>
+            </div>
+          </div>
+          <button type="button" class="modal-close-x" style="color: #fff;" onclick="closePosQuickActionsModal()">✕</button>
+        </div>
+      </div>
+
+      <div style="padding: 16px; background: #f8fafc; display: flex; flex-direction: column; gap: 10px;">
+        
+        <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 1.2rem;">🔢</span>
+            <div>
+              <span style="font-size: 0.7rem; font-weight: 700; color: #64748b; display: block;">STARTING BILL NO</span>
+              <span style="font-size: 0.95rem; font-weight: 800; color: #0f172a;" id="posQuickBillNo">#SC-001</span>
+            </div>
+          </div>
+          <button type="button" onclick="closePosQuickActionsModal(); promptEditBillNumber();" style="background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; padding: 6px 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer;">
+            ✏️ Edit Bill No
+          </button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <button type="button" onclick="toggleAudioSound(); updatePosQuickModalState();" style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 12px; text-align: left; cursor: pointer;">
+            <span style="font-size: 1.2rem; display: block; margin-bottom: 4px;" id="posQuickSoundIcon">🔔</span>
+            <span style="font-size: 0.8rem; font-weight: 800; color: #0f172a; display: block;" id="posQuickSoundTitle">Sound: ON</span>
+            <span style="font-size: 0.68rem; color: #64748b;">Tap to toggle audio sound</span>
+          </button>
+
+          <button type="button" onclick="closePosQuickActionsModal(); openDailyReportModal('all');" style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 12px; text-align: left; cursor: pointer;">
+            <span style="font-size: 1.2rem; display: block; margin-bottom: 4px;">📊</span>
+            <span style="font-size: 0.8rem; font-weight: 800; color: #0f172a; display: block;">Sales Closing</span>
+            <span style="font-size: 0.68rem; color: #64748b;">View Turnover Statement</span>
+          </button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <button type="button" onclick="closePosQuickActionsModal(); resetCatalogStock();" style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 12px; text-align: left; cursor: pointer;">
+            <span style="font-size: 1.2rem; display: block; margin-bottom: 4px;">🔄</span>
+            <span style="font-size: 0.8rem; font-weight: 800; color: #0f172a; display: block;">Restock Stock</span>
+            <span style="font-size: 0.68rem; color: #64748b;">Reset default inventory</span>
+          </button>
+
+          <button type="button" onclick="closePosQuickActionsModal(); logoutUser();" style="background: #fff1f2; border: 1.5px solid #fecdd3; border-radius: 12px; padding: 12px; text-align: left; cursor: pointer;">
+            <span style="font-size: 1.2rem; display: block; margin-bottom: 4px;">🔒</span>
+            <span style="font-size: 0.8rem; font-weight: 800; color: #e11d48; display: block;">Lock Register</span>
+            <span style="font-size: 0.68rem; color: #be123c;">Logout active shift</span>
+          </button>
+        </div>
+
+      </div>
+
+      <div style="padding: 10px 16px; background: #ffffff; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end;">
+        <button type="button" class="btn-dismiss" onclick="closePosQuickActionsModal()">Close</button>
       </div>
     </div>
   </div>

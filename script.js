@@ -4867,9 +4867,9 @@ window.getRegisteredEmailAccounts = getUsersList;
 window.getRegisteredUsers = getUsersList;
 
 function openShiftActionModal() {
-  if (window.innerWidth <= 768) return; // Laptop Web View only
   const modal = document.getElementById('shiftActionModal');
   if (modal) modal.style.display = 'flex';
+  if (typeof playBeep === 'function') playBeep('click');
 }
 
 function closeShiftActionModal() {
@@ -4930,24 +4930,27 @@ function renderResignRegisteredUsersList() {
     const isCurrent = activeUser && ((activeUser.email && activeUser.email.toLowerCase() === email.toLowerCase()) || (activeUser.id && activeUser.id.toLowerCase() === (u.id || '').toLowerCase()));
     
     return `
-      <div style="display: flex; align-items: center; justify-content: space-between; background: ${isCurrent ? '#fef2f2' : '#f8fafc'}; padding: 10px 12px; border-radius: 8px; border: 1px solid ${isCurrent ? '#fca5a5' : '#e2e8f0'}; font-size: 0.82rem;">
-        <div style="display: flex; flex-direction: column; min-width: 0; flex: 1; padding-right: 8px;">
-          <span style="font-weight: 800; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-            📧 ${escapeHtml(email)} ${isCurrent ? '<span style="color: #dc2626; font-size: 0.68rem; font-weight: 800; background: #fee2e2; padding: 2px 6px; border-radius: 4px; margin-left: 4px;">● Active Session</span>' : ''}
-          </span>
-          <span style="font-size: 0.72rem; color: #64748b;">
+      <div class="resign-account-item" style="background: ${isCurrent ? '#fef2f2' : '#f8fafc'}; border: 1px solid ${isCurrent ? '#fca5a5' : '#e2e8f0'};">
+        <div class="resign-account-info" style="display: flex; flex-direction: column; min-width: 0; flex: 1;">
+          <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; word-break: break-all;">
+            <span style="font-weight: 800; color: #0f172a; word-break: break-all;">📧 ${escapeHtml(email)}</span>
+            ${isCurrent ? '<span style="color: #dc2626; font-size: 0.68rem; font-weight: 800; background: #fee2e2; padding: 2px 6px; border-radius: 4px; white-space: nowrap;">● Active Session</span>' : ''}
+          </div>
+          <span style="font-size: 0.72rem; color: #64748b; margin-top: 2px;">
             👤 ${escapeHtml(name)} • <span style="color: #475569; font-weight: 600;">${escapeHtml(role)}</span>
           </span>
         </div>
-        ${isCurrent ? `
-          <button type="button" onclick="closeResignReloginModal(); logoutUser();" style="background: #dc2626; color: white; border: none; padding: 5px 10px; border-radius: 6px; font-size: 0.74rem; font-weight: 800; cursor: pointer; white-space: nowrap;">
-            🔒 Logout
-          </button>
-        ` : `
-          <button type="button" onclick="switchAccountRelogin('${escapeHtml(email)}')" style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; padding: 5px 10px; border-radius: 6px; font-size: 0.74rem; font-weight: 800; cursor: pointer; white-space: nowrap;">
-            🔑 Switch & Re-login
-          </button>
-        `}
+        <div class="resign-account-action">
+          ${isCurrent ? `
+            <button type="button" onclick="closeResignReloginModal(); logoutUser();" style="background: #dc2626; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.74rem; font-weight: 800; cursor: pointer; white-space: nowrap;">
+              🔒 Logout
+            </button>
+          ` : `
+            <button type="button" onclick="switchAccountRelogin('${escapeHtml(email)}')" style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; padding: 6px 12px; border-radius: 6px; font-size: 0.74rem; font-weight: 800; cursor: pointer; white-space: nowrap;">
+              🔑 Switch & Re-login
+            </button>
+          `}
+        </div>
       </div>
     `;
   }).join('');
@@ -5484,10 +5487,10 @@ function renderOwnerDetailsModal() {
     const isSel = o.id === currentOwner.id;
     const shortName = o.name.split(' ')[1] || o.name;
     const thumbHtml = o.photo ? 
-      `<img src="${o.photo}" style="width: 18px; height: 18px; object-fit: cover; border-radius: 50%; display: inline-block; vertical-align: middle; margin-right: 4px;">` : 
+      `<img src="${o.photo}" style="width: 16px; height: 16px; object-fit: cover; border-radius: 50%; display: inline-block; vertical-align: middle; margin-right: 3px;">` : 
       `👤 `;
     return `
-      <button type="button" onclick="selectOwnerProfile('${o.id}')" style="background: ${isSel ? '#059669' : '#f8fafc'}; color: ${isSel ? '#ffffff' : '#334155'}; border: 1.5px solid ${isSel ? '#047857' : '#cbd5e1'}; padding: 8px 12px; border-radius: 8px; font-weight: 700; font-size: 0.78rem; cursor: pointer; transition: all 0.15s ease; flex: 1; min-width: 120px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 4px;">
+      <button type="button" class="owner-tab-btn ${isSel ? 'active' : ''}" onclick="selectOwnerProfile('${o.id}')">
         ${thumbHtml}<span>${escapeHtml(shortName)}</span> ${isSel ? '✓' : ''}
       </button>
     `;
@@ -5499,67 +5502,69 @@ function renderOwnerDetailsModal() {
 
   // 2. Render Active Owner Detail Card with Edit & Delete Action Buttons
   detailsContainer.innerHTML = `
-    <div style="background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: 12px; padding: 16px; display: flex; align-items: center; justify-content: space-between; gap: 14px;">
-      <div style="display: flex; align-items: center; gap: 14px; min-width: 0; flex: 1;">
-        <div style="width: 56px; height: 56px; border-radius: 50%; background: ${currentOwner.avatarBg || '#059669'}; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.7rem; font-weight: 800; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.9); box-shadow: 0 2px 8px rgba(0,0,0,0.12); overflow: hidden;">
-          ${activeAvatarHtml}
-        </div>
-        <div style="min-width: 0; flex: 1;">
-          <h4 style="margin: 0 0 2px; font-size: 1.05rem; font-weight: 800; color: #065f46;">${escapeHtml(currentOwner.name)}</h4>
-          <p style="margin: 0; font-size: 0.78rem; color: #047857; font-weight: 700;">${escapeHtml(currentOwner.role)}</p>
-          <span style="display: inline-block; margin-top: 4px; background: ${currentOwner.tagBg || '#d1fae5'}; color: ${currentOwner.tagColor || '#065f46'}; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 800;">
-            ● ${escapeHtml(currentOwner.tag || 'STORE OWNER')}
-          </span>
+    <div class="owner-profile-hero-card" style="background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 10px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%;">
+        <div style="display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1;">
+          <div style="width: 50px; height: 50px; border-radius: 50%; background: ${currentOwner.avatarBg || '#059669'}; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 800; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.9); box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden;">
+            ${activeAvatarHtml}
+          </div>
+          <div style="min-width: 0; flex: 1;">
+            <h4 style="margin: 0 0 2px; font-size: 1rem; font-weight: 800; color: #065f46; line-height: 1.2;">${escapeHtml(currentOwner.name)}</h4>
+            <p style="margin: 0; font-size: 0.75rem; color: #047857; font-weight: 700;">${escapeHtml(currentOwner.role)}</p>
+            <span style="display: inline-block; margin-top: 4px; background: ${currentOwner.tagBg || '#d1fae5'}; color: ${currentOwner.tagColor || '#065f46'}; padding: 2px 8px; border-radius: 4px; font-size: 0.68rem; font-weight: 800;">
+              ● ${escapeHtml(currentOwner.tag || 'STORE OWNER')}
+            </span>
+          </div>
         </div>
       </div>
 
-      <div style="display: flex; flex-direction: column; gap: 6px;">
-        <button type="button" onclick="openEditOwnerModal('${currentOwner.id}')" style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; padding: 6px 12px; border-radius: 6px; font-weight: 800; font-size: 0.74rem; cursor: pointer; display: flex; align-items: center; gap: 4px;">
-          ✏️ Edit
+      <div class="owner-profile-hero-actions" style="display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid #dcfce7; padding-top: 8px;">
+        <button type="button" onclick="openEditOwnerModal('${currentOwner.id}')" style="background: #ffffff; color: #2563eb; border: 1.5px solid #bfdbfe; padding: 5px 12px; border-radius: 6px; font-weight: 800; font-size: 0.74rem; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+          ✏️ Edit Profile
         </button>
-        <button type="button" onclick="deleteOwnerProfile('${currentOwner.id}')" style="background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; padding: 6px 12px; border-radius: 6px; font-weight: 800; font-size: 0.74rem; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+        <button type="button" onclick="deleteOwnerProfile('${currentOwner.id}')" style="background: #ffffff; color: #dc2626; border: 1.5px solid #fca5a5; padding: 5px 12px; border-radius: 6px; font-weight: 800; font-size: 0.74rem; cursor: pointer; display: flex; align-items: center; gap: 4px;">
           🗑️ Delete
         </button>
       </div>
     </div>
 
     <!-- Active Owner Meta Grid -->
-    <div style="display: flex; flex-direction: column; gap: 10px;">
-      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <span style="font-size: 1.3rem;">📞</span>
-          <div>
-            <span style="font-size: 0.7rem; font-weight: 700; color: #64748b; display: block;">OWNER PHONE & WHATSAPP</span>
-            <span style="font-size: 0.9rem; font-weight: 800; color: #0f172a;">${escapeHtml(currentOwner.phone)}</span>
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div class="owner-meta-item" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1;">
+          <span style="font-size: 1.2rem; flex-shrink: 0;">📞</span>
+          <div style="min-width: 0; flex: 1;">
+            <span style="font-size: 0.68rem; font-weight: 700; color: #64748b; display: block;">OWNER PHONE & WHATSAPP</span>
+            <span style="font-size: 0.85rem; font-weight: 800; color: #0f172a; word-break: break-all;">${escapeHtml(currentOwner.phone)}</span>
           </div>
         </div>
-        <a href="tel:${currentOwner.phone.replace(/\s+/g, '')}" style="background: #dcfce7; color: #15803d; text-decoration: none; padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; border: 1px solid #86efac;">Call / WA</a>
+        <a href="tel:${currentOwner.phone.replace(/\s+/g, '')}" class="owner-meta-btn" style="background: #dcfce7; color: #15803d; text-decoration: none; padding: 5px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 800; border: 1px solid #86efac; white-space: nowrap; flex-shrink: 0;">Call / WA</a>
       </div>
 
-      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <span style="font-size: 1.3rem;">📧</span>
-          <div>
-            <span style="font-size: 0.7rem; font-weight: 700; color: #64748b; display: block;">OFFICIAL EMAIL ADDRESS</span>
-            <span style="font-size: 0.88rem; font-weight: 800; color: #2563eb;">${escapeHtml(currentOwner.email)}</span>
+      <div class="owner-meta-item" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1;">
+          <span style="font-size: 1.2rem; flex-shrink: 0;">📧</span>
+          <div style="min-width: 0; flex: 1;">
+            <span style="font-size: 0.68rem; font-weight: 700; color: #64748b; display: block;">OFFICIAL EMAIL ADDRESS</span>
+            <span style="font-size: 0.82rem; font-weight: 800; color: #2563eb; word-break: break-all;">${escapeHtml(currentOwner.email)}</span>
           </div>
         </div>
-        <a href="mailto:${currentOwner.email}" style="background: #eff6ff; color: #1d4ed8; text-decoration: none; padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; border: 1px solid #93c5fd;">Email</a>
+        <a href="mailto:${currentOwner.email}" class="owner-meta-btn" style="background: #eff6ff; color: #1d4ed8; text-decoration: none; padding: 5px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 800; border: 1px solid #93c5fd; white-space: nowrap; flex-shrink: 0;">Email</a>
       </div>
 
-      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; display: flex; align-items: center; gap: 12px;">
-        <span style="font-size: 1.3rem;">🧾</span>
+      <div class="owner-meta-item" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 12px; display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 1.2rem; flex-shrink: 0;">🧾</span>
         <div>
-          <span style="font-size: 0.7rem; font-weight: 700; color: #64748b; display: block;">GSTIN REGISTERED NUMBER</span>
-          <span style="font-size: 0.88rem; font-weight: 800; color: #0f172a;">33AAAAA0000A1Z5</span>
+          <span style="font-size: 0.68rem; font-weight: 700; color: #64748b; display: block;">GSTIN REGISTERED NUMBER</span>
+          <span style="font-size: 0.82rem; font-weight: 800; color: #0f172a;">33AAAAA0000A1Z5</span>
         </div>
       </div>
 
-      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; display: flex; align-items: center; gap: 12px;">
-        <span style="font-size: 1.3rem;">📍</span>
+      <div class="owner-meta-item" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 12px; display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 1.2rem; flex-shrink: 0;">📍</span>
         <div>
-          <span style="font-size: 0.7rem; font-weight: 700; color: #64748b; display: block;">STORE BRANCH & ADDRESS</span>
-          <span style="font-size: 0.82rem; font-weight: 700; color: #334155;">${escapeHtml(currentOwner.branch || 'Sugar Cubes Bakery, Coimbatore, Tamil Nadu')}</span>
+          <span style="font-size: 0.68rem; font-weight: 700; color: #64748b; display: block;">STORE BRANCH & ADDRESS</span>
+          <span style="font-size: 0.8rem; font-weight: 700; color: #334155;">${escapeHtml(currentOwner.branch || 'Sugar Cubes Bakery, Coimbatore, Tamil Nadu')}</span>
         </div>
       </div>
     </div>
@@ -6299,4 +6304,47 @@ document.addEventListener('click', function(e) {
     closeCatalogActionsMenu();
   }
 });
+
+// ==========================================================================
+// ⚡ Active POS Terminal Quick Actions & Status Modal Handlers
+// ==========================================================================
+
+function handleActivePosClick() {
+  if (window.innerWidth <= 768) {
+    // Mobile Phone View: Open Staff & Store Quick Actions Portal modal
+    openShiftActionModal();
+  } else {
+    // Laptop Web View: Open POS Terminal Quick Actions modal
+    openPosQuickActionsModal();
+  }
+}
+
+function openPosQuickActionsModal() {
+  updatePosQuickModalState();
+  const modal = document.getElementById('posQuickActionsModal');
+  if (modal) modal.style.display = 'flex';
+  if (typeof playBeep === 'function') playBeep('click');
+}
+
+function closePosQuickActionsModal() {
+  const modal = document.getElementById('posQuickActionsModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function closePosQuickActionsModalOnBackdrop(e) {
+  if (e && e.target && e.target.id === 'posQuickActionsModal') {
+    closePosQuickActionsModal();
+  }
+}
+
+function updatePosQuickModalState() {
+  const billEl = document.getElementById('posQuickBillNo');
+  if (billEl) billEl.textContent = currentTicketNumber;
+
+  const soundIcon = document.getElementById('posQuickSoundIcon');
+  const soundTitle = document.getElementById('posQuickSoundTitle');
+  if (soundIcon) soundIcon.textContent = soundEnabled ? '🔔' : '🔕';
+  if (soundTitle) soundTitle.textContent = soundEnabled ? 'Sound: ON' : 'Sound: OFF';
+}
+
 

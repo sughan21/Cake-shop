@@ -1331,17 +1331,36 @@ body {
   box-shadow: 0 3px 8px rgba(2, 132, 199, 0.18);
 }
 
-.register-terminal-badge {
+.register-terminal-badge,
+.register-terminal-badge-btn {
   display: inline-flex;
   align-items: center;
   gap: 5px;
   background: #ecfdf5;
   color: #047857;
-  border: 1px solid #a7f3d0;
+  border: 1.5px solid #a7f3d0;
   font-size: 0.72rem;
-  font-weight: 700;
-  padding: 3px 8px;
-  border-radius: 6px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(16, 185, 129, 0.12);
+  user-select: none;
+}
+
+.register-terminal-badge-btn:hover {
+  background: #d1fae5;
+  border-color: #34d399;
+  color: #065f46;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+}
+
+.register-terminal-badge-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(16, 185, 129, 0.1);
 }
 
 .live-dot-green {
@@ -10681,5 +10700,476 @@ html.auth-pending #loginAuthScreen {
   letter-spacing: -0.4px;
   filter: drop-shadow(0 2px 8px rgba(225, 29, 72, 0.2));
 }
+
+/* ==========================================================================
+   ⚡ Staff & Store Quick Actions Portal (Responsive Mobile & Laptop)
+   ========================================================================== */
+
+.shift-action-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.shift-action-tile {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 22px 12px 18px 12px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+}
+
+.shift-action-tile.tile-green {
+  background: linear-gradient(145deg, #ffffff 0%, #f0fdf4 100%);
+  border: 1.5px solid #a7f3d0;
+}
+.shift-action-tile.tile-blue {
+  background: linear-gradient(145deg, #ffffff 0%, #eff6ff 100%);
+  border: 1.5px solid #bfdbfe;
+}
+.shift-action-tile.tile-rose {
+  background: linear-gradient(145deg, #ffffff 0%, #fff1f2 100%);
+  border: 1.5px solid #fecdd3;
+}
+
+.shift-action-tile:hover {
+  transform: translateY(-4px) scale(1.01);
+}
+.tile-green:hover { border-color: #10b981; box-shadow: 0 12px 24px -4px rgba(16, 185, 129, 0.2); }
+.tile-blue:hover { border-color: #3b82f6; box-shadow: 0 12px 24px -4px rgba(37, 99, 235, 0.2); }
+.tile-rose:hover { border-color: #e11d48; box-shadow: 0 12px 24px -4px rgba(225, 29, 72, 0.2); }
+
+.tile-top-bar {
+  height: 4px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+.tile-green .tile-top-bar { background: linear-gradient(90deg, #10b981, #34d399); }
+.tile-blue .tile-top-bar { background: linear-gradient(90deg, #2563eb, #60a5fa); }
+.tile-rose .tile-top-bar { background: linear-gradient(90deg, #e11d48, #fb7185); }
+
+.tile-icon-box {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.7rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+  flex-shrink: 0;
+  margin-bottom: 2px;
+}
+.tile-green .tile-icon-box { background: rgba(16, 185, 129, 0.12); border: 1.5px solid rgba(16, 185, 129, 0.25); }
+.tile-blue .tile-icon-box { background: rgba(37, 99, 235, 0.12); border: 1.5px solid rgba(37, 99, 235, 0.25); }
+.tile-rose .tile-icon-box { background: rgba(225, 29, 72, 0.12); border: 1.5px solid rgba(225, 29, 72, 0.25); }
+
+.tile-text-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.tile-title {
+  font-size: 0.88rem;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.2px;
+}
+.tile-green .tile-title { color: #065f46; }
+.tile-blue .tile-title { color: #1e40af; }
+.tile-rose .tile-title { color: #9f1239; font-size: 0.82rem; }
+
+.tile-sub {
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+.tile-green .tile-sub { color: #059669; }
+.tile-blue .tile-sub { color: #2563eb; }
+.tile-rose .tile-sub { color: #e11d48; }
+
+.tile-action-pill {
+  margin-top: 6px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.pill-green { color: #047857; background: #dcfce7; border: 1px solid #a7f3d0; }
+.pill-blue { color: #1d4ed8; background: #dbeafe; border: 1px solid #bfdbfe; }
+.pill-rose { color: #be123c; background: #ffe4e6; border: 1px solid #fecdd3; }
+
+/* Dedicated Mobile Phone View Overrides (< 768px) */
+@media (max-width: 768px) {
+  #shiftActionModal .modal-window-card {
+    width: 92% !important;
+    max-width: 440px !important;
+    max-height: 92vh !important;
+    border-radius: 20px !important;
+  }
+
+  .shift-action-cards-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .shift-action-tile {
+    flex-direction: row !important;
+    align-items: center !important;
+    text-align: left !important;
+    padding: 12px 14px !important;
+    gap: 12px !important;
+  }
+
+  .tile-icon-box {
+    width: 44px !important;
+    height: 44px !important;
+    font-size: 1.35rem !important;
+    border-radius: 12px !important;
+    margin-bottom: 0 !important;
+  }
+
+  .tile-text-wrap {
+    flex: 1 !important;
+    min-width: 0 !important;
+  }
+
+  .tile-title {
+    font-size: 0.82rem !important;
+  }
+
+  .tile-sub {
+    font-size: 0.66rem !important;
+  }
+
+  .tile-action-pill {
+    margin-top: 0 !important;
+    margin-left: auto !important;
+    padding: 4px 10px !important;
+    font-size: 0.65rem !important;
+  }
+}
+
+/* ==========================================================================
+   🏢 Owner & Business Details Modal (Mobile Phone Layout & Alignment)
+   ========================================================================== */
+
+.owner-details-modal-card {
+  max-width: 500px;
+  width: 92%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 24px 50px rgba(15, 23, 42, 0.35);
+}
+
+.owner-tab-btn {
+  background: #f8fafc;
+  color: #334155;
+  border: 1.5px solid #cbd5e1;
+  padding: 7px 10px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.76rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.owner-tab-btn.active {
+  background: #059669;
+  color: #ffffff;
+  border-color: #047857;
+}
+
+@media (max-width: 768px) {
+  .owner-details-modal-card {
+    width: 94% !important;
+    max-width: 440px !important;
+    max-height: 92vh !important;
+    border-radius: 20px !important;
+  }
+
+  .owner-details-modal-card > div:first-child {
+    padding: 14px 16px !important;
+  }
+
+  .owner-details-modal-card > div:nth-child(2) {
+    padding: 14px 12px !important;
+    gap: 12px !important;
+  }
+
+  #ownerTabsContainer {
+    display: flex !important;
+    gap: 6px !important;
+    overflow-x: auto !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .owner-tab-btn {
+    padding: 6px 8px !important;
+    font-size: 0.72rem !important;
+    min-width: 0 !important;
+    flex: 1 1 0px !important;
+  }
+
+  .owner-profile-hero-card {
+    padding: 12px !important;
+    gap: 8px !important;
+  }
+
+  .owner-profile-hero-actions {
+    margin-top: 2px !important;
+    padding-top: 6px !important;
+  }
+
+  .owner-meta-item {
+    padding: 9px 11px !important;
+    gap: 8px !important;
+  }
+}
+
+/* ==========================================================================
+   👥 Registered Accounts & Email Directory Modal (Mobile Phone Layout)
+   ========================================================================== */
+
+.resign-relogin-modal-card {
+  max-width: 520px;
+  width: 92%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 48px rgba(15, 23, 42, 0.35);
+}
+
+.resign-account-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  gap: 8px;
+}
+
+@media (max-width: 768px) {
+  .resign-relogin-modal-card {
+    width: 95% !important;
+    max-width: 440px !important;
+    max-height: 92vh !important;
+    border-radius: 16px !important;
+  }
+
+  .resign-account-item {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    padding: 10px !important;
+  }
+
+  .resign-account-action {
+    width: 100% !important;
+  }
+
+  .resign-account-action button {
+    width: 100% !important;
+    padding: 8px 12px !important;
+    font-size: 0.78rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+}
+
+/* ==========================================================================
+   📄 Shift Employee Payslip Statement Modal (Mobile Phone Layout)
+   ========================================================================== */
+
+.employee-payslip-modal-card {
+  max-width: 760px;
+  width: 95%;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.4);
+}
+
+@media (max-width: 768px) {
+  .employee-payslip-modal-card {
+    width: 96% !important;
+    max-width: 440px !important;
+    max-height: 94vh !important;
+    border-radius: 14px !important;
+    margin: auto !important;
+  }
+
+  .payslip-header-edit-btn {
+    display: none !important;
+  }
+
+  .employee-payslip-modal-card > div:first-child {
+    padding: 10px 14px !important;
+  }
+
+  .employee-payslip-modal-card > div:first-child h3 {
+    font-size: 0.95rem !important;
+  }
+
+  .employee-payslip-modal-card > div:first-child p {
+    font-size: 0.68rem !important;
+  }
+
+  #payslipPrintArea {
+    padding: 8px !important;
+    gap: 10px !important;
+  }
+
+  /* Company Title header box on mobile */
+  #psCompName {
+    font-size: 1.15rem !important;
+  }
+  #psCompAddr {
+    font-size: 0.72rem !important;
+  }
+
+  /* Employee Details Table Mobile Layout */
+  .payslip-emp-table {
+    table-layout: fixed !important;
+    width: 100% !important;
+  }
+
+  .payslip-emp-table,
+  .payslip-emp-table tbody {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .payslip-emp-table tr {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    padding: 5px 0 !important;
+    border-bottom: 1px dashed #e2e8f0 !important;
+  }
+
+  .payslip-emp-table tr:last-child {
+    border-bottom: none !important;
+  }
+
+  /* First key-value pair in row */
+  .payslip-emp-table td:nth-child(1) {
+    width: 38% !important;
+    font-size: 0.74rem !important;
+    padding: 2px 0 !important;
+    color: #475569 !important;
+    font-weight: 600 !important;
+  }
+
+  .payslip-emp-table td:nth-child(2) {
+    width: 4% !important;
+    font-size: 0.74rem !important;
+    padding: 2px 0 !important;
+    font-weight: 700 !important;
+  }
+
+  .payslip-emp-table td:nth-child(3) {
+    width: 58% !important;
+    font-size: 0.74rem !important;
+    padding: 2px 0 !important;
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  /* Second key-value pair in row */
+  .payslip-emp-table td:nth-child(4) {
+    width: 38% !important;
+    font-size: 0.74rem !important;
+    padding: 2px 0 !important;
+    margin-top: 4px !important;
+    color: #475569 !important;
+    font-weight: 600 !important;
+  }
+
+  .payslip-emp-table td:nth-child(5) {
+    width: 4% !important;
+    font-size: 0.74rem !important;
+    padding: 2px 0 !important;
+    margin-top: 4px !important;
+    font-weight: 700 !important;
+  }
+
+  .payslip-emp-table td:nth-child(6) {
+    width: 58% !important;
+    font-size: 0.74rem !important;
+    padding: 2px 0 !important;
+    margin-top: 4px !important;
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  /* Summary & Breakdown Tables Mobile font & padding */
+  .payslip-summary-table td,
+  .payslip-breakdown-table td,
+  .payslip-breakdown-table th {
+    font-size: 0.72rem !important;
+    padding: 5px 4px !important;
+  }
+
+  /* Footer action buttons on mobile */
+  .employee-payslip-modal-card > div:last-child {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    padding: 10px 14px !important;
+  }
+
+  .employee-payslip-modal-card > div:last-child > button,
+  .employee-payslip-modal-card > div:last-child > div {
+    width: 100% !important;
+    display: flex !important;
+  }
+
+  .employee-payslip-modal-card > div:last-child > button {
+    justify-content: center !important;
+    padding: 9px 12px !important;
+  }
+
+  .employee-payslip-modal-card > div:last-child > div > button {
+    flex: 1 !important;
+    justify-content: center !important;
+    padding: 9px 10px !important;
+  }
+}
+
+
 
 
