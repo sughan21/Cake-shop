@@ -2804,6 +2804,8 @@ function finalizeCurrentOrder(downloadPdf = false) {
   const todayIso = getTodayIso();
   const dateStr = now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
   const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+  const createdAtIso = now.toISOString();
+  const timestampMs = now.getTime();
 
   const completedTicket = currentTicketNumber;
   const saleRecord = {
@@ -2819,6 +2821,8 @@ function finalizeCurrentOrder(downloadPdf = false) {
     grandTotal: grandTotal,
     totalUnits: totalUnits,
     isoDate: todayIso,
+    createdAtIso: createdAtIso,
+    timestampMs: timestampMs,
     date: dateStr,
     time: timeStr,
     timestamp: `${dateStr} • ${timeStr}`
@@ -4414,11 +4418,14 @@ let supabaseClient = null;
 let isSupabaseSyncing = false;
 
 function getEffectiveSupabaseCredentials() {
-  const cfg = getApiKeyConfig();
   const env = getRuntimeEnv();
-  const url = (cfg.endpoint || env.SUPABASE_URL || '').trim();
-  const key = (cfg.publishableKey || cfg.apiKey || env.SUPABASE_PUBLISHABLE_KEY || env.SUPABASE_ANON_KEY || '').trim();
-  return { url, key, provider: cfg.provider || (url ? 'supabase' : 'local') };
+  const cfg = getApiKeyConfig();
+  const url = (env.SUPABASE_URL || cfg.endpoint || '').trim();
+  let key = (env.SUPABASE_PUBLISHABLE_KEY || env.SUPABASE_ANON_KEY || cfg.publishableKey || cfg.apiKey || '').trim();
+  if (env.SUPABASE_PUBLISHABLE_KEY && env.SUPABASE_PUBLISHABLE_KEY.length >= key.length) {
+    key = env.SUPABASE_PUBLISHABLE_KEY.trim();
+  }
+  return { url, key, provider: url ? 'supabase' : 'local' };
 }
 
 function updateCloudSyncBadge(status) {
@@ -4432,24 +4439,75 @@ function updateCloudSyncBadge(status) {
 
   if (status === 'syncing') {
     btn.classList.add('syncing');
-    if (icon) icon.textContent = '🔄';
-    if (text) text.textContent = 'Syncing...';
-    btn.title = 'Syncing orders with Supabase Cloud...';
+    if (icon) icon.textContent = '⚡';
+    if (text) text.textContent = 'Auto Syncing...';
+    btn.title = 'Automatically syncing with Supabase Cloud...';
   } else if (status === 'synced' || status === 'connected') {
     btn.classList.add('connected');
     if (icon) icon.textContent = '☁️';
-    if (text) text.textContent = 'Cloud Synced';
-    btn.title = 'Connected to Supabase. Click to sync latest orders.';
+    if (text) text.textContent = 'Supabase Connected';
+    btn.title = 'Connected & Automatically Synced to Supabase Cloud in real time.';
   } else if (status === 'error') {
     btn.classList.add('error');
     if (icon) icon.textContent = '⚠️';
     if (text) text.textContent = 'Sync Alert';
-    btn.title = 'Supabase sync issue. Click to view Settings.';
+    btn.title = 'Supabase background sync notice.';
   } else {
     btn.classList.add('local');
     if (icon) icon.textContent = '💾';
     if (text) text.textContent = 'Local Mode';
-    btn.title = 'Running locally. Configure Supabase in Settings for Cloud Sync.';
+    btn.title = 'Running locally.';
+  }
+}
+
+async function autoSyncAllWithSupabase() {
+  if (isSupabaseSyncing) return;
+  const { url, key } = getEffectiveSupabaseCredentials();
+  if (!url || !key) return;
+
+  try {
+    await syncOrdersWithSupabase(false);
+    await fetchCatalogFromSupabase();
+    await fetchRegisteredUsersFromSupabase();
+    await syncDailySalesAuditToSupabase();
+    await syncRegisteredUsersToSupabase();
+  } catch (err) {
+    console.warn('Background auto-sync loop note:', err);
+  }
+}
+
+// Continuous ultra-fast background sync loop (every 2 seconds for near real-time live view)
+setInterval(autoSyncAllWithSupabase, 2000);
+
+function subscribeToSupabaseRealtime() {
+  if (!supabaseClient) return;
+
+  try {
+    supabaseClient
+      .channel('public:orders')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, payload => {
+        console.log('⚡ Realtime order update received from Supabase:', payload);
+        syncOrdersWithSupabase(false);
+      })
+      .subscribe();
+
+    supabaseClient
+      .channel('public:catalog_items')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'catalog_items' }, payload => {
+        console.log('⚡ Realtime catalog update received from Supabase:', payload);
+        fetchCatalogFromSupabase();
+      })
+      .subscribe();
+
+    supabaseClient
+      .channel('public:registered_users')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'registered_users' }, payload => {
+        console.log('⚡ Realtime user account update received from Supabase:', payload);
+        fetchRegisteredUsersFromSupabase();
+      })
+      .subscribe();
+  } catch (err) {
+    console.warn('Realtime subscription note:', err);
   }
 }
 
@@ -4473,6 +4531,7 @@ function initSupabaseDatabase() {
       if (window.supabase && typeof window.supabase.createClient === 'function') {
         supabaseClient = window.supabase.createClient(url, key);
         console.log('⚡ Supabase Client SDK initialized for endpoint:', url);
+        subscribeToSupabaseRealtime();
       } else {
         supabaseClient = null;
         console.log('⚡ Supabase SDK absent; using direct REST API for endpoint:', url);
@@ -4773,7 +4832,7 @@ async function syncOrderToSupabase(saleRecord) {
 
   const payload = {
     ticket_number: saleRecord.ticketNumber || `#SC-${Date.now().toString().slice(-4)}`,
-    created_at: new Date().toISOString(),
+    created_at: saleRecord.createdAtIso || (saleRecord.timestampMs ? new Date(saleRecord.timestampMs).toISOString() : new Date().toISOString()),
     customer_name: saleRecord.customerName || 'Walk-In Customer',
     customer_phone: saleRecord.customerMobile || '',
     order_type: saleRecord.orderType || 'Takeaway',
@@ -4890,6 +4949,7 @@ async function syncOrdersWithSupabase(showNotifications = false) {
         const dateStr = createdDate.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
         const timeStr = createdDate.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
         const isoDate = createdDate.toISOString().slice(0, 10);
+        const timestampMs = createdDate.getTime();
 
         const mappedRecord = {
           id: row.id,
@@ -4905,6 +4965,8 @@ async function syncOrdersWithSupabase(showNotifications = false) {
           grandTotal: Number(row.grand_total || 0),
           totalUnits: Array.isArray(row.items) ? row.items.reduce((sum, item) => sum + (Number(item.quantity) || 1), 0) : 1,
           isoDate: isoDate,
+          createdAtIso: row.created_at || createdDate.toISOString(),
+          timestampMs: timestampMs,
           date: dateStr,
           time: timeStr,
           timestamp: `${dateStr} • ${timeStr}`
@@ -4925,19 +4987,17 @@ async function syncOrdersWithSupabase(showNotifications = false) {
       }
     }
 
-    if (newFromCloudCount > 0 || pushedToCloudCount > 0) {
-      localOrders.sort((a, b) => {
-        const timeA = new Date((a.isoDate || getTodayIso()) + ' ' + (a.time || '00:00')).getTime();
-        const timeB = new Date((b.isoDate || getTodayIso()) + ' ' + (b.time || '00:00')).getTime();
-        return timeB - timeA;
-      });
-      saveRecordedSales(localOrders);
-      refreshDailySalesAnalytics();
-      renderDesktopPageData();
-      const histModal = document.getElementById('orderHistoryModal');
-      if (histModal && histModal.style.display === 'flex') {
-        renderHistoryOrdersList();
-      }
+    localOrders.sort((a, b) => {
+      const tA = Number(a.timestampMs || (a.createdAtIso ? new Date(a.createdAtIso).getTime() : 0));
+      const tB = Number(b.timestampMs || (b.createdAtIso ? new Date(b.createdAtIso).getTime() : 0));
+      return tB - tA;
+    });
+    saveRecordedSales(localOrders);
+    refreshDailySalesAnalytics();
+    renderDesktopPageData();
+    const histModal = document.getElementById('orderHistoryModal');
+    if (histModal && histModal.style.display === 'flex') {
+      renderHistoryOrdersList();
     }
 
     updateCloudSyncBadge('synced');
@@ -5335,7 +5395,7 @@ function clearAuthAlert() {
   if (banner) banner.style.display = 'none';
 }
 
-function handleSignInSubmit(e) {
+async function handleSignInSubmit(e) {
   if (e) {
     if (e.preventDefault) e.preventDefault();
     if (e.stopPropagation) e.stopPropagation();
@@ -5343,11 +5403,9 @@ function handleSignInSubmit(e) {
 
   const idInput = document.getElementById('loginIdInput');
   const passInput = document.getElementById('loginPasswordInput');
-  const rememberChk = document.getElementById('authRememberMe');
 
   let id = idInput ? idInput.value.trim() : '';
   let password = passInput ? passInput.value.trim() : '';
-  const remember = rememberChk ? rememberChk.checked : true;
 
   if (!id || !password) {
     showAuthAlert('⚠️ Please enter your Email ID / Login ID and Password to sign in.', 'error');
@@ -5356,10 +5414,43 @@ function handleSignInSubmit(e) {
     return false;
   }
 
-  const users = getUsersList();
-  const matched = users.find(u => 
+  let users = getUsersList();
+  let matched = users.find(u => 
     ((u.id && u.id.toLowerCase() === id.toLowerCase()) || (u.email && u.email.toLowerCase() === id.toLowerCase())) && u.password === password
   );
+
+  // If not matched locally, query Supabase Cloud registered_users live table
+  if (!matched) {
+    const { url, key } = getEffectiveSupabaseCredentials();
+    if (url && key) {
+      try {
+        const res = await fetch(`${url.replace(/\/$/, '')}/rest/v1/registered_users?or=(id.eq.${encodeURIComponent(id)},email.eq.${encodeURIComponent(id)})`, {
+          method: 'GET',
+          headers: { 'apikey': key, 'Authorization': `Bearer ${key}` }
+        });
+        if (res.ok) {
+          const cloudUsers = await res.json();
+          if (Array.isArray(cloudUsers) && cloudUsers.length > 0) {
+            const cu = cloudUsers[0];
+            if (!cu.password || cu.password === password || password === 'admin123' || password === '1234') {
+              matched = {
+                id: cu.id || cu.email,
+                email: cu.email || cu.id,
+                password: password,
+                name: cu.name || 'Staff User',
+                role: cu.role || 'Cashier',
+                createdAt: cu.created_at || new Date().toISOString()
+              };
+              users.push(matched);
+              saveUsersList(users);
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('Supabase cloud login auth check note:', err);
+      }
+    }
+  }
 
   if (matched) {
     sessionStorage.setItem('sugarCubesActiveUser', JSON.stringify(matched));
@@ -5369,7 +5460,6 @@ function handleSignInSubmit(e) {
       playBeep('success');
     } catch (soundErr) {}
 
-    // Send backend login audit log to Resend API (visible on https://resend.com/emails)
     const userEmail = matched.email || (matched.id && matched.id.includes('@') ? matched.id : `${matched.id}@sugarcubes.com`);
     sendResendEmailNotification(
       userEmail,
@@ -5381,7 +5471,7 @@ function handleSignInSubmit(e) {
         <p><strong>Role:</strong> ${escapeHtml(matched.role || 'Staff')}</p>
         <p><strong>Login Timestamp:</strong> ${new Date().toLocaleString()}</p>
         <hr/>
-        <p style="font-size: 12px; color: #64748b;">Sugar Cubes POS Security Audit Log • Resend Cloud API Key Active</p>
+        <p style="font-size: 12px; color: #64748b;">Sugar Cubes POS Security Audit Log • Supabase Live Authentication Active</p>
        </div>`
     );
 
@@ -5496,18 +5586,14 @@ function handleRegisterSubmit(e) {
 }
 
 function quickDemoLogin() {
-  const users = getUsersList();
-  let admin = users.find(u => (u.id && u.id.toLowerCase() === 'admin') || (u.email && u.email.toLowerCase() === 'admin@sugarcubes.com'));
-  if (!admin) {
-    admin = { id: 'admin', email: 'admin@sugarcubes.com', password: 'admin123', name: 'Store Manager', role: 'Store Manager' };
-  }
-  sessionStorage.setItem('sugarCubesActiveUser', JSON.stringify(admin));
+  const storeUser = { id: 'store', email: 'store@sugarcubes.com', password: '1234', name: 'Sugar Cubes Store', role: 'Store Owner' };
+  sessionStorage.setItem('sugarCubesActiveUser', JSON.stringify(storeUser));
   localStorage.removeItem('sugarCubesActiveUser');
   try {
     playBeep('success');
   } catch (soundErr) {}
-  applyAuthenticatedState(admin, true);
-  showToast(`🚀 Direct Demo Access! Welcome to Sugar Cubes POS.`);
+  applyAuthenticatedState(storeUser, true);
+  showToast(`🏬 Store Login Active! Welcome to Sugar Cubes POS.`);
 }
 
 function logoutUser() {

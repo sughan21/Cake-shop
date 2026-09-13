@@ -4081,8 +4081,13 @@ html.auth-pending #loginAuthScreen {
   font-size: 2.6rem;
   line-height: 1;
   margin-bottom: 8px;
-  display: inline-block;
-  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.auth-brand-icon img, .brand-avatar img {
+  border-radius: 14px;
+  object-fit: cover;
 }
 
 .auth-brand-header h2 {
@@ -10823,31 +10828,56 @@ html.auth-pending #loginAuthScreen {
 
 /* Dedicated Mobile Phone View Overrides (< 768px) */
 @media (max-width: 768px) {
+  #shiftActionModal.modal-backdrop {
+    align-items: flex-end !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    background: rgba(15, 23, 42, 0.65) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+  }
+
   #shiftActionModal .modal-window-card {
-    width: 92% !important;
-    max-width: 440px !important;
-    max-height: 92vh !important;
-    border-radius: 20px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 88vh !important;
+    border-radius: 28px 28px 0 0 !important;
+    border: none !important;
+    margin: 0 !important;
+    overflow-y: auto !important;
+    box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.45) !important;
+    animation: mobileSheetSlideUp 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+
+  .mobile-sheet-drag-handle {
+    display: block !important;
   }
 
   .shift-action-cards-grid {
     grid-template-columns: 1fr !important;
-    gap: 10px !important;
+    gap: 12px !important;
   }
 
   .shift-action-tile {
     flex-direction: row !important;
     align-items: center !important;
     text-align: left !important;
-    padding: 12px 14px !important;
-    gap: 12px !important;
+    padding: 14px 16px !important;
+    gap: 14px !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05) !important;
+    transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+  }
+
+  .shift-action-tile:active {
+    transform: scale(0.97) !important;
   }
 
   .tile-icon-box {
-    width: 44px !important;
-    height: 44px !important;
-    font-size: 1.35rem !important;
-    border-radius: 12px !important;
+    width: 48px !important;
+    height: 48px !important;
+    font-size: 1.45rem !important;
+    border-radius: 14px !important;
     margin-bottom: 0 !important;
   }
 
@@ -10857,19 +10887,28 @@ html.auth-pending #loginAuthScreen {
   }
 
   .tile-title {
-    font-size: 0.82rem !important;
+    font-size: 0.9rem !important;
+    font-weight: 800 !important;
   }
 
   .tile-sub {
-    font-size: 0.66rem !important;
+    font-size: 0.72rem !important;
+    font-weight: 600 !important;
   }
 
   .tile-action-pill {
     margin-top: 0 !important;
     margin-left: auto !important;
-    padding: 4px 10px !important;
-    font-size: 0.65rem !important;
+    padding: 6px 14px !important;
+    font-size: 0.72rem !important;
+    font-weight: 800 !important;
+    border-radius: 20px !important;
   }
+}
+
+@keyframes mobileSheetSlideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
 }
 
 /* ==========================================================================
@@ -11179,7 +11218,7 @@ html.auth-pending #loginAuthScreen {
 /* ==========================================================================
    Supabase Cloud Sync Pill & Action Button Styles
    ========================================================================== */
-.cloud-sync-btn {
+.cloud-sync-btn, .cloud-sync-badge, .util-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -11190,31 +11229,25 @@ html.auth-pending #loginAuthScreen {
   padding: 5px 12px;
   font-size: 0.78rem;
   font-weight: 700;
-  cursor: pointer;
+  cursor: default;
   transition: all 0.2s ease;
   user-select: none;
 }
-.cloud-sync-btn:hover {
-  background: rgba(16, 185, 129, 0.22);
-  border-color: #10b981;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
-}
-.cloud-sync-btn.syncing {
+.cloud-sync-btn.syncing, .cloud-sync-badge.syncing {
   background: rgba(59, 130, 246, 0.12);
   color: #2563eb;
   border-color: rgba(59, 130, 246, 0.3);
 }
-.cloud-sync-btn.syncing #cloudSyncIcon {
+.cloud-sync-btn.syncing #cloudSyncIcon, .cloud-sync-badge.syncing #cloudSyncIcon {
   display: inline-block;
   animation: spin 1s linear infinite;
 }
-.cloud-sync-btn.error {
+.cloud-sync-btn.error, .cloud-sync-badge.error {
   background: rgba(239, 68, 68, 0.12);
   color: #dc2626;
   border-color: rgba(239, 68, 68, 0.3);
 }
-.cloud-sync-btn.local {
+.cloud-sync-btn.local, .cloud-sync-badge.local {
   background: rgba(100, 116, 139, 0.12);
   color: #475569;
   border-color: rgba(100, 116, 139, 0.3);

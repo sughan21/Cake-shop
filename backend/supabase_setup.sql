@@ -65,6 +65,19 @@ ALTER TABLE public.catalog_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.registered_users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.daily_sales_audits ENABLE ROW LEVEL SECURITY;
 
+-- Enable Supabase Realtime Live Streaming for all tables
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_publication WHERE pubname = 'supabase_realtime') THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.orders;
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.catalog_items;
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.registered_users;
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.daily_sales_audits;
+  END IF;
+EXCEPTION
+  WHEN OTHERS THEN NULL;
+END $$;
+
 -- Allow Public (Anon Key) & Authenticated users FULL READ/WRITE ACCESS
 CREATE POLICY "Allow public read and write access on orders" 
     ON public.orders FOR ALL USING (true) WITH CHECK (true);
