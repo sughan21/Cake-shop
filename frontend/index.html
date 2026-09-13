@@ -1,0 +1,2465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Sugar Cubes | Artisanal Cake Shop POS & Daily Sales Tracker</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍰</text></svg>">
+  <link rel="stylesheet" href="style.css">
+  <!-- Client-Side High-Fidelity PDF Engine -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <!-- Client-Side QR Code Engine -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- Supabase Cloud Database Client Engine -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Runtime Cloud & Database Configuration -->
+  <script>
+    window.ENV = window.ENV || {
+      SUPABASE_URL: "https://xcfwdmlmbesgcomblmcm.supabase.co",
+      SUPABASE_ANON_KEY: "sb_publishable_aD5eVWVqXxwnqOD83WagWw_sRlIDCmE",
+      SUPABASE_PUBLISHABLE_KEY: "sb_publishable_aD5eVWVqXxwnqOD83WagWw_sRlIDCmE",
+      VITE_APP_NAME: "Sugar Cubes Bakery & Café POS",
+      VITE_STORE_LOCATION: "Coimbatore Branch, Tamil Nadu",
+      VITE_GSTIN: "33AAAAA0000A1Z5"
+    };
+  </script>
+  <!-- Mandatory Login Portal Gate: Web link always opens on Login/Register page -->
+  <script>
+    (function() {
+      try {
+        document.documentElement.classList.add('auth-pending');
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+
+  <!-- =========================================================================
+       Desktop / Laptop Pinned Master Header (Pins both Header & Full-Stretch Sub-Header)
+       ========================================================================= -->
+  <div class="desktop-sticky-header-container" id="desktopStickyHeaderContainer">
+    <header class="pos-app-header">
+    <div class="brand-section">
+      <div class="brand-identity-left">
+        <div class="brand-avatar">🍰</div>
+        <div class="brand-details">
+          <div class="brand-title-row">
+            <h1 class="brand-title-heading"><span class="shiny-brand-text">Sugar Cubes</span> <span class="brand-logo-sparkle" title="Official Registered Brand">✨</span></h1>
+            <div class="brand-live-badge">
+              <span class="pulse-dot"></span>
+              <span>STORE OPEN • COUNTER #1</span>
+            </div>
+          </div>
+          <div class="brand-meta-sub-row">
+            <span class="brand-tagline">Artisanal Cake Shop & Bakery • Coimbatore</span>
+            <span class="brand-dot-sep">•</span>
+            <div class="brand-ig-pill" onclick="promptEditInstagramHandle()" title="Click to edit Instagram Profile handle">
+              <span>📸</span> <span id="headerIgHandle">@sugarcubes_official</span> <span>✏️</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Top-Corner Cashier Profile Button (Icon-Only Executive Button) -->
+      <button type="button" class="mobile-corner-profile-btn" id="mobileCornerProfileBtn" onclick="openUserProfileModal()" title="Store Cashier Profile & Sales Cockpit" aria-label="Store Profile">
+        <div class="mobile-corner-avatar-ring">
+          <span class="mobile-corner-emoji">👤</span>
+          <span class="mobile-corner-beacon" title="Live Counter Shift Active"></span>
+        </div>
+      </button>
+    </div>
+
+    <div class="header-controls">
+      <!-- Logged-in Cashier / User Status Pill (Outer Box wrapping Shift Active & Logout buttons) -->
+      <div class="logged-user-pill" id="loggedUserPill" style="display: none;">
+        <span class="user-name-title" id="headerCashierName" style="display: none;">Store Manager</span>
+        <span class="user-email-tag" id="headerCashierEmail" style="display: none;">admin@sugarcubes.com</span>
+        
+        <div class="user-shift-badge" onclick="openShiftActionModal()" style="cursor: pointer;" title="Click to view Shift Details & Registered Staff Accounts (Laptop Web)">
+          <span class="pulse-dot-green" style="width: 6px; height: 6px; background: #10b981; border-radius: 50%; display: inline-block;"></span>
+          <span id="headerCashierRole">Shift Active</span>
+        </div>
+        
+        <button type="button" class="btn-logout-pill" onclick="logoutUser()" title="Logout & Lock Register">
+          <span>🔒</span> <span>Logout</span>
+        </button>
+      </div>
+
+      <div class="header-utility-btns">
+        <button type="button" id="btnCloudSync" class="util-btn cloud-sync-btn" onclick="syncOrdersWithSupabase(true)" title="Supabase Cloud Sync Status (Click to Sync)">
+          <span id="cloudSyncIcon">☁️</span> <span id="cloudSyncText">Sync Cloud</span>
+        </button>
+        <button type="button" id="btnSoundToggle" class="util-btn" onclick="toggleAudioSound()" title="Toggle register beep sound">
+          🔔 Sound: ON
+        </button>
+        <button type="button" id="btnFullscreenToggle" class="util-btn" onclick="toggleFullscreen()" title="Toggle Fullscreen POS Mode">
+          ⛶ Fullscreen
+        </button>
+      </div>
+
+      <!-- Live Precision Digital Clock -->
+      <div class="header-clock-pill">
+        <div class="clock-digits" id="liveClockDisplay">--:--:-- --</div>
+        <div class="clock-date" id="liveDateDisplay">📅 Loading date...</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Desktop / Laptop Dedicated Sub-Header Page Navigation (Visible on laptop / web viewports > 768px) -->
+  <nav class="desktop-sub-header-bar desktop-only-btn" id="desktopSubHeaderBar" aria-label="POS Workspace Page Navigation">
+    <div class="desktop-view-nav-tabs" id="desktopViewNavTabs">
+      <div class="desktop-nav-tab-slider" id="desktopNavTabSlider" aria-hidden="true"></div>
+      <button type="button" id="btnNavPosStore" class="desktop-nav-tab-btn active" onclick="switchDesktopPage('store')" title="Switch to POS Register & Menu Catalog">
+        <span class="desktop-tab-icon">🏪</span>
+        <span class="desktop-tab-label">POS Counter</span>
+      </button>
+      <button type="button" id="btnNavSalesPage" class="desktop-nav-tab-btn" onclick="switchDesktopPage('sales')" title="Switch to Daily Sales & Business Performance Page">
+        <span class="desktop-tab-icon">📊</span>
+        <span class="desktop-tab-label">Daily Sales Page</span>
+      </button>
+    </div>
+</div>
+
+  <!-- Automatic Supabase Cloud Sync Quick-Setup Notification Banner -->
+  <div id="supabaseSetupNoticeBanner" style="display: none; background: linear-gradient(90deg, #022c22 0%, #064e3b 100%); color: #ffffff; padding: 10px 16px; border-bottom: 2px solid #10b981; align-items: center; justify-content: space-between; gap: 12px; font-size: 0.82rem; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+      <span style="font-size: 1.2rem;">⚡</span>
+      <span><strong>Automatic Supabase Cloud Sync:</strong> Paste your Supabase <code>anon</code> <code>public</code> key so every frontend sale & catalog update instantly saves to your database.</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <button type="button" onclick="openApiKeyModal()" style="background: #10b981; color: #ffffff; border: none; border-radius: 6px; padding: 6px 14px; font-weight: 800; font-size: 0.78rem; cursor: pointer; white-space: nowrap;">
+        🔑 Paste Key & Connect
+      </button>
+      <button type="button" onclick="this.parentElement.parentElement.style.display='none'" style="background: transparent; border: none; color: #a7f3d0; font-size: 1rem; cursor: pointer; padding: 0 4px;">✕</button>
+    </div>
+  </div>
+
+  <!-- Mobile-Only View Switcher (Visible on phone viewports <= 768px) -->
+  <div class="mobile-section-nav" id="mobileSectionNav">
+    <button type="button" class="mobile-nav-btn active" id="btnMobileTabMenu" onclick="switchMobileView('menu', true)">
+      <span>🍰 Catalog Menu</span>
+    </button>
+    <button type="button" class="mobile-nav-btn" id="btnMobileTabCart" onclick="switchMobileView('cart', true)">
+      <span>🛒 Bill Register</span>
+      <span class="mobile-nav-badge" id="mobileNavCartBadge">0</span>
+    </button>
+  </div>
+
+  <!-- =========================================================================
+       Main POS Dual-Column Workspace (PAGE 1: Register & Catalog)
+       ========================================================================= -->
+  <main class="pos-workspace-grid" id="posWorkspaceGrid">
+
+    <!-- =======================================================================
+         LEFT COLUMN: Daily Sales KPIs, Date Tracker & Product Catalog
+         ======================================================================= -->
+    <section class="pos-left-pane">
+
+      <!-- Interactive Product Catalog -->
+      <div class="pos-catalog-panel">
+        <div class="catalog-top-bar">
+          <div class="catalog-top-bar-primary">
+            <div class="catalog-heading-left">
+              <div class="catalog-heading-badge">
+                <svg class="catalog-badge-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                  <line x1="3" y1="6" x2="21" y2="6"/>
+                  <path d="M16 10a4 4 0 0 1-8 0"/>
+                </svg>
+              </div>
+              <span class="catalog-title">Menu Catalog</span>
+            </div>
+
+            <div class="catalog-actions-menu-wrap" id="catalogActionsMenuWrap">
+              <button type="button" class="btn-catalog-menu-trigger" id="btnCatalogMenuTrigger" onclick="toggleCatalogActionsMenu(event)" aria-haspopup="true" aria-expanded="false" title="Menu & Catalog Management">
+                <span class="catalog-menu-trigger-icon">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                  </svg>
+                </span>
+                <span class="catalog-menu-trigger-text">
+                  <span class="trigger-label-full">Manage Menu</span>
+                  <span class="trigger-label-short">Manage</span>
+                </span>
+                <span class="catalog-menu-trigger-chevron">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"/>
+                  </svg>
+                </span>
+              </button>
+
+              <!-- Floating Backdrop Dismissal Overlay -->
+              <div class="catalog-dropdown-backdrop" id="catalogDropdownBackdrop" onclick="closeCatalogActionsMenu()"></div>
+
+              <!-- Executive Dropdown Menu Popover -->
+              <div class="catalog-actions-dropdown" id="catalogActionsDropdown" role="menu" aria-label="Catalog Management Options">
+                <div class="catalog-dropdown-header">
+                  <span class="dropdown-header-title">Menu Management</span>
+                  <span class="dropdown-header-badge">4 Actions</span>
+                </div>
+
+                <div class="catalog-dropdown-list">
+                  <button type="button" class="catalog-dropdown-item item-add" onclick="executeCatalogMenuAction('add')" role="menuitem">
+                    <span class="menu-item-icon-badge icon-add">
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"/>
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                      </svg>
+                    </span>
+                    <div class="menu-item-text">
+                      <span class="menu-item-title">Add Menu Item</span>
+                      <span class="menu-item-sub">Create new product with photo & price</span>
+                    </div>
+                    <span class="menu-item-arrow">›</span>
+                  </button>
+
+                  <button type="button" class="catalog-dropdown-item item-edit" onclick="executeCatalogMenuAction('edit')" role="menuitem">
+                    <span class="menu-item-icon-badge icon-edit">
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 20h9"/>
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                      </svg>
+                    </span>
+                    <div class="menu-item-text">
+                      <span class="menu-item-title">Edit Products</span>
+                      <span class="menu-item-sub">Inventory manager, prices & stock levels</span>
+                    </div>
+                    <span class="menu-item-arrow">›</span>
+                  </button>
+
+                  <button type="button" class="catalog-dropdown-item item-custom" onclick="executeCatalogMenuAction('custom')" role="menuitem">
+                    <span class="menu-item-icon-badge icon-custom">
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                      </svg>
+                    </span>
+                    <div class="menu-item-text">
+                      <span class="menu-item-title">Custom Item</span>
+                      <span class="menu-item-sub">Build customized or off-menu order</span>
+                    </div>
+                    <span class="menu-item-arrow">›</span>
+                  </button>
+
+                  <div class="catalog-dropdown-divider"></div>
+
+                  <button type="button" class="catalog-dropdown-item item-reset" onclick="executeCatalogMenuAction('reset')" role="menuitem">
+                    <span class="menu-item-icon-badge icon-reset">
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                        <path d="M21 3v5h-5"/>
+                        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                        <path d="M3 21v-5h5"/>
+                      </svg>
+                    </span>
+                    <div class="menu-item-text">
+                      <span class="menu-item-title">Reset Stock</span>
+                      <span class="menu-item-sub">Restore original catalog & stock levels</span>
+                    </div>
+                    <span class="menu-item-arrow">›</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="catalog-subtitle-row">
+            <span class="catalog-live-dot"></span>
+            <span class="catalog-subtitle-text">Tap item to add directly to cart</span>
+          </div>
+        </div>
+
+        <!-- Category Filter Pills with Count Badges -->
+        <nav class="category-filter-nav" id="categoryFilterNav">
+          <button type="button" class="cat-nav-pill active" onclick="filterCatalogCategory('All', this)">
+            All Items <span class="cat-count-badge" id="catCountAll">19</span>
+          </button>
+          <button type="button" class="cat-nav-pill" onclick="filterCatalogCategory('Cakes & More', this)">
+            🍰 Cakes & More <span class="cat-count-badge" id="catCountCakesAndMore">8</span>
+          </button>
+          <button type="button" class="cat-nav-pill" onclick="filterCatalogCategory('Sugar Cubes Classics', this)">
+            🍫 Sugar Cubes Classics <span class="cat-count-badge" id="catCountClassics">11</span>
+          </button>
+        </nav>
+
+        <!-- Quick Item Search Input -->
+        <div class="catalog-search-box">
+          <input type="text" id="catalogSearchInput" placeholder="🔍 Quick search cakes, brownies, tiramisu, tres leches... (Type to filter)" oninput="onCatalogSearch(this.value)">
+          <button type="button" class="search-clear-btn" onclick="clearCatalogSearch()" title="Clear search">✕</button>
+        </div>
+
+        <!-- Product Cards Grid -->
+        <div class="product-touch-grid" id="catalogChipsGrid">
+          <!-- Populated dynamically by script.js -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- =======================================================================
+         RIGHT COLUMN: Sticky Live Register & Active Cart
+         ======================================================================= -->
+    <aside class="pos-right-register">
+      <div class="register-main-card">
+
+        <!-- Register Header -->
+        <div class="register-header">
+          <div class="register-header-top">
+            <div class="register-order-tag" id="registerTicketNum" onclick="promptEditBillNumber()" title="Click to adjust starting Bill No">
+              <span>BILL NO:</span> <strong>#SC-001</strong> <span style="font-size: 0.65rem; opacity: 0.7;">✏️</span>
+            </div>
+            <button type="button" class="register-terminal-badge-btn" onclick="handleActivePosClick()" title="Click for Shift Quick Actions & Terminal Status">
+              <span class="live-dot-green"></span>
+              <span>Shift Action</span>
+              <span style="font-size: 0.62rem; opacity: 0.8; margin-left: 2px;">⚡</span>
+            </button>
+          </div>
+          <div class="order-type-box-container" id="orderTypeBoxContainer">
+            <div class="order-type-slide-glider" id="orderTypeGlider"></div>
+            <button type="button" class="order-box-btn active" data-type="Takeaway" data-index="0" onclick="setOrderType('Takeaway', this)">
+              <span>🛍️</span> <span>Takeaway</span>
+            </button>
+            <button type="button" class="order-box-btn" data-type="Dine-In" data-index="1" onclick="setOrderType('Dine-In', this)">
+              <span>🍽️</span> <span>Dine-In</span>
+            </button>
+            <button type="button" class="order-box-btn" data-type="Delivery" data-index="2" onclick="setOrderType('Delivery', this)">
+              <span>🛵</span> <span>Delivery</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Customer Mobile & Name Input Bar (Direct WhatsApp Bill) -->
+        <div class="register-customer-bar">
+          <div class="customer-input-row">
+            <div class="cust-input-wrap mobile-wrap">
+              <span class="cust-input-icon">📱</span>
+              <input type="tel" id="custMobile" placeholder="Customer Mobile (10 Digits)" maxlength="14" oninput="formatCustomerPhoneInput(this)">
+            </div>
+            <div class="cust-input-wrap">
+              <span class="cust-input-icon">👤</span>
+              <input type="text" id="custName" placeholder="Name (Optional)">
+            </div>
+          </div>
+          <div class="register-customer-subrow">
+            <span class="wa-oneclick-hint">💬 Send PDF Bill to WhatsApp with 1-click!</span>
+            <label class="auto-pdf-toggle-label">
+              <input type="checkbox" id="autoDownloadPdfToggle" checked>
+              <span>⚡ Auto PDF</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Active Order Cart Items Container -->
+        <div class="register-cart-container" id="cartContainer">
+          <div class="cart-section-header">
+            <div class="cart-title-wrap">
+              <span class="cart-title-text">🛒 Order Items</span>
+              <span class="cart-items-pill" id="cartItemsBadge">0</span>
+            </div>
+            <button type="button" class="cart-clear-link" onclick="clearCurrentCart()" title="Clear all items in cart" style="display: none;">🗑️ Clear</button>
+          </div>
+
+          <ul class="cart-items-list" id="cartItemsList">
+            <!-- Populated dynamically by script.js -->
+          </ul>
+
+          <div class="cart-empty-state" id="cartEmptyState">
+            <div class="cart-empty-icon-wrap">
+              <span class="cart-empty-icon">🍰</span>
+            </div>
+            <p class="cart-empty-title">Cart is Ready & Empty</p>
+            <p class="cart-empty-subtitle">Tap any delicacy from the left menu to add items directly to this order.</p>
+          </div>
+        </div>
+
+        <!-- Calculation & Totals Panel -->
+        <div class="register-calc-panel">
+          <div class="calc-row">
+            <span>Items Subtotal (<span id="cartItemsCount">0</span> items):</span>
+            <span id="cartSubtotalVal">₹0.00</span>
+          </div>
+
+          <div class="calc-interactive-row">
+            <label class="tax-toggle-label">
+              <input type="checkbox" id="taxGstToggle" onchange="onTaxToggleChange()">
+              <span>Bakery GST (5%)</span>
+            </label>
+            <span id="cartTaxVal">₹0.00</span>
+          </div>
+
+          <div class="calc-interactive-row">
+            <span style="font-size: 0.8rem; font-weight: 600; color: #64748b;">Discount:</span>
+            <div class="discount-pills">
+              <button type="button" class="discount-pill active" onclick="setDiscount(0, this)">None</button>
+              <button type="button" class="discount-pill" onclick="setDiscount(5, this)">5%</button>
+              <button type="button" class="discount-pill" onclick="setDiscount(10, this)">10%</button>
+              <button type="button" class="discount-pill" onclick="promptCustomDiscount(this)">Custom</button>
+            </div>
+          </div>
+
+          <div class="calc-row" id="discountSummaryRow" style="display: none;">
+            <span>Discount Applied:</span>
+            <span id="cartDiscountVal" style="color: #dc2626;">-₹0.00</span>
+          </div>
+
+          <!-- Bold Grand Total Banner -->
+          <div class="register-grand-total">
+            <span class="total-due-label">Total Amount:</span>
+            <span class="total-due-amount" id="cartGrandTotalVal">₹0.00</span>
+          </div>
+        </div>
+
+        <!-- Payment Mode Selector -->
+        <div class="payment-mode-bar">
+          <span class="payment-mode-label">Payment Method:</span>
+          <div class="payment-mode-options">
+            <button type="button" class="pay-btn active" id="payModeCash" onclick="setPaymentMode('Cash', this)">
+              <span style="font-size: 1.1rem;">💵</span>
+              <span>Cash</span>
+            </button>
+            <button type="button" class="pay-btn" id="payModeUpi" onclick="setPaymentMode('UPI', this)">
+              <span style="font-size: 1.1rem;">📱</span>
+              <span>UPI / QR</span>
+            </button>
+            <button type="button" class="pay-btn" id="payModeCard" onclick="setPaymentMode('Card', this)">
+              <span style="font-size: 1.1rem;">💳</span>
+              <span>Card</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="register-action-buttons">
+          <!-- Send Official PDF Bill Directly to WhatsApp (PDF Format Only) -->
+          <button type="button" class="btn-whatsapp-bill" onclick="sendBillWhatsApp()" title="Send official PDF bill directly to customer on WhatsApp">
+            <span style="font-size: 1.2rem;">📲</span>
+            <span>Send PDF Bill to WhatsApp</span>
+          </button>
+
+          <div class="register-action-dual-row">
+            <!-- Direct Download Professional PDF Bill -->
+            <button type="button" class="btn-download-pdf" onclick="downloadPdfBill()" title="Generate and download official PDF tax invoice with Instagram QR">
+              <span style="font-size: 1.05rem;">📄</span>
+              <span>Download PDF</span>
+            </button>
+
+            <!-- Complete & Print Bill Button -->
+            <button type="button" class="btn-checkout-print" onclick="openBillModal()" title="View and print thermal receipt with Instagram QR">
+              <span style="font-size: 1.05rem;">🧾</span>
+              <span>Thermal Bill</span>
+            </button>
+          </div>
+
+          <!-- Complete & New Sale Action -->
+          <button type="button" class="btn-primary-action" style="background: #0f172a; padding: 11px; font-size: 0.88rem; width: 100%;" onclick="completeAndNewSale()" title="Record completed transaction and reset register for next customer">
+            ✅ Complete & Next Customer
+          </button>
+
+          <!-- Secondary Utilities -->
+          <div class="register-secondary-row">
+            <button type="button" class="btn-reg-secondary" onclick="openDailyReportModal()" title="View closing sales report">
+              📊 Daily Report
+            </button>
+            <button type="button" class="btn-reg-secondary" onclick="exportToExcel()" title="Export all records to CSV">
+              📈 Export CSV
+            </button>
+            <button type="button" class="btn-reg-secondary danger" onclick="clearCurrentCart()" title="Void current cart">
+              🗑️ Clear Cart
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- =========================================================================
+       PAGE 2: Laptop / Web Dedicated Daily Sales & Business Performance Page
+       (Dedicated Full Page View for Laptop/Desktop - NOT a popup modal)
+       ========================================================================= -->
+  <section class="desktop-kpi-page" id="desktopKpiPageView" style="display: none;">
+    <!-- Top Action & Navigation Banner -->
+    <div class="kpi-page-top-bar">
+      <div class="kpi-page-header-left">
+        <button type="button" class="btn-back-to-pos" onclick="switchDesktopPage('store')" title="Return to POS Counter and Product Catalog">
+          <span class="back-icon">←</span>
+          <span>Back to POS Counter</span>
+        </button>
+        <div class="kpi-page-title-wrap">
+          <div class="kpi-page-badge-row">
+            <span class="kpi-page-hub-badge">📊 EXECUTIVE REPORT</span>
+            <span class="kpi-page-status-pill"><span class="kpi-live-dot"></span> Live Store Analytics</span>
+          </div>
+          <h2 class="kpi-page-heading">Daily Sales & Business Performance Hub</h2>
+          <p class="kpi-page-sub">Comprehensive turnover tracking, date filtering, itemized order receipts & best sellers</p>
+        </div>
+      </div>
+
+      <div class="kpi-page-header-right">
+        <button type="button" class="btn-kpi-export-csv" onclick="exportToExcel()" title="Export all sales to CSV spreadsheet">
+          <span>📈</span> <span>Export CSV</span>
+        </button>
+        <button type="button" class="btn-kpi-print-stmt" onclick="openDailyReportModal('all')" title="Print certified daily closing statement">
+          <span>🖨️</span> <span>Print Sales Statement</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Date Tracker & Filter Bar -->
+    <div class="daily-track-panel kpi-page-track-panel">
+      <div class="date-tabs-wrap">
+        <span class="date-track-label">📅 Track Sales:</span>
+        <button type="button" class="date-pill-btn active" id="btnDateToday" onclick="setDateFilter('today')">🌟 Today</button>
+        <button type="button" class="date-pill-btn" id="btnDateYesterday" onclick="setDateFilter('yesterday')">⏪ Yesterday</button>
+        <button type="button" class="date-pill-btn" id="btnDateAll" onclick="setDateFilter('all')">🗓️ All Records</button>
+
+        <div class="date-picker-box">
+          <label for="customDatePicker" style="font-size: 0.75rem; font-weight: 600; color: #64748b;">Pick Date:</label>
+          <input type="date" id="customDatePicker" onchange="setDateFilter('custom', this.value)">
+        </div>
+      </div>
+
+      <div class="active-context-badge" id="activeDateContext">
+        Showing: <strong>Today's Sales</strong>
+      </div>
+    </div>
+
+    <!-- 4-Card Daily Sales KPI Dashboard (Preserves All Original Identifiers) -->
+    <div class="daily-kpi-grid kpi-page-kpi-grid">
+      <div class="kpi-card kpi-rev">
+        <div class="kpi-icon">💰</div>
+        <div class="kpi-content">
+          <span class="kpi-title" id="kpiRevenueLabel">Today's Sales</span>
+          <span class="kpi-val highlight-green" id="kpiRevenueVal">₹0.00</span>
+          <span class="kpi-card-sub-label">Gross Revenue Turnover</span>
+        </div>
+      </div>
+
+      <div class="kpi-card kpi-ord">
+        <div class="kpi-icon">📦</div>
+        <div class="kpi-content">
+          <span class="kpi-title" id="kpiOrdersLabel">Orders</span>
+          <span class="kpi-val" id="kpiOrdersVal">0</span>
+          <span class="kpi-card-sub-label">Paid Invoices Completed</span>
+        </div>
+      </div>
+
+      <div class="kpi-card kpi-top">
+        <div class="kpi-icon">🏆</div>
+        <div class="kpi-content">
+          <span class="kpi-title">Best Sale</span>
+          <span class="kpi-val" id="kpiTopCatVal" style="font-size: 1.05rem;">--</span>
+          <span class="kpi-card-sub-label">Top Performing Category</span>
+        </div>
+      </div>
+
+      <div class="kpi-card kpi-aov">
+        <div class="kpi-icon">📈</div>
+        <div class="kpi-content">
+          <span class="kpi-title">Avg. Order Value</span>
+          <span class="kpi-val" id="kpiAovVal">₹0.00</span>
+          <span class="kpi-card-sub-label">Average Spend per Bill</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dual-Column Detailed Insights Grid on the Dedicated Page -->
+    <div class="kpi-page-details-grid">
+      <!-- Left Column: Itemized Orders Log for Selected Date -->
+      <div class="kpi-page-card kpi-page-orders-card">
+        <div class="kpi-page-card-header">
+          <div class="kpi-page-card-title-box">
+            <span class="kpi-page-card-icon">🧾</span>
+            <div>
+              <h3 class="kpi-page-card-title">Itemized Orders & Invoices</h3>
+              <p class="kpi-page-card-sub" id="desktopOrdersCardSub">Orders recorded for active date filter</p>
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+            <button type="button" onclick="syncOrdersWithSupabase(true)" title="Sync all orders with Supabase Cloud Database" style="background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; border-radius: 8px; padding: 6px 12px; font-weight: 700; font-size: 0.78rem; cursor: pointer; display: flex; align-items: center; gap: 4px; white-space: nowrap;">
+              <span>☁️</span> <span>Sync Supabase</span>
+            </button>
+            <div class="kpi-page-orders-search">
+              <input type="text" id="desktopOrdersSearchInput" placeholder="🔍 Search bill #, phone, cake..." oninput="renderDesktopPageOrdersList()">
+            </div>
+          </div>
+        </div>
+
+        <div class="kpi-page-card-body">
+          <div class="desktop-orders-scroll-table" id="desktopOrdersScrollList">
+            <!-- Rendered dynamically by script.js -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Best Selling Foods Leaderboard & Category Breakdown -->
+      <div class="kpi-page-card kpi-page-leaderboard-card">
+        <div class="kpi-page-card-header">
+          <div class="kpi-page-card-title-box">
+            <span class="kpi-page-card-icon">🏆</span>
+            <div>
+              <h3 class="kpi-page-card-title">Best Selling Foods & Popular Items</h3>
+              <p class="kpi-page-card-sub">Top ranked bakery items by order count</p>
+            </div>
+          </div>
+          <span class="best-sales-count-badge" id="desktopBestFoodsCountBadge">0 Items</span>
+        </div>
+
+        <div class="kpi-page-card-body">
+          <div class="desktop-leaderboard-list" id="desktopLeaderboardList">
+            <!-- Rendered dynamically by script.js -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       Modal: Add Custom Cake / Off-Menu Item
+       ========================================================================= -->
+  <div id="customOrderModal" class="modal-backdrop" style="display: none;" onclick="closeCustomOrderModalOnBackdrop(event)">
+    <div class="modal-window-card" onclick="event.stopPropagation()">
+      <div class="modal-card-top">
+        <h3>🎂 Add Custom Cake / Special Item</h3>
+        <button type="button" class="modal-close-x" onclick="closeCustomOrderModal()">✕</button>
+      </div>
+      <div class="modal-card-body">
+        <div class="form-field">
+          <label for="customItemName">Item / Cake Name:</label>
+          <input type="text" id="customItemName" placeholder="e.g. 2-Tier Birthday Photo Cake (2 Kg)">
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-field">
+            <label for="customItemCategory">Category:</label>
+            <select id="customItemCategory">
+              <option value="Cakes">🎂 Cakes</option>
+              <option value="Pastries">🍰 Pastries</option>
+              <option value="Cupcakes">🧁 Cupcakes</option>
+              <option value="Desserts">🍪 Desserts</option>
+              <option value="Beverages">☕ Beverages</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="customItemPrice">Price (₹):</label>
+            <input type="number" id="customItemPrice" placeholder="0.00" min="0" step="0.01">
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="customItemQty">Quantity:</label>
+          <input type="number" id="customItemQty" value="1" min="1" max="99">
+        </div>
+      </div>
+      <div class="modal-card-bottom">
+        <button type="button" class="btn-dismiss" onclick="closeCustomOrderModal()">Cancel</button>
+        <button type="button" class="btn-primary-action" onclick="saveCustomOrder()">+ Add to Order</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       Modal: Edit Bakery Product (Name, Category, Price & Stock)
+       ========================================================================= -->
+  <div id="editProductModal" class="modal-backdrop" style="display: none; z-index: 10045;" onclick="closeEditProductModalOnBackdrop(event)">
+    <div class="modal-window-card edit-product-modal-card" onclick="event.stopPropagation()">
+      <div class="modal-card-top edit-product-header">
+        <div class="edit-product-header-branding">
+          <div class="edit-product-header-icon-ring">
+            <span class="edit-product-header-icon">🍰</span>
+            <span class="edit-header-beacon" title="Live Shelf Counter Active"></span>
+          </div>
+          <div class="edit-product-header-titles">
+            <div class="edit-product-modal-badge" id="editProductModalBadge">ADMIN INVENTORY TERMINAL</div>
+            <h3 class="edit-product-title" id="editProductModalTitle">Edit Bakery Product</h3>
+            <p class="edit-product-subtitle" id="editProductModalSubtitle">Modify retail pricing, category assignment & live inventory</p>
+          </div>
+        </div>
+        <button type="button" class="modal-close-x edit-product-close-x" onclick="closeEditProductModal()" aria-label="Close">✕</button>
+      </div>
+      
+      <div class="modal-card-body edit-product-body">
+        <input type="hidden" id="editProductOriginalId" value="">
+        <input type="hidden" id="editProductOriginalName" value="">
+        
+        <!-- Product Name Input -->
+        <div class="edit-field-group">
+          <label for="editProductName" class="edit-field-label">
+            <span class="edit-label-icon">🏷️</span>
+            <span>Product Name</span>
+            <span class="edit-required-mark">*</span>
+          </label>
+          <div class="edit-input-wrapper">
+            <input type="text" id="editProductName" placeholder="e.g. Mango Cheesecake, Croissant, Biscoff..." autocomplete="off" spellcheck="false" oninput="onProductNameInput(this.value)">
+          </div>
+        </div>
+
+        <!-- Category & Price Grid -->
+        <div class="edit-dual-grid">
+          <div class="edit-field-group">
+            <label for="editProductCategory" class="edit-field-label">
+              <span class="edit-label-icon">📂</span>
+              <span>Category</span>
+            </label>
+            <div class="edit-select-wrapper">
+              <select id="editProductCategory" onchange="onProductCategoryChanged(this.value)">
+                <option value="Cakes">🎂 Cakes</option>
+                <option value="Pastries">🍰 Pastries</option>
+                <option value="Cupcakes">🧁 Cupcakes</option>
+                <option value="Desserts">🍪 Desserts</option>
+                <option value="Beverages">☕ Beverages</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="edit-field-group">
+            <label for="editProductPrice" class="edit-field-label">
+              <span class="edit-label-icon">💰</span>
+              <span>Retail Price (₹)</span>
+              <span class="edit-required-mark">*</span>
+            </label>
+            <div class="edit-currency-input-wrapper">
+              <span class="currency-prefix-badge">₹</span>
+              <input type="number" id="editProductPrice" placeholder="0.00" min="0" step="0.5">
+            </div>
+          </div>
+        </div>
+
+        <!-- Product Photo & Smart Online Matcher Cockpit -->
+        <div class="edit-field-group edit-photo-field-group">
+          <div class="edit-field-header-flex">
+            <label for="editProductImage" class="edit-field-label">
+              <span class="edit-label-icon">🖼️</span>
+              <span>Product Photo & Auto-Matcher</span>
+            </label>
+            <span class="smart-photo-badge" id="smartPhotoBadge">✨ Auto-Matched</span>
+          </div>
+
+          <div class="photo-matcher-cockpit">
+            <!-- Left: Live Photo Thumbnail Preview Box -->
+            <div class="photo-live-preview-box" id="editPhotoPreviewBox" title="Current product photo preview">
+              <img id="editPhotoPreviewImg" src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&auto=format&fit=crop&q=80" alt="Product Preview" onerror="onPhotoPreviewError(this)">
+              <div class="photo-preview-indicator">Preview</div>
+            </div>
+
+            <!-- Right: Photo URL Input & Action Buttons -->
+            <div class="photo-matcher-details">
+              <div class="edit-input-wrapper photo-input-wrapper">
+                <input type="url" id="editProductImage" placeholder="Auto-matching photo URL or paste custom link..." autocomplete="off" spellcheck="false" oninput="onManualPhotoUrlInput(this.value)">
+                <button type="button" class="photo-input-clear-btn" id="photoInputClearBtn" onclick="clearProductPhotoUrl()" title="Clear and auto-match photo">✕</button>
+              </div>
+
+              <!-- Action Buttons Strip -->
+              <div class="photo-matcher-actions">
+                <button type="button" class="btn-photo-action btn-auto-match" onclick="autoMatchProductPhoto(true)" title="Auto-find matching photo for this item name">
+                  <span>⚡ Auto-Match</span>
+                </button>
+                <button type="button" class="btn-photo-action btn-web-search" id="btnWebSearchPhotos" onclick="searchOnlinePhotos()" title="Search online web photos matching this item">
+                  <span>🔍 Search Online</span>
+                </button>
+                <a id="btnGoogleImagesLink" href="https://www.google.com/search?tbm=isch&q=bakery+cake" target="_blank" rel="noopener noreferrer" class="btn-photo-action btn-google-images" title="Open Google Images in new tab">
+                  <span>🌐 Google Images ↗</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Suggested Matching Online Photos Strip (Collapsible / Dynamic) -->
+          <div class="photo-suggestions-container" id="photoSuggestionsContainer" style="display: none;">
+            <div class="photo-suggestions-header">
+              <span class="suggestions-title" id="photoSuggestionsTitle">✨ Matching Photos:</span>
+              <button type="button" class="suggestions-close-btn" onclick="closePhotoSuggestions()" title="Close photo suggestions">✕</button>
+            </div>
+            <div class="photo-suggestions-scroll-strip" id="photoSuggestionsStrip">
+              <!-- Dynamically populated by searchOnlinePhotos() -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Stock Management Cockpit Card -->
+        <div class="stock-cockpit-panel">
+          <div class="stock-cockpit-header">
+            <div class="stock-cockpit-title-wrap">
+              <span class="stock-cockpit-icon">📦</span>
+              <div>
+                <span class="stock-cockpit-title">Available Inventory Stock</span>
+                <span class="stock-cockpit-sub">Live shelf count in shop</span>
+              </div>
+            </div>
+            <span id="editProductStockBadge" class="stock-status-pill stock-in">
+              In Stock (8)
+            </span>
+          </div>
+          
+          <div class="stock-stepper-control-row">
+            <button type="button" class="btn-stock-step-btn btn-step-minus" onclick="stepEditProductStock(-1)" title="Decrease stock by 1">
+              <span>−</span>
+            </button>
+            <div class="stock-display-box">
+              <input type="number" id="editProductStock" placeholder="0" min="0" step="1" oninput="onEditStockInputChanged(this.value)">
+              <span class="stock-unit-label">Units on shelf</span>
+            </div>
+            <button type="button" class="btn-stock-step-btn btn-step-plus" onclick="stepEditProductStock(1)" title="Increase stock by 1">
+              <span>+</span>
+            </button>
+          </div>
+
+          <!-- Quick Preset Increment Chips -->
+          <div class="stock-quick-presets-strip">
+            <span class="preset-strip-label">Quick Presets:</span>
+            <button type="button" class="stock-preset-pill" onclick="addEditProductStock(5)">
+              <span class="preset-btn-full">+5 Units</span>
+              <span class="preset-btn-short">+5</span>
+            </button>
+            <button type="button" class="stock-preset-pill" onclick="addEditProductStock(10)">
+              <span class="preset-btn-full">+10 Units</span>
+              <span class="preset-btn-short">+10</span>
+            </button>
+            <button type="button" class="stock-preset-pill" onclick="addEditProductStock(25)">
+              <span class="preset-btn-full">+25 Bulk</span>
+              <span class="preset-btn-short">+25</span>
+            </button>
+            <button type="button" class="stock-preset-pill preset-zero" onclick="setEditProductStock(0)" title="Mark as sold out">
+              <span class="preset-btn-full">Set 0 (Out)</span>
+              <span class="preset-btn-short">Set 0</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-card-bottom edit-product-footer">
+        <button type="button" class="btn-edit-delete" id="btnEditProductDelete" onclick="deleteCurrentProduct()" title="Permanently delete this product from menu">
+          <span class="btn-text-full">🗑️ Delete Item</span>
+          <span class="btn-text-short">🗑️ Delete</span>
+        </button>
+        <button type="button" class="btn-edit-cancel" onclick="closeEditProductModal()">
+          <span>✕ Cancel</span>
+        </button>
+        <button type="button" class="btn-edit-save" id="editProductModalSaveBtn" onclick="saveProductChanges()">
+          <span class="btn-text-full">💾 Save & Apply Changes</span>
+          <span class="btn-text-short">💾 Save Changes</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       Modal: All Products Management & Price/Stock Master List
+       ========================================================================= -->
+  <div id="productListModal" class="modal-backdrop" style="display: none; z-index: 10040;" onclick="closeProductListModalOnBackdrop(event)">
+    <div class="modal-window-card product-list-modal-card" onclick="event.stopPropagation()">
+      <div class="modal-card-top product-list-header">
+        <div class="prod-list-header-left">
+          <div class="prod-list-header-icon-wrap">
+            <span>📋</span>
+            <span class="prod-list-beacon" title="Live Master Database Active"></span>
+          </div>
+          <div class="prod-list-header-text">
+            <div class="prod-list-badge">BAKERY INVENTORY CONTROL</div>
+            <h3 class="prod-list-title">All Bakery Products & Stock Hub</h3>
+            <p class="prod-list-subtitle">Manage retail pricing, catalog categories & live shelf quantities</p>
+          </div>
+        </div>
+        <button type="button" class="modal-close-x prod-list-close-x" onclick="closeProductListModal()" aria-label="Close">✕</button>
+      </div>
+
+      <!-- Toolbar: Search Bar, Category Filter Strip & Sorting -->
+      <div class="product-list-toolbar">
+        <div class="prod-search-row">
+          <div class="prod-search-input-wrap">
+            <span class="prod-search-icon">🔍</span>
+            <input type="text" id="prodManagerSearchInput" placeholder="Quick search products by name..." oninput="onProductManagerSearch(this.value)">
+            <button type="button" class="prod-search-clear-btn" id="prodManagerSearchClear" onclick="clearProductManagerSearch()" title="Clear search">✕</button>
+          </div>
+          <div class="prod-sort-select-wrap">
+            <label for="prodManagerSortSelect" class="prod-sort-label">Sort:</label>
+            <select id="prodManagerSortSelect" onchange="onProductManagerSortChange(this.value)">
+              <option value="name-asc">Name (A-Z)</option>
+              <option value="price-asc">Price (Low → High)</option>
+              <option value="price-desc">Price (High → Low)</option>
+              <option value="stock-asc">Stock (Lowest First ⚠️)</option>
+              <option value="stock-desc">Stock (Highest First)</option>
+            </select>
+          </div>
+          <button type="button" class="btn-toolbar-add-product" onclick="openAddProductModal()" title="Add new bakery product to catalog">
+            <span>➕ Add Product</span>
+          </button>
+        </div>
+
+        <div class="prod-manager-cat-tabs" id="prodManagerCatTabs">
+          <!-- Rendered with live count badges -->
+        </div>
+      </div>
+
+      <!-- Scrollable List of All Products -->
+      <div class="modal-card-body product-list-scroll-body" id="productListScrollContainer">
+        <!-- Rendered dynamically by renderProductListManager() -->
+      </div>
+
+      <!-- Pinned Symmetrical Bottom Command Dock -->
+      <div class="modal-card-bottom product-list-footer">
+        <div class="prod-list-footer-dock">
+          <button type="button" class="btn-prod-footer-back" onclick="closeProductListModal()">
+            <span class="btn-text-full">← Back to Store</span>
+            <span class="btn-text-short">← Store</span>
+          </button>
+          <button type="button" class="btn-prod-footer-add" onclick="openAddProductModal()" title="Add a new bakery product to catalog">
+            <span class="btn-text-full">➕ Add Menu Item</span>
+            <span class="btn-text-short">➕ Add Item</span>
+          </button>
+          <button type="button" class="btn-prod-footer-custom" onclick="openCustomOrderFromProductList()">
+            <span class="btn-text-full">🎂 Custom Cake</span>
+            <span class="btn-text-short">🎂 Custom</span>
+          </button>
+          <button type="button" class="btn-prod-footer-reset" onclick="resetCatalogStock()">
+            <span class="btn-text-full">🔄 Defaults</span>
+            <span class="btn-text-short">🔄 Defaults</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       Modal: Thermal Receipt / Cash Memo (With Downside Instagram Profile QR)
+       ========================================================================= -->
+  <div id="billModal" class="modal-backdrop" style="display: none; z-index: 10050;" onclick="closeBillModalOnBackdrop(event)">
+    <div class="thermal-paper-receipt print-area-active" onclick="event.stopPropagation()">
+      
+      <div class="receipt-header-center">
+        <div class="receipt-brand-title">🍰 SUGAR CUBES</div>
+        <div class="receipt-tagline-text">📍 Coimbatore • Tamil Nadu</div>
+        <div class="receipt-tagline-text">Artisanal Cakes • Pastries • Fresh Bakes</div>
+        <div class="receipt-tagline-text">100% Eggless Options • Fresh Daily</div>
+        <div class="receipt-cut-line"></div>
+        <div style="font-weight: 700; font-size: 0.85rem; letter-spacing: 0.5px;">TAX INVOICE / CASH MEMO</div>
+        <div class="receipt-cut-line"></div>
+      </div>
+
+      <div class="receipt-meta-grid">
+        <div class="receipt-meta-row">
+          <span><strong>INVOICE NO:</strong> <span id="billNumber">#SC-001</span></span>
+          <span id="billOrderTypeTag" style="font-weight: 700;">TAKEAWAY</span>
+        </div>
+        <div class="receipt-meta-row">
+          <span>📅 Date: <span id="billDate">--</span></span>
+          <span>⏰ Time: <span id="billTime">--</span></span>
+        </div>
+        <div class="receipt-meta-row" id="billCustomerMetaRow">
+          <span>👤 Customer: <span id="billCustomerName">Walk-In</span></span>
+          <span>📱 <span id="billCustomerPhone">--</span></span>
+        </div>
+        <div class="receipt-meta-row">
+          <span>💳 Mode: <strong id="billPaymentMode">Cash</strong></span>
+          <span>Register: #Counter-1</span>
+        </div>
+      </div>
+
+      <div class="receipt-cut-line"></div>
+
+      <!-- Itemized Items Table -->
+      <table class="receipt-table">
+        <thead>
+          <tr>
+            <th style="width: 10%; text-align: center;">#</th>
+            <th style="width: 50%; text-align: left;">Item</th>
+            <th style="width: 15%; text-align: center;">Qty</th>
+            <th style="width: 25%; text-align: right;">Amt (₹)</th>
+          </tr>
+        </thead>
+        <tbody id="billItemsBody">
+          <!-- Populated by JavaScript -->
+        </tbody>
+      </table>
+
+      <div class="receipt-cut-line"></div>
+
+      <!-- Totals & Taxes -->
+      <div class="receipt-totals-box">
+        <div class="receipt-total-line">
+          <span>Total Items:</span>
+          <span id="billTotalItems">0</span>
+        </div>
+        <div class="receipt-total-line">
+          <span>Subtotal:</span>
+          <span id="billSubtotal">₹0.00</span>
+        </div>
+        <div class="receipt-total-line" id="billDiscountLine" style="display: none;">
+          <span>Discount:</span>
+          <span id="billDiscountVal">-₹0.00</span>
+        </div>
+        <div class="receipt-total-line">
+          <span>GST / Tax:</span>
+          <span id="billGstVal">₹0.00</span>
+        </div>
+        <div class="receipt-cut-line"></div>
+        <div class="receipt-total-line receipt-grand-total">
+          <span>TOTAL DUE:</span>
+          <span id="billGrandTotal">₹0.00</span>
+        </div>
+      </div>
+
+      <!-- Down-Side Instagram Profile ID & QR Code for Thermal Receipt -->
+      <div class="receipt-instagram-card">
+        <div class="receipt-cut-line" style="width: 100%;"></div>
+        <div class="receipt-ig-title">📸 FOLLOW US ON INSTAGRAM</div>
+        <div class="receipt-qr-frame" id="thermalInstagramQr">
+          <!-- QR Code Canvas/SVG injected by script.js -->
+        </div>
+        <div class="receipt-ig-handle" id="thermalIgHandleText">@sugarcubes_official</div>
+        <div class="receipt-ig-hint">Scan QR code to tag your celebration cakes! ✨</div>
+        <div class="receipt-cut-line" style="width: 100%;"></div>
+      </div>
+
+      <!-- Barcode & Thank You -->
+      <div class="receipt-barcode-view">|||| | || ||||| || ||| ||||</div>
+      <div class="receipt-greeting">
+        *** THANK YOU FOR VISITING SUGAR CUBES! ***<br>
+        Making your celebrations sweeter every day 🎂
+      </div>
+
+      <!-- Modal Action Buttons -->
+      <div class="receipt-action-dock no-print">
+        <button type="button" class="btn-whatsapp-bill" onclick="sendBillWhatsApp()" title="Send official PDF bill directly to customer on WhatsApp">
+          <span>📲</span> <span>Send PDF Bill to WhatsApp</span>
+        </button>
+        <button type="button" class="btn-download-pdf" onclick="downloadPdfBill()">
+          <span>📄</span> <span>Download Official PDF Bill</span>
+        </button>
+        <button type="button" class="btn-checkout-print" onclick="printThermalBill()">
+          <span>🖨️</span> <span>Print Receipt / Thermal</span>
+        </button>
+        <button type="button" class="btn-dismiss" id="billModalCloseBtn" onclick="closeBillModal()">
+          ✕ Close
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       Modal: Cashier Profile & Executive Sales Hub (Mobile Top-Corner Profile)
+       ========================================================================= -->
+  <div id="userProfileModal" class="modal-backdrop" style="display: none;" onclick="closeUserProfileModalOnBackdrop(event)">
+    <div class="modal-window-card profile-modal-window" onclick="event.stopPropagation()">
+      
+      <!-- Top Header Bar with Live Clock & Sound Toggle -->
+      <div class="profile-modal-header">
+        <div class="profile-modal-top-row">
+          <button type="button" class="btn-profile-nav-back" id="btnProfileNavBack" onclick="closeUserProfileModal()" title="Back to Store Menu">
+            <span class="nav-back-arrow">←</span> <span class="nav-back-text">Store</span>
+          </button>
+          <div class="profile-user-summary">
+            <span class="profile-avatar-emoji">👤</span>
+            <div class="profile-user-texts">
+              <span class="profile-user-title" id="profileModalFullName">Store Manager</span>
+              <span class="profile-user-email" id="profileModalEmail" style="font-size: 12px; color: #475569; font-weight: 500;">admin@sugarcubes.com</span>
+              <span class="profile-user-shift"><span class="prof-beacon-dot"></span> Live Shift • Counter #1</span>
+            </div>
+          </div>
+          <div class="profile-header-actions">
+            <button type="button" class="prof-sound-toggle-btn" id="profSoundToggleBtn" onclick="toggleAudioSound()" title="Toggle POS sound effects">
+              🔔 Sound: ON
+            </button>
+            <button type="button" class="modal-close-x profile-close-btn" onclick="closeUserProfileModal()" title="Back to Store Menu">✕</button>
+          </div>
+        </div>
+
+        <!-- 🕒 Live Time & Date Display -->
+        <div class="prof-time-date-card">
+          <div class="prof-time-box">
+            <span class="prof-time-icon">🕒</span>
+            <span class="prof-time-digits" id="profLiveClock">--:--:-- --</span>
+          </div>
+          <div class="prof-date-badge" id="profLiveDate">
+            📅 Loading date...
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Body: Metrics & All Date Order History -->
+      <div class="profile-modal-body">
+        
+        <!-- 4 Key Sales Performance Metrics (Total Sales, Order, Best Sales, Ava Order) -->
+        <div class="prof-kpi-grid">
+          <div class="prof-kpi-card kpi-sales kpi-clickable" onclick="openAllTotalSalesPageFromProfile()" title="Tap to view All Total Sales Statement & Audit Page">
+            <div class="prof-kpi-header">
+              <div class="prof-kpi-title-wrap">
+                <span class="prof-kpi-icon">💰</span>
+                <span class="prof-kpi-label">TOTAL SALES</span>
+              </div>
+              <span class="prof-kpi-action-tag">All Sales ➔</span>
+            </div>
+            <div class="prof-kpi-val text-emerald" id="profKpiTotalSales">₹0.00</div>
+          </div>
+
+          <div class="prof-kpi-card kpi-orders kpi-clickable" onclick="openAllOrdersHistoryFromProfile()" title="Tap to view All Orders Page History">
+            <div class="prof-kpi-header">
+              <div class="prof-kpi-title-wrap">
+                <span class="prof-kpi-icon">📦</span>
+                <span class="prof-kpi-label">ORDERS</span>
+              </div>
+              <span class="prof-kpi-action-tag">History ➔</span>
+            </div>
+            <div class="prof-kpi-val text-blue" id="profKpiOrders">0</div>
+          </div>
+
+          <div class="prof-kpi-card kpi-best kpi-clickable" onclick="openBestSalesAnalyticsFromProfile()" title="Tap to view which food items are most ordered & popular">
+            <div class="prof-kpi-header">
+              <div class="prof-kpi-title-wrap">
+                <span class="prof-kpi-icon">🏆</span>
+                <span class="prof-kpi-label">BEST SALES</span>
+              </div>
+              <span class="prof-kpi-action-tag">Top Foods ➔</span>
+            </div>
+            <div class="prof-kpi-val text-amber" id="profKpiBestSales">--</div>
+          </div>
+
+          <div class="prof-kpi-card kpi-aov kpi-clickable" onclick="openBestSalesAnalyticsFromProfile()" title="Tap to view Average Sales & Order Economics">
+            <div class="prof-kpi-header">
+              <div class="prof-kpi-title-wrap">
+                <span class="prof-kpi-icon">📊</span>
+                <span class="prof-kpi-label">AVA ORDER</span>
+              </div>
+              <span class="prof-kpi-action-tag">Avg Stats ➔</span>
+            </div>
+            <div class="prof-kpi-val text-purple" id="profKpiAvgOrder">₹0.00</div>
+          </div>
+        </div>
+
+        <!-- 📋 History of All the Date Orders -->
+        <div class="prof-history-section">
+          <div class="prof-history-title-row">
+            <span class="prof-history-title">📋 Orders History by Date</span>
+            <span class="prof-history-count-badge" id="profHistCountBadge">0 Orders</span>
+          </div>
+
+          <!-- Date Filter Segmented Tabs & Date Picker -->
+          <div class="prof-date-filter-bar">
+            <button type="button" class="prof-date-btn active" id="profHistBtnToday" onclick="setProfHistoryFilter('today')">🌟 Today</button>
+            <button type="button" class="prof-date-btn" id="profHistBtnYesterday" onclick="setProfHistoryFilter('yesterday')">⏪ Yesterday</button>
+            <button type="button" class="prof-date-btn" id="profHistBtnAll" onclick="setProfHistoryFilter('all')">🗓️ All Records</button>
+            <div class="prof-custom-date-box">
+              <label for="profHistDatePicker">📅 Pick:</label>
+              <input type="date" id="profHistDatePicker" onchange="setProfHistoryFilter('custom', this.value)">
+            </div>
+          </div>
+
+          <!-- Search Filter Input -->
+          <div class="prof-search-bar">
+            <input type="text" id="profHistSearchInput" placeholder="🔍 Search bill #, phone or cake..." oninput="renderProfOrdersHistory()">
+          </div>
+
+          <!-- Orders List Container -->
+          <div class="prof-orders-scroll-list" id="profModalOrdersList">
+            <!-- Dynamic order rows rendered by script.js -->
+          </div>
+        </div>
+
+        <!-- 👥 Backend Registered Accounts & Email Directory Card -->
+        <div class="prof-registered-users-card" style="margin-top: 14px; padding: 14px; background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid #f1f5f9;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 1.1rem;">👥</span>
+              <span style="font-weight: 800; font-size: 0.88rem; color: #0f172a; letter-spacing: -0.2px;">Registered Accounts & Email Directory</span>
+            </div>
+            <span id="registeredUsersCountBadge" style="background: #3b82f6; color: white; padding: 3px 10px; border-radius: 12px; font-size: 0.74rem; font-weight: 700;">1 Account</span>
+          </div>
+          <div id="registeredUsersListContainer" style="display: flex; flex-direction: column; gap: 6px; max-height: 160px; overflow-y: auto;">
+            <!-- Dynamic user accounts rendered by script.js -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="profile-modal-footer">
+        <button type="button" class="btn-profile-logout-sm" onclick="closeUserProfileModal(); logoutUser();" title="Lock Register & Logout">
+          <span>🔒</span> <span>Lock Register</span>
+        </button>
+        <button type="button" class="btn-profile-close" onclick="closeUserProfileModal()">
+          ← Back to Store Menu
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       Modal: Laptop Web Shift Action & Cashier Cockpit Modal
+       (Opened by clicking Shift Active button on Laptop Web view)
+       ========================================================================= -->
+  <!-- =========================================================================
+       Modal: Laptop Web Shift Action & Cashier Cockpit Modal
+       (Opened by clicking Shift Active button on Laptop Web view)
+       ========================================================================= -->
+  <div id="shiftActionModal" class="modal-backdrop" style="display: none;" onclick="closeShiftActionModalOnBackdrop(event)">
+    <div class="modal-window-card" style="max-width: 660px; width: 92%; border-radius: 20px; overflow: hidden; box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.1); border: none;" onclick="event.stopPropagation()">
+      
+      <!-- Modal Header -->
+      <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0f172a 100%); color: #ffffff; padding: 20px 24px; border-bottom: 2px solid rgba(16, 185, 129, 0.4); display: flex; justify-content: space-between; align-items: center; position: relative;">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <div style="width: 46px; height: 46px; border-radius: 14px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(5, 150, 105, 0.15) 100%); border: 1.5px solid rgba(52, 211, 153, 0.4); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; box-shadow: 0 0 16px rgba(16, 185, 129, 0.25);">
+            ⚡
+          </div>
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <h3 style="margin: 0; font-size: 1.2rem; font-weight: 800; color: #ffffff; letter-spacing: -0.3px;">
+                Staff & Store Quick Actions
+              </h3>
+              <span style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.4); font-size: 0.65rem; font-weight: 700; padding: 2px 8px; border-radius: 12px; letter-spacing: 0.3px; text-transform: uppercase;">Portal</span>
+            </div>
+            <p style="margin: 3px 0 0; font-size: 0.78rem; color: #94a3b8; font-weight: 600;">
+              Cashier Utilities & Management Directory
+            </p>
+          </div>
+        </div>
+        <button type="button" class="modal-close-x" style="color: #cbd5e1; font-size: 1.2rem; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); width: 34px; height: 34px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;" onclick="closeShiftActionModal()" onmouseover="this.style.color='#fff'; this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.color='#cbd5e1'; this.style.background='rgba(255,255,255,0.08)'">✕</button>
+      </div>
+
+      <!-- Modal Body -->
+      <div style="padding: 22px; background: #ffffff; display: flex; flex-direction: column; gap: 16px;">
+        
+        <!-- ⚡ Staff Quick Actions Container -->
+        <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 16px; padding: 18px; box-shadow: inset 0 2px 4px rgba(15, 23, 42, 0.02);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid #e2e8f0;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 1.1rem; color: #f59e0b;">⚡</span>
+              <span style="font-weight: 800; font-size: 0.92rem; color: #0f172a; letter-spacing: -0.2px;">Quick Actions & Store Directory</span>
+            </div>
+            <span style="font-size: 0.7rem; font-weight: 700; color: #64748b; background: #e2e8f0; padding: 3px 10px; border-radius: 12px;">3 Directory Services</span>
+          </div>
+
+          <div class="shift-action-cards-grid">
+            
+            <!-- Action Card 1: Owner's Details -->
+            <button type="button" onclick="openOwnerDetailsModal();" class="shift-action-tile tile-green">
+              <div class="tile-top-bar"></div>
+              <div class="tile-icon-box">🏢</div>
+              <div class="tile-text-wrap">
+                <span class="tile-title">Owner's Details</span>
+                <span class="tile-sub">Store Leadership</span>
+              </div>
+              <div class="tile-action-pill pill-green">
+                View Profile <span>→</span>
+              </div>
+            </button>
+
+            <!-- Action Card 2: Employee Payslip Download -->
+            <button type="button" onclick="downloadEmployeePayslip();" class="shift-action-tile tile-blue">
+              <div class="tile-top-bar"></div>
+              <div class="tile-icon-box">📄</div>
+              <div class="tile-text-wrap">
+                <span class="tile-title">Payslip Download</span>
+                <span class="tile-sub">Shift Statement</span>
+              </div>
+              <div class="tile-action-pill pill-blue">
+                Download PDF <span>→</span>
+              </div>
+            </button>
+
+            <!-- Action Card 3: Registered Accounts & Email Directory -->
+            <button type="button" onclick="openResignReloginModal();" class="shift-action-tile tile-rose">
+              <div class="tile-top-bar"></div>
+              <div class="tile-icon-box">🔑</div>
+              <div class="tile-text-wrap">
+                <span class="tile-title">Registered Accounts & Email Directory</span>
+                <span class="tile-sub">Resign & Re-login</span>
+              </div>
+              <div class="tile-action-pill pill-rose">
+                Manage Roster <span>→</span>
+              </div>
+            </button>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div style="padding: 16px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 0.78rem; font-weight: 700; color: #64748b;">
+          <span style="width: 8px; height: 8px; background: #10b981; border-radius: 50%; display: inline-block; box-shadow: 0 0 10px #10b981;"></span>
+          Store Management Portal
+        </div>
+        <button type="button" onclick="closeShiftActionModal()" style="background: #ffffff; color: #334155; border: 1.5px solid #cbd5e1; padding: 9px 22px; border-radius: 10px; font-weight: 800; font-size: 0.82rem; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.03);" onmouseover="this.style.background='#f1f5f9'; this.style.borderColor='#94a3b8';" onmouseout="this.style.background='#ffffff'; this.style.borderColor='#cbd5e1';">
+          ✕ Close Window
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       Modal: Registered Accounts & Email Directory Modal
+       ========================================================================= -->
+  <div id="resignReloginModal" class="modal-backdrop" style="display: none; z-index: 10005;" onclick="closeResignReloginModalOnBackdrop(event)">
+    <div class="modal-window-card resign-relogin-modal-card" style="max-width: 520px; width: 92%; max-height: 90vh; display: flex; flex-direction: column; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 48px rgba(15, 23, 42, 0.35);" onclick="event.stopPropagation()">
+
+      <!-- Modal Header -->
+      <div style="background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); color: #ffffff; padding: 16px 20px; border-bottom: 2.5px solid #60a5fa; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 40px; height: 40px; border-radius: 12px; background: rgba(255, 255, 255, 0.15); border: 1.5px solid rgba(255, 255, 255, 0.3); display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+            👥
+          </div>
+          <div>
+            <h3 style="margin: 0; font-size: 1.1rem; font-weight: 800; color: #ffffff; letter-spacing: -0.3px;">
+              Registered Accounts & Email Directory
+            </h3>
+            <p style="margin: 2px 0 0; font-size: 0.74rem; color: #93c5fd;">
+              Select Account to Switch, Lock Register or Re-login
+            </p>
+          </div>
+        </div>
+        <button type="button" class="modal-close-x" style="color: #ffffff; font-size: 1.2rem; background: transparent; border: none; cursor: pointer;" onclick="closeResignReloginModal()">✕</button>
+      </div>
+
+      <!-- Modal Body -->
+      <div style="padding: 18px; overflow-y: auto; flex: 1; background: #ffffff; display: flex; flex-direction: column; gap: 14px;">
+
+        <!-- 👥 Registered Accounts & Email Directory Card -->
+        <div style="background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid #f1f5f9;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 1.1rem;">👥</span>
+              <span style="font-weight: 800; font-size: 0.88rem; color: #0f172a; letter-spacing: -0.2px;">Registered Accounts & Email Directory</span>
+            </div>
+            <span id="resignRegisteredCountBadge" style="background: #3b82f6; color: white; padding: 3px 10px; border-radius: 12px; font-size: 0.74rem; font-weight: 700;">1 Account</span>
+          </div>
+          <div id="resignRegisteredUsersListContainer" style="display: flex; flex-direction: column; gap: 8px; max-height: 320px; overflow-y: auto;">
+            <!-- Dynamic user accounts rendered by script.js -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div style="padding: 12px 16px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; align-items: center;">
+        <button type="button" onclick="closeResignReloginModal()" style="background: #ffffff; color: #334155; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer;">
+          ✕ Close Window
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       Modal: Employee Payslip Statement (Standard Corporate HR Format)
+       ========================================================================= -->
+  <div id="employeePayslipModal" class="modal-backdrop" style="display: none;" onclick="closeEmployeePayslipModalOnBackdrop(event)">
+    <div class="modal-window-card employee-payslip-modal-card" style="max-width: 760px; width: 95%; max-height: 92vh; display: flex; flex-direction: column; border-radius: 18px; overflow: hidden; box-shadow: 0 24px 60px rgba(15, 23, 42, 0.4); border: none;" onclick="event.stopPropagation()">
+      
+      <!-- Modal Header -->
+      <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #ffffff; padding: 16px 22px; border-bottom: 2.5px solid #2563eb; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 42px; height: 42px; border-radius: 12px; background: rgba(37, 99, 235, 0.25); border: 1.5px solid rgba(96, 165, 250, 0.4); display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+            📄
+          </div>
+          <div>
+            <h3 style="margin: 0; font-size: 1.1rem; font-weight: 800; color: #ffffff; letter-spacing: -0.3px;">
+              Shift Employee Payslip Statement
+            </h3>
+            <p style="margin: 2px 0 0; font-size: 0.74rem; color: #94a3b8;">
+              Standard Corporate HR Salary Slip Format
+            </p>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <button type="button" class="payslip-header-edit-btn" onclick="openPayslipEditMode()" style="background: rgba(255, 255, 255, 0.12); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.3); padding: 6px 14px; border-radius: 8px; font-weight: 700; font-size: 0.78rem; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.12)'">
+            ✏️ Edit Payslip Details
+          </button>
+          <button type="button" class="modal-close-x" style="color: #ffffff; font-size: 1.2rem; background: rgba(255,255,255,0.1); border: none; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center;" onclick="closeEmployeePayslipModal()">✕</button>
+        </div>
+      </div>
+
+      <!-- Modal Body Container -->
+      <div id="payslipPrintArea" style="padding: 20px; overflow-y: auto; flex: 1; background: #ffffff; display: flex; flex-direction: column; gap: 16px;">
+        
+        <!-- CORPORATE PAYSLIP VIEW CONTAINER (Perfect Full-Width Corporate Table Format) -->
+        <div id="payslipViewContainer" style="width: 100%; background: #ffffff; color: #0f172a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; box-sizing: border-box;">
+          
+          <!-- Outer Master Border Box -->
+          <div style="border: 2px solid #0f172a; background: #ffffff; box-sizing: border-box; width: 100%;">
+            
+            <!-- 1. Header Section -->
+            <div style="padding: 16px 20px; border-bottom: 2px solid #0f172a; display: flex; align-items: center; gap: 20px; box-sizing: border-box;">
+              <div style="font-size: 2.5rem; line-height: 1; display: flex; align-items: center; justify-content: center; width: 62px; height: 62px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; flex-shrink: 0;">
+                🏢
+              </div>
+              <div style="flex: 1;">
+                <h2 id="psCompName" style="margin: 0; font-size: 1.4rem; font-weight: 900; color: #0f172a; letter-spacing: -0.3px; line-height: 1.2;">SUGAR CUBES BAKERY & CAFÉ</h2>
+                <p id="psCompAddr" style="margin: 4px 0 0; font-size: 0.82rem; color: #475569; font-weight: 500; line-height: 1.3;">Central Branch, Main Road • GSTIN: 33AAAAA0000A1Z5</p>
+                <p style="margin: 4px 0 0; font-size: 0.85rem; color: #334155; font-weight: 700; line-height: 1.3;">Pay Slip for <span id="psPayPeriodText" style="font-weight: 900; color: #0f172a;">September 2026</span></p>
+              </div>
+            </div>
+
+            <!-- 2. Employee Details Section (2 Columns with colon alignment) -->
+            <div style="padding: 12px 18px; border-bottom: 2px solid #0f172a; background: #ffffff; box-sizing: border-box;">
+              <table class="payslip-emp-table" style="width: 100%; border-collapse: collapse; font-size: 0.84rem; color: #334155; table-layout: fixed;">
+                <tbody>
+                  <tr>
+                    <td style="padding: 5px 0; width: 17%; color: #475569; font-weight: 600;">Employee ID</td>
+                    <td style="padding: 5px 0; width: 3%; font-weight: 700;">:</td>
+                    <td style="padding: 5px 0; width: 30%; font-weight: 800; color: #0f172a;" id="psEmpId">SC-EMP-101</td>
+                    
+                    <td style="padding: 5px 0; width: 17%; color: #475569; font-weight: 600;">UAN</td>
+                    <td style="padding: 5px 0; width: 3%; font-weight: 700;">:</td>
+                    <td style="padding: 5px 0; width: 30%; font-weight: 700; color: #0f172a;" id="psUan">100987654321</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 5px 0; color: #475569; font-weight: 600;">Employee Name</td>
+                    <td style="padding: 5px 0; font-weight: 700;">:</td>
+                    <td style="padding: 5px 0; font-weight: 800; color: #0f172a;" id="psEmpName">Store Manager</td>
+                    
+                    <td style="padding: 5px 0; color: #475569; font-weight: 600;">PF No.</td>
+                    <td style="padding: 5px 0; font-weight: 700;">:</td>
+                    <td style="padding: 5px 0; font-weight: 700; color: #0f172a;" id="psPfNo">TN/MAS/0012345</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 5px 0; color: #475569; font-weight: 600;">Designation</td>
+                    <td style="padding: 5px 0; font-weight: 700;">:</td>
+                    <td style="padding: 5px 0; font-weight: 700; color: #2563eb;" id="psDesignation">Senior Cashier</td>
+                    
+                    <td style="padding: 5px 0; color: #475569; font-weight: 600;">ESI No.</td>
+                    <td style="padding: 5px 0; font-weight: 700;">:</td>
+                    <td style="padding: 5px 0; font-weight: 700; color: #0f172a;" id="psEsiNo">3100123456</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 5px 0; color: #475569; font-weight: 600;">Department</td>
+                    <td style="padding: 5px 0; font-weight: 700;">:</td>
+                    <td style="padding: 5px 0; font-weight: 700; color: #0f172a;" id="psDepartment">Store Operations</td>
+                    
+                    <td style="padding: 5px 0; color: #475569; font-weight: 600;">Bank</td>
+                    <td style="padding: 5px 0; font-weight: 700;">:</td>
+                    <td style="padding: 5px 0; font-weight: 700; color: #0f172a;" id="psBank">HDFC Bank</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 5px 0; color: #475569; font-weight: 600;">Date of Joining</td>
+                    <td style="padding: 5px 0; font-weight: 700;">:</td>
+                    <td style="padding: 5px 0; font-weight: 700; color: #0f172a;" id="psDoj">01 Jan 2024</td>
+                    
+                    <td style="padding: 5px 0; color: #475569; font-weight: 600;">Account No.</td>
+                    <td style="padding: 5px 0; font-weight: 700;">:</td>
+                    <td style="padding: 5px 0; font-weight: 700; color: #0f172a;" id="psAccNo">XXXXXX4321</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- 3. Attendance & Gross Wages Summary Grid -->
+            <table class="payslip-summary-table" style="width: 100%; border-collapse: collapse; font-size: 0.84rem; border-bottom: 2px solid #0f172a; table-layout: fixed;">
+              <tbody>
+                <tr style="border-bottom: 1px solid #0f172a;">
+                  <td style="padding: 7px 12px; width: 25%; color: #475569; font-weight: 600; border-right: 1px solid #0f172a;">Gross Wages</td>
+                  <td style="padding: 7px 12px; width: 25%; text-align: center; font-weight: 800; color: #0f172a; border-right: 2px solid #0f172a;" id="psGrossWages">₹15,000</td>
+                  <td style="padding: 7px 12px; width: 25%; color: #475569; font-weight: 600; border-right: 1px solid #0f172a;"></td>
+                  <td style="padding: 7px 12px; width: 25%; text-align: center; font-weight: 700;"></td>
+                </tr>
+                <tr style="border-bottom: 1px solid #0f172a;">
+                  <td style="padding: 7px 12px; color: #475569; font-weight: 600; border-right: 1px solid #0f172a;">Total Working Days</td>
+                  <td style="padding: 7px 12px; text-align: center; font-weight: 700; color: #0f172a; border-right: 2px solid #0f172a;" id="psTotalWorkDays">30</td>
+                  <td style="padding: 7px 12px; color: #475569; font-weight: 600; border-right: 1px solid #0f172a;">Leaves</td>
+                  <td style="padding: 7px 12px; text-align: center; font-weight: 700; color: #0f172a;" id="psLeaves">0</td>
+                </tr>
+                <tr>
+                  <td style="padding: 7px 12px; color: #475569; font-weight: 600; border-right: 1px solid #0f172a;">LOP Days</td>
+                  <td style="padding: 7px 12px; text-align: center; font-weight: 700; color: #0f172a; border-right: 2px solid #0f172a;" id="psLopDays">0</td>
+                  <td style="padding: 7px 12px; color: #475569; font-weight: 600; border-right: 1px solid #0f172a;">Paid Days</td>
+                  <td style="padding: 7px 12px; text-align: center; font-weight: 700; color: #0f172a;" id="psPaidDays">30</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <!-- 4. Dual Table: Earnings vs Deductions -->
+            <table class="payslip-breakdown-table" style="width: 100%; border-collapse: collapse; font-size: 0.84rem; table-layout: fixed;">
+              <thead>
+                <tr style="background: #ffffff; border-bottom: 1px solid #0f172a; font-weight: 900; color: #0f172a;">
+                  <th style="padding: 9px 12px; text-align: center; width: 50%; border-right: 2px solid #0f172a;" colspan="2">Earnings</th>
+                  <th style="padding: 9px 12px; text-align: center; width: 50%;" colspan="2">Deductions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom: 1px solid #e2e8f0;">
+                  <td style="padding: 7px 12px; color: #475569; border-right: 1px solid #cbd5e1; width: 33%;">Basic</td>
+                  <td style="padding: 7px 12px; text-align: right; font-weight: 700; border-right: 2px solid #0f172a; width: 17%;" id="psBasic">₹7,500</td>
+                  <td style="padding: 7px 12px; color: #475569; border-right: 1px solid #cbd5e1; width: 33%;">EPF</td>
+                  <td style="padding: 7px 12px; text-align: right; font-weight: 700; width: 17%;" id="psEpf">₹900</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #e2e8f0;">
+                  <td style="padding: 7px 12px; color: #475569; border-right: 1px solid #cbd5e1;">HRA</td>
+                  <td style="padding: 7px 12px; text-align: right; font-weight: 700; border-right: 2px solid #0f172a;" id="psHra">₹3,000</td>
+                  <td style="padding: 7px 12px; color: #475569; border-right: 1px solid #cbd5e1;">ESI</td>
+                  <td style="padding: 7px 12px; text-align: right; font-weight: 700;" id="psEsi">₹113</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #e2e8f0;">
+                  <td style="padding: 7px 12px; color: #475569; border-right: 1px solid #cbd5e1;">Conveyance Allowance</td>
+                  <td style="padding: 7px 12px; text-align: right; font-weight: 700; border-right: 2px solid #0f172a;" id="psConveyance">₹1,600</td>
+                  <td style="padding: 7px 12px; color: #475569; border-right: 1px solid #cbd5e1;">Professional Tax</td>
+                  <td style="padding: 7px 12px; text-align: right; font-weight: 700;" id="psProfTax">₹0</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #e2e8f0;">
+                  <td style="padding: 7px 12px; color: #475569; border-right: 1px solid #cbd5e1;">Medical Allowance</td>
+                  <td style="padding: 7px 12px; text-align: right; font-weight: 700; border-right: 2px solid #0f172a;" id="psMedical">₹1,250</td>
+                  <td style="padding: 7px 12px; color: #475569; border-right: 1px solid #cbd5e1;"></td>
+                  <td style="padding: 7px 12px; text-align: right;"></td>
+                </tr>
+                <tr style="border-bottom: 1px solid #0f172a;">
+                  <td style="padding: 7px 12px; color: #475569; border-right: 1px solid #cbd5e1;">Other Allowances</td>
+                  <td style="padding: 7px 12px; text-align: right; font-weight: 700; border-right: 2px solid #0f172a;" id="psOtherAllow">₹1,650</td>
+                  <td style="padding: 7px 12px; color: #475569; border-right: 1px solid #cbd5e1;"></td>
+                  <td style="padding: 7px 12px; text-align: right;"></td>
+                </tr>
+                <!-- Total Row -->
+                <tr style="border-bottom: 2px solid #0f172a; font-weight: 900; background: #ffffff;">
+                  <td style="padding: 9px 12px; color: #0f172a; border-right: 1px solid #0f172a; text-align: center;">Total Earnings</td>
+                  <td style="padding: 9px 12px; text-align: right; color: #0f172a; border-right: 2px solid #0f172a;" id="psTotalEarnings">₹15,000</td>
+                  <td style="padding: 9px 12px; color: #0f172a; border-right: 1px solid #0f172a; text-align: center;">Total Deductions</td>
+                  <td style="padding: 9px 12px; text-align: right; color: #0f172a;" id="psTotalDeductions">₹1,013</td>
+                </tr>
+                <!-- Net Salary Row -->
+                <tr style="font-weight: 900; background: #ffffff;">
+                  <td style="padding: 9px 12px; border-right: 2px solid #0f172a;" colspan="2"></td>
+                  <td style="padding: 9px 12px; color: #0f172a; border-right: 1px solid #0f172a; text-align: right; font-size: 0.92rem;">Net Salary</td>
+                  <td style="padding: 9px 12px; text-align: right; color: #0f172a; font-size: 1.05rem; background: #f0fdf4;" id="psNetSalary">₹13,987</td>
+                </tr>
+              </tbody>
+            </table>
+
+          </div>
+
+        </div>
+
+        <!-- EDIT MODE CONTAINER (Form to edit all payslip details) -->
+        <div id="payslipEditContainer" style="display: none; flex-direction: column; gap: 16px; background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 14px; padding: 18px;">
+          
+          <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 1.2rem; color: #2563eb;">⚙️</span>
+              <h4 style="margin: 0; font-size: 0.95rem; font-weight: 800; color: #0f172a;">Edit Corporate Payslip Parameters</h4>
+            </div>
+            <span style="font-size: 0.7rem; font-weight: 700; color: #64748b; background: #e2e8f0; padding: 2px 8px; border-radius: 10px;">HR Payroll Config</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; font-size: 0.78rem;">
+            
+            <div style="grid-column: span 2;">
+              <label style="font-weight: 700; color: #334155; display: block; margin-bottom: 3px;">Company Name</label>
+              <input type="text" id="editPsCompName" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.82rem; font-weight: 700; color: #0f172a; box-sizing: border-box;" placeholder="SUGAR CUBES BAKERY & CAFÉ">
+            </div>
+
+            <div style="grid-column: span 2;">
+              <label style="font-weight: 700; color: #334155; display: block; margin-bottom: 3px;">Company Address & GSTIN</label>
+              <input type="text" id="editPsCompAddr" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; color: #334155; box-sizing: border-box;" placeholder="Central Branch, Main Road • GSTIN: 33AAAAA0000A1Z5">
+            </div>
+
+            <div>
+              <label style="font-weight: 700; color: #334155; display: block; margin-bottom: 3px;">Pay Period (Month & Year)</label>
+              <input type="text" id="editPsPayPeriod" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; box-sizing: border-box;" placeholder="September 2026">
+            </div>
+
+            <div>
+              <label style="font-weight: 700; color: #334155; display: block; margin-bottom: 3px;">Employee ID</label>
+              <input type="text" id="editPsEmpId" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; box-sizing: border-box;" placeholder="SC-EMP-101">
+            </div>
+
+            <div>
+              <label style="font-weight: 700; color: #334155; display: block; margin-bottom: 3px;">Employee Name</label>
+              <input type="text" id="editPsEmpName" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; font-weight: 700; box-sizing: border-box;" placeholder="Store Manager">
+            </div>
+
+            <div>
+              <label style="font-weight: 700; color: #334155; display: block; margin-bottom: 3px;">Designation</label>
+              <input type="text" id="editPsDesignation" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; color: #2563eb; font-weight: 700; box-sizing: border-box;" placeholder="Senior Cashier">
+            </div>
+
+            <div>
+              <label style="font-weight: 700; color: #334155; display: block; margin-bottom: 3px;">Department</label>
+              <input type="text" id="editPsDepartment" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; box-sizing: border-box;" placeholder="Store Operations">
+            </div>
+
+            <div>
+              <label style="font-weight: 700; color: #334155; display: block; margin-bottom: 3px;">Date of Joining</label>
+              <input type="text" id="editPsDoj" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; box-sizing: border-box;" placeholder="01 Jan 2024">
+            </div>
+
+            <div>
+              <label style="font-weight: 700; color: #334155; display: block; margin-bottom: 3px;">UAN Number</label>
+              <input type="text" id="editPsUan" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; box-sizing: border-box;" placeholder="100987654321">
+            </div>
+
+            <div>
+              <label style="font-weight: 700; color: #334155; display: block; margin-bottom: 3px;">PF Number</label>
+              <input type="text" id="editPsPfNo" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; box-sizing: border-box;" placeholder="TN/MAS/0012345">
+            </div>
+
+            <div>
+              <label style="font-weight: 700; color: #334155; display: block; margin-bottom: 3px;">ESI Number</label>
+              <input type="text" id="editPsEsiNo" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; box-sizing: border-box;" placeholder="3100123456">
+            </div>
+
+            <div>
+              <label style="font-weight: 700; color: #334155; display: block; margin-bottom: 3px;">Bank Name</label>
+              <input type="text" id="editPsBank" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; box-sizing: border-box;" placeholder="HDFC Bank">
+            </div>
+
+            <div style="grid-column: span 2;">
+              <label style="font-weight: 700; color: #334155; display: block; margin-bottom: 3px;">Account Number</label>
+              <input type="text" id="editPsAccNo" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; box-sizing: border-box;" placeholder="XXXXXX4321">
+            </div>
+
+            <!-- Attendance -->
+            <div>
+              <label style="font-weight: 700; color: #334155; display: block; margin-bottom: 3px;">Gross Wages (₹)</label>
+              <input type="number" id="editPsGrossWages" step="1" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; font-weight: 700; box-sizing: border-box;" placeholder="15000">
+            </div>
+
+            <div>
+              <label style="font-weight: 700; color: #334155; display: block; margin-bottom: 3px;">Total Working Days</label>
+              <input type="number" id="editPsTotalWorkDays" step="1" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; box-sizing: border-box;" placeholder="30">
+            </div>
+
+            <div>
+              <label style="font-weight: 700; color: #334155; display: block; margin-bottom: 3px;">Leaves</label>
+              <input type="number" id="editPsLeaves" step="1" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; box-sizing: border-box;" placeholder="0">
+            </div>
+
+            <div>
+              <label style="font-weight: 700; color: #334155; display: block; margin-bottom: 3px;">LOP Days / Paid Days</label>
+              <div style="display: flex; gap: 6px;">
+                <input type="number" id="editPsLopDays" placeholder="LOP 0" style="width: 50%; padding: 7px 6px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.78rem;">
+                <input type="number" id="editPsPaidDays" placeholder="Paid 30" style="width: 50%; padding: 7px 6px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.78rem;">
+              </div>
+            </div>
+
+            <!-- Earnings -->
+            <div>
+              <label style="font-weight: 700; color: #047857; display: block; margin-bottom: 3px;">Basic Pay (₹)</label>
+              <input type="number" id="editPsBasic" step="1" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; font-weight: 700; color: #047857; box-sizing: border-box;" placeholder="7500">
+            </div>
+
+            <div>
+              <label style="font-weight: 700; color: #047857; display: block; margin-bottom: 3px;">HRA (₹)</label>
+              <input type="number" id="editPsHra" step="1" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; font-weight: 700; color: #047857; box-sizing: border-box;" placeholder="3000">
+            </div>
+
+            <div>
+              <label style="font-weight: 700; color: #047857; display: block; margin-bottom: 3px;">Conveyance Allowance (₹)</label>
+              <input type="number" id="editPsConveyance" step="1" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; font-weight: 700; color: #047857; box-sizing: border-box;" placeholder="1600">
+            </div>
+
+            <div>
+              <label style="font-weight: 700; color: #047857; display: block; margin-bottom: 3px;">Medical Allowance (₹)</label>
+              <input type="number" id="editPsMedical" step="1" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; font-weight: 700; color: #047857; box-sizing: border-box;" placeholder="1250">
+            </div>
+
+            <div style="grid-column: span 2;">
+              <label style="font-weight: 700; color: #047857; display: block; margin-bottom: 3px;">Other Allowances / Shift Comm (₹)</label>
+              <input type="number" id="editPsOtherAllow" step="1" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; font-weight: 700; color: #047857; box-sizing: border-box;" placeholder="1650">
+            </div>
+
+            <!-- Deductions -->
+            <div>
+              <label style="font-weight: 700; color: #b91c1c; display: block; margin-bottom: 3px;">EPF Deduction (₹)</label>
+              <input type="number" id="editPsEpf" step="1" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; font-weight: 700; color: #b91c1c; box-sizing: border-box;" placeholder="900">
+            </div>
+
+            <div>
+              <label style="font-weight: 700; color: #b91c1c; display: block; margin-bottom: 3px;">ESI Deduction (₹)</label>
+              <input type="number" id="editPsEsi" step="1" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; font-weight: 700; color: #b91c1c; box-sizing: border-box;" placeholder="113">
+            </div>
+
+            <div style="grid-column: span 2;">
+              <label style="font-weight: 700; color: #b91c1c; display: block; margin-bottom: 3px;">Professional Tax (₹)</label>
+              <input type="number" id="editPsProfTax" step="1" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; font-weight: 700; color: #b91c1c; box-sizing: border-box;" placeholder="0">
+            </div>
+
+          </div>
+
+          <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 6px; padding-top: 10px; border-top: 1px solid #e2e8f0;">
+            <button type="button" onclick="resetPayslipDefaults()" style="background: #f1f5f9; color: #dc2626; border: 1px solid #fca5a5; padding: 8px 14px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; cursor: pointer;">
+              ↺ Reset Defaults
+            </button>
+            <button type="button" onclick="cancelPayslipEditMode()" style="background: #ffffff; color: #475569; border: 1px solid #cbd5e1; padding: 8px 14px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; cursor: pointer;">
+              ✕ Cancel
+            </button>
+            <button type="button" onclick="savePayslipEditForm()" style="background: #2563eb; color: #ffffff; border: none; padding: 8px 18px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer; box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);">
+              💾 Save & Calculate Payslip
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div style="padding: 14px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+        <button type="button" onclick="printPayslipDocument()" style="background: #2563eb; color: #ffffff; border: none; padding: 9px 20px; border-radius: 10px; font-weight: 800; font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(37, 99, 235, 0.2);">
+          <span>🖨️ Print / Save Payslip PDF</span>
+        </button>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" onclick="openPayslipEditMode()" style="background: #f1f5f9; color: #2563eb; border: 1.5px solid #bfdbfe; padding: 9px 16px; border-radius: 10px; font-weight: 800; font-size: 0.82rem; cursor: pointer;">
+            ✏️ Edit Details
+          </button>
+          <button type="button" onclick="closeEmployeePayslipModal()" style="background: #ffffff; color: #475569; border: 1.5px solid #cbd5e1; padding: 9px 16px; border-radius: 10px; font-weight: 800; font-size: 0.82rem; cursor: pointer;">
+            ✕ Close Statement
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       Modal: Owner's Contact & Business Details
+       ========================================================================= -->
+  <div id="ownerDetailsModal" class="modal-backdrop" style="display: none;" onclick="closeOwnerDetailsModalOnBackdrop(event)">
+    <div class="modal-window-card owner-details-modal-card" style="max-width: 500px; width: 92%; max-height: 90vh; display: flex; flex-direction: column; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 48px rgba(15, 23, 42, 0.35);" onclick="event.stopPropagation()">
+      
+      <!-- Modal Header -->
+      <div style="background: linear-gradient(135deg, #065f46 0%, #047857 100%); color: #ffffff; padding: 16px 20px; border-bottom: 2.5px solid #34d399; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 40px; height: 40px; border-radius: 12px; background: rgba(255, 255, 255, 0.15); border: 1.5px solid rgba(255, 255, 255, 0.3); display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+            🏢
+          </div>
+          <div>
+            <h3 style="margin: 0; font-size: 1.1rem; font-weight: 800; color: #ffffff; letter-spacing: -0.3px;">
+              Owner & Business Details
+            </h3>
+            <p style="margin: 2px 0 0; font-size: 0.74rem; color: #a7f3d0;">
+              Sugar Cubes Franchise Leadership Directory
+            </p>
+          </div>
+        </div>
+        <button type="button" class="modal-close-x" style="color: #ffffff; font-size: 1.2rem; background: transparent; border: none; cursor: pointer;" onclick="closeOwnerDetailsModal()">✕</button>
+      </div>
+
+      <!-- Modal Body -->
+      <div style="padding: 20px; overflow-y: auto; flex: 1; background: #ffffff; display: flex; flex-direction: column; gap: 14px;">
+        
+        <!-- Multi-Owner Selector Tabs -->
+        <div>
+          <span style="font-size: 0.72rem; font-weight: 800; color: #64748b; display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">
+            👥 Select Store Owner / Managing Partner:
+          </span>
+          <div id="ownerTabsContainer" style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px;">
+            <!-- Buttons dynamically populated by script.js -->
+          </div>
+        </div>
+
+        <!-- Selected Owner Details Card -->
+        <div id="ownerDetailsCardContainer" style="display: flex; flex-direction: column; gap: 14px;">
+          <!-- Dynamically populated by script.js -->
+        </div>
+
+        <!-- All Store Owners Directory Card -->
+        <div style="background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 14px; margin-top: 4px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid #f1f5f9;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 1.1rem;">🏢</span>
+              <span style="font-weight: 800; font-size: 0.86rem; color: #0f172a;">All Store Owners & Partners Directory</span>
+            </div>
+            <span style="background: #d1fae5; color: #065f46; padding: 2px 8px; border-radius: 10px; font-size: 0.72rem; font-weight: 800;">3 Owners</span>
+          </div>
+          <div id="allOwnersListContainer" style="display: flex; flex-direction: column; gap: 8px;">
+            <!-- Dynamic owners list populated by script.js -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div style="padding: 12px 16px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+        <button type="button" onclick="openAddOwnerModal()" style="background: #eff6ff; color: #2563eb; border: 1.5px solid #93c5fd; padding: 8px 14px; border-radius: 8px; font-weight: 800; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+          <span>➕ Add New Owner</span>
+        </button>
+        <button type="button" onclick="closeOwnerDetailsModal()" style="background: #059669; color: #ffffff; border: none; padding: 9px 20px; border-radius: 8px; font-weight: 700; font-size: 0.82rem; cursor: pointer;">
+          ✕ Close Details
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       Modal: Add / Edit Store Owner Form
+       ========================================================================= -->
+  <div id="addEditOwnerModal" class="modal-backdrop" style="display: none; z-index: 10005;" onclick="closeAddEditOwnerModalOnBackdrop(event)">
+    <div class="modal-window-card" style="max-width: 460px; width: 92%; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 48px rgba(15, 23, 42, 0.4);" onclick="event.stopPropagation()">
+      
+      <div style="background: linear-gradient(135deg, #065f46 0%, #047857 100%); color: #ffffff; padding: 16px 20px; border-bottom: 2.5px solid #34d399; display: flex; justify-content: space-between; align-items: center;">
+        <h3 id="addEditOwnerModalTitle" style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #ffffff;">
+          ➕ Add New Store Owner
+        </h3>
+        <button type="button" style="color: #ffffff; font-size: 1.2rem; background: transparent; border: none; cursor: pointer;" onclick="closeAddEditOwnerModal()">✕</button>
+      </div>
+
+      <form onsubmit="saveOwnerForm(event)" style="padding: 18px; display: flex; flex-direction: column; gap: 12px; background: #ffffff;">
+        <input type="hidden" id="ownerEditIdInput" value="">
+        <input type="hidden" id="ownerPhotoBase64Input" value="">
+
+        <!-- 📸 Owner Profile Photo Upload Section -->
+        <div style="background: #f8fafc; border: 1.5px dashed #cbd5e1; border-radius: 10px; padding: 10px 12px;">
+          <label style="font-size: 0.72rem; font-weight: 800; color: #475569; display: block; margin-bottom: 6px;">📸 OWNER PROFILE PHOTO</label>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div id="ownerPhotoPreviewCircle" style="width: 54px; height: 54px; border-radius: 50%; background: #e2e8f0; border: 2px solid #cbd5e1; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; overflow: hidden; flex-shrink: 0; background-size: cover; background-position: center; color: #64748b;">
+              👤
+            </div>
+            <div style="flex: 1;">
+              <input type="file" id="ownerPhotoFileInput" accept="image/*" onchange="handleOwnerPhotoUpload(event)" style="display: none;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <button type="button" onclick="document.getElementById('ownerPhotoFileInput').click()" style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; padding: 6px 12px; border-radius: 6px; font-weight: 800; font-size: 0.76rem; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                  📁 Choose / Upload Photo
+                </button>
+                <button type="button" id="btnRemoveOwnerPhoto" onclick="removeOwnerPhoto()" style="display: none; background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; padding: 6px 10px; border-radius: 6px; font-weight: 800; font-size: 0.76rem; cursor: pointer;">
+                  ✕ Remove
+                </button>
+              </div>
+              <span style="display: block; font-size: 0.68rem; color: #64748b; margin-top: 4px; font-weight: 600;">JPG, PNG, or WebP format supported</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label style="font-size: 0.72rem; font-weight: 800; color: #475569; display: block; margin-bottom: 4px;">👤 OWNER FULL NAME *</label>
+          <input type="text" id="ownerNameInput" required placeholder="e.g. Mr. Sugan Rithvik K" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1.5px solid #cbd5e1; font-weight: 700; font-size: 0.85rem; box-sizing: border-box;">
+        </div>
+
+        <div>
+          <label style="font-size: 0.72rem; font-weight: 800; color: #475569; display: block; margin-bottom: 4px;">💼 DESIGNATION / ROLE *</label>
+          <input type="text" id="ownerRoleInput" required placeholder="e.g. Founder & Managing Director" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1.5px solid #cbd5e1; font-weight: 700; font-size: 0.85rem; box-sizing: border-box;">
+        </div>
+
+        <div>
+          <label style="font-size: 0.72rem; font-weight: 800; color: #475569; display: block; margin-bottom: 4px;">🏷️ OWNER BADGE / TAG</label>
+          <input type="text" id="ownerTagInput" placeholder="e.g. PRIMARY STORE OWNER / CO-OWNER" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1.5px solid #cbd5e1; font-weight: 700; font-size: 0.85rem; box-sizing: border-box;">
+        </div>
+
+        <div>
+          <label style="font-size: 0.72rem; font-weight: 800; color: #475569; display: block; margin-bottom: 4px;">📞 PHONE & WHATSAPP NUMBER *</label>
+          <input type="text" id="ownerPhoneInput" required placeholder="e.g. +91 98765 43210" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1.5px solid #cbd5e1; font-weight: 700; font-size: 0.85rem; box-sizing: border-box;">
+        </div>
+
+        <div>
+          <label style="font-size: 0.72rem; font-weight: 800; color: #475569; display: block; margin-bottom: 4px;">📧 OFFICIAL EMAIL ADDRESS *</label>
+          <input type="email" id="ownerEmailInput" required placeholder="e.g. owner@sugarcubes.com" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1.5px solid #cbd5e1; font-weight: 700; font-size: 0.85rem; box-sizing: border-box;">
+        </div>
+
+        <div>
+          <label style="font-size: 0.72rem; font-weight: 800; color: #475569; display: block; margin-bottom: 4px;">📍 STORE BRANCH / ADDRESS</label>
+          <input type="text" id="ownerBranchInput" placeholder="e.g. Sugar Cubes Bakery, Main Road, Chennai Central" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1.5px solid #cbd5e1; font-weight: 700; font-size: 0.85rem; box-sizing: border-box;">
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px;">
+          <button type="button" onclick="closeAddEditOwnerModal()" style="background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer;">
+            Cancel
+          </button>
+          <button type="submit" style="background: #059669; color: #ffffff; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 800; font-size: 0.8rem; cursor: pointer;">
+            💾 Save Owner Details
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       Modal: Order History & Sales Log (Shows Date prominently)
+       ========================================================================= -->
+  <div id="orderHistoryModal" class="modal-backdrop" style="display: none;" onclick="closeOrderHistoryModalOnBackdrop(event)">
+    <div class="modal-window-card" style="max-width: 860px; width: 95%; max-height: 90vh; display: flex; flex-direction: column;" onclick="event.stopPropagation()">
+      <div class="modal-card-top" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #fff; padding: 14px 18px; border-bottom: 2px solid #38bdf8;">
+        <div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1;">
+          <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(56, 189, 248, 0.2); border: 1.5px solid rgba(56, 189, 248, 0.4); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0;">
+            <span>📋</span>
+          </div>
+          <div style="min-width: 0; flex: 1;">
+            <h3 id="orderHistoryModalTitle" style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #ffffff; letter-spacing: -0.2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+              Orders History & Sales Log
+            </h3>
+            <p style="margin: 2px 0 0; font-size: 0.72rem; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="historyDateSubtitle">
+              📅 Showing orders for: Today
+            </p>
+          </div>
+        </div>
+        <button type="button" class="modal-close-x" style="color: #fff;" onclick="closeOrderHistoryModal()">✕</button>
+      </div>
+
+      <!-- Pinned Date Picker Filter Bar ("Today that head" - Pinned, not movable) -->
+      <div class="hist-pinned-date-bar" id="histPinnedDateBar" style="background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 8px 14px; flex-shrink: 0;">
+        <div class="hist-date-pills-wrap" style="display: flex; gap: 6px; align-items: center;">
+          <button type="button" class="date-pill-btn active" id="histBtnToday" onclick="setHistoryDateFilter('today')">🌟 Today</button>
+          <button type="button" class="date-pill-btn" id="histBtnYesterday" onclick="setHistoryDateFilter('yesterday')">⏪ Yesterday</button>
+          <button type="button" class="date-pill-btn" id="histBtnAll" onclick="setHistoryDateFilter('all')">🗓️ All Records</button>
+        </div>
+      </div>
+
+      <!-- Scrollable Orders List Body (Movable / Scrollable: Search, KPIs, Orders) -->
+      <div class="modal-card-body" id="orderHistoryModalBody" style="padding: 12px 14px; overflow-y: auto; flex: 1; min-height: 0; background: #f8fafc;">
+        <!-- Moveable Secondary Filter Row: Search & Custom Date Picker -->
+        <div class="hist-secondary-filter-row" style="display: flex; gap: 8px; align-items: center; margin-bottom: 10px;">
+          <div class="hist-search-wrap" style="flex: 1;">
+            <input type="text" id="histSearchInput" placeholder="🔍 Search bill #, phone, cake..." style="padding: 6px 12px; font-size: 0.82rem; border: 1px solid #cbd5e1; border-radius: 8px; width: 100%; box-sizing: border-box;" oninput="renderHistoryOrdersList()">
+          </div>
+          <div class="hist-custom-date-box" style="display: inline-flex; align-items: center; gap: 4px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 3px 8px; height: 36px; box-sizing: border-box;">
+            <label for="histDatePicker" style="font-size: 0.72rem; font-weight: 700; color: #64748b; white-space: nowrap;">📅 Pick:</label>
+            <input type="date" id="histDatePicker" style="border: none; background: transparent; font-size: 0.76rem; color: #0f172a; outline: none; padding: 0;" onchange="setHistoryDateFilter('custom', this.value)">
+          </div>
+        </div>
+
+        <!-- Moveable Quick Summary KPI Ribbon -->
+        <div id="histSummaryRibbon" style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 10px 12px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px;">
+          <!-- Injected dynamically by script.js -->
+        </div>
+
+        <!-- Moveable Orders Cards Container -->
+        <div id="histOrdersCardsContainer">
+          <!-- Injected dynamically by script.js -->
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-card-bottom" id="orderHistoryModalBottom" style="padding: 12px 18px; background: #ffffff; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button type="button" class="btn-reg-secondary" onclick="exportToExcel()" title="Export all sales to CSV">
+            📈 Export CSV
+          </button>
+          <button type="button" class="btn-reg-secondary" onclick="syncOrdersWithSupabase(true)" title="Sync all orders with Supabase Cloud Database" style="background: #ecfdf5; color: #047857; border-color: #a7f3d0;">
+            ☁️ Sync Cloud
+          </button>
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;" id="orderHistoryModalActionBtns">
+          <button type="button" class="btn-primary-action" style="padding: 8px 14px; font-size: 0.84rem;" onclick="openDailyReportModal('all')">
+            📊 Total Sales Report
+          </button>
+          <button type="button" class="btn-dismiss" style="padding: 8px 14px; font-size: 0.84rem;" onclick="closeOrderHistoryModal()">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       Modal: Daily Sales Closing Statement & Audit Report
+       ========================================================================= -->
+  <div id="dailyReportModal" class="modal-backdrop" style="display: none;" onclick="closeDailyReportModalOnBackdrop(event)">
+    <div class="modal-window-card sales-report-modal-card" onclick="event.stopPropagation()">
+      <div class="modal-card-top" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #fff; padding: 14px 18px; border-bottom: 2px solid #10b981;">
+        <div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1;">
+          <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(16, 185, 129, 0.2); border: 1.5px solid rgba(16, 185, 129, 0.4); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0;">
+            <span id="dailyReportModalIcon">📈</span>
+          </div>
+          <div style="min-width: 0; flex: 1;">
+            <h3 id="dailyReportModalTitle" style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #ffffff; letter-spacing: -0.2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+              All Total Sales & Revenue Audit Statement
+            </h3>
+            <p style="margin: 2px 0 0; font-size: 0.72rem; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="dailyReportSubtitle">
+              Certified Commercial Turnover & Revenue Breakdown
+            </p>
+          </div>
+        </div>
+        <button type="button" class="modal-close-x" style="color: #fff;" onclick="closeDailyReportModal()">✕</button>
+      </div>
+      <div class="modal-card-body" id="dailyReportModalBody">
+        <!-- Rendered dynamically by script.js -->
+      </div>
+      <div class="modal-card-bottom" id="dailyReportModalBottom">
+        <button type="button" class="btn-dismiss" onclick="closeDailyReportModal()">Close</button>
+        <button type="button" class="btn-primary-action" onclick="printDailyReport()">🖨️ Print Statement</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       Modal: Best Selling Foods & Average Sales Analytics (Rankings & Leaderboard)
+       ========================================================================= -->
+  <div id="bestSalesAnalyticsModal" class="modal-backdrop" style="display: none; z-index: 10035;" onclick="closeBestSalesAnalyticsModalOnBackdrop(event)">
+    <div class="modal-window-card" style="max-width: 640px; width: 95%; max-height: 92vh; display: flex; flex-direction: column;" onclick="event.stopPropagation()">
+      <div class="modal-card-top" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #fff; padding: 14px 18px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.4rem;">🏆</span>
+          <div>
+            <h3 style="margin: 0; font-size: 1.08rem; font-weight: 800; color: #fff;">Best Selling Foods & Sales Analytics</h3>
+            <p style="margin: 2px 0 0; font-size: 0.76rem; color: #94a3b8;" id="bestSalesSubtitle">Showing most ordered foods and average sales performance</p>
+          </div>
+        </div>
+        <button type="button" class="modal-close-x" style="color: #fff;" onclick="closeBestSalesAnalyticsModal()">✕</button>
+      </div>
+
+      <!-- Segmented Date Filter Bar -->
+      <div class="best-sales-filter-bar" style="background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 10px 14px; display: flex; gap: 6px; align-items: center; justify-content: space-between;">
+        <div style="display: flex; gap: 6px; align-items: center;">
+          <button type="button" class="best-filter-btn active" id="bestFilterToday" onclick="setBestSalesFilter('today')">🌟 Today</button>
+          <button type="button" class="best-filter-btn" id="bestFilterYest" onclick="setBestSalesFilter('yesterday')">⏪ Yesterday</button>
+          <button type="button" class="best-filter-btn" id="bestFilterAll" onclick="setBestSalesFilter('all')">🗓️ All Time</button>
+        </div>
+        <span class="best-sales-count-badge" id="bestFoodsCountBadge">0 Foods Sold</span>
+      </div>
+
+      <!-- Average Sales Metric Ribbon -->
+      <div class="best-sales-kpi-ribbon" id="bestSalesKpiRibbon" style="background: #ffffff; border-bottom: 1px solid #f1f5f9; padding: 10px 14px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+        <!-- Injected dynamically by script.js -->
+      </div>
+
+      <!-- Scrollable Food Leaderboard Body ("Which food is more order") -->
+      <div class="modal-card-body" id="bestSalesAnalyticsModalBody" style="padding: 12px 14px; overflow-y: auto; flex: 1; min-height: 250px; background: #f8fafc;">
+        <div id="bestFoodsRankList" style="display: flex; flex-direction: column; gap: 8px;">
+          <!-- Injected dynamically by script.js -->
+        </div>
+      </div>
+
+      <!-- Modal Bottom Actions -->
+      <div class="modal-card-bottom" id="bestSalesAnalyticsModalBottom" style="padding: 10px 14px; background: #ffffff; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+        <button type="button" class="btn-reg-secondary" style="padding: 8px 14px; font-size: 0.84rem;" onclick="closeBestSalesAnalyticsModal()">
+          ← Back to Profile
+        </button>
+        <button type="button" class="btn-primary-action" style="padding: 8px 14px; font-size: 0.84rem;" onclick="closeBestSalesAnalyticsModal(); openDailyReportModal('all', true);">
+          📊 Full Sales Audit
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       DEDICATED PROFESSIONAL A4 BAKERY TAX INVOICE (Rendered for PDF generation)
+       ========================================================================= -->
+  <div id="professionalPdfInvoice">
+    <div class="pdf-invoice-wrapper">
+      
+      <!-- Top Brand & Invoice Header -->
+      <div class="pdf-header-top">
+        <div class="pdf-brand-block">
+          <div class="pdf-brand-icon">🍰</div>
+          <div class="pdf-brand-info">
+            <h2>Sugar Cubes Bakery</h2>
+            <p><strong>Artisanal Cakes, Fine Pastries & Confectionery</strong></p>
+            <p>Sugar Cubes Artisanal Bakery, Coimbatore, Tamil Nadu</p>
+            <p>📞 +91 98765 43210 • ✉️ orders@sugarcubesbakery.com • www.sugarcubes.in</p>
+            <p><strong>GSTIN:</strong> 29AABCS1429K1ZT &nbsp;|&nbsp; <strong>FSSAI Lic No:</strong> 11223344556677</p>
+          </div>
+        </div>
+
+        <div class="pdf-invoice-meta-block">
+          <span class="pdf-invoice-badge">TAX INVOICE</span>
+          <div class="pdf-inv-num" id="pdfInvoiceNumber">#SC-001</div>
+          <div class="pdf-inv-meta">
+            <div>📅 <strong>Date:</strong> <span id="pdfInvoiceDate">08-Sep-2026</span></div>
+            <div>⏰ <strong>Time:</strong> <span id="pdfInvoiceTime">03:40 PM</span></div>
+            <div>POS Terminal: <strong>Counter #1</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customer & Order Context Bar -->
+      <div class="pdf-two-col-meta">
+        <div>
+          <div class="pdf-meta-box-title">Billed To (Customer Details)</div>
+          <div style="font-size: 1rem; font-weight: 800; color: #0f172a;" id="pdfCustomerName">Valued Customer</div>
+          <div style="color: #475569; margin-top: 2px;">📱 Phone: <strong id="pdfCustomerMobile">+91 9876XXXXXX</strong></div>
+          <div style="color: #475569;">Delivery / Handover: <strong id="pdfOrderType">Takeaway</strong></div>
+        </div>
+        <div>
+          <div class="pdf-meta-box-title">Payment & Tax Information</div>
+          <div>Payment Mode: <strong id="pdfPaymentMode" style="color: #0284c7;">Cash</strong></div>
+          <div>Payment Status: <strong style="color: #059669;">PAID / VERIFIED</strong></div>
+          <div>State Jurisdiction: <strong>Karnataka (29)</strong></div>
+        </div>
+      </div>
+
+      <!-- Itemized Table -->
+      <table class="pdf-table">
+        <thead>
+          <tr>
+            <th style="width: 6%; text-align: center;">#</th>
+            <th style="width: 48%;">Item Description & Particulars</th>
+            <th style="width: 16%;">Category</th>
+            <th style="width: 15%; text-align: right;">Unit Rate (₹)</th>
+            <th style="width: 8%; text-align: center;">Qty</th>
+            <th style="width: 17%; text-align: right;">Amount (₹)</th>
+          </tr>
+        </thead>
+        <tbody id="pdfTableBody">
+          <!-- Filled dynamically -->
+        </tbody>
+      </table>
+
+      <!-- Calculations Split -->
+      <div class="pdf-calc-split">
+        <div class="pdf-notes-box">
+          <div>
+            <div class="pdf-amount-words">
+              Amount in Words: <span id="pdfAmountInWords" style="color: #b91c1c;">Zero Rupees Only</span>
+            </div>
+            <div style="font-size: 0.72rem; color: #64748b; line-height: 1.5; margin-top: 6px;">
+              <strong>Terms & Conditions:</strong><br>
+              1. Fresh artisanal bakery items. Best consumed within 24 hours.<br>
+              2. Please store fresh cream cakes & pastries refrigerated at or below 5°C.<br>
+              3. Items once sold cannot be returned or exchanged.
+            </div>
+          </div>
+
+          <div class="pdf-stamp-box">
+            <div class="pdf-digital-seal">
+              <span>✔</span> SUGAR CUBES POS VERIFIED
+            </div>
+            <div style="text-align: right; font-size: 0.72rem; color: #475569;">
+              Authorized Signature / Seal<br>
+              <strong>Sugar Cubes Bakery & Cafe</strong>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <table class="pdf-totals-table">
+            <tr>
+              <td>Items Total Subtotal:</td>
+              <td id="pdfSubtotal">₹0.00</td>
+            </tr>
+            <tr id="pdfDiscountRow" style="display: none;">
+              <td>Discount Offered:</td>
+              <td id="pdfDiscount" style="color: #dc2626;">-₹0.00</td>
+            </tr>
+            <tr>
+              <td>Taxable Turnover:</td>
+              <td id="pdfTaxableTurnover">₹0.00</td>
+            </tr>
+            <tr>
+              <td>CGST (2.5%):</td>
+              <td id="pdfCgst">₹0.00</td>
+            </tr>
+            <tr>
+              <td>SGST (2.5%):</td>
+              <td id="pdfSgst">₹0.00</td>
+            </tr>
+            <tr class="pdf-grand-row">
+              <td>GRAND TOTAL:</td>
+              <td id="pdfGrandTotal">₹0.00</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- Down-Side Instagram Profile ID & QR Code Card for PDF -->
+      <div class="pdf-instagram-card">
+        <div class="pdf-ig-left">
+          <div class="pdf-ig-badge">
+            <span>📸</span> <span>CONNECT ON INSTAGRAM</span>
+          </div>
+          <div class="pdf-ig-handle" id="pdfIgHandleDisplay">@sugarcubes_official</div>
+          <div class="pdf-ig-sub">Tag your birthday & celebration cakes with <strong>#SugarCubesBakes</strong> to get featured on our page!</div>
+          <div class="pdf-ig-link" id="pdfIgUrlDisplay">instagram.com/sugarcubes_official/</div>
+        </div>
+        <div class="pdf-ig-qr-container">
+          <div class="pdf-qr-frame" id="pdfInstagramQr">
+            <!-- QR Code Canvas/SVG injected by script.js -->
+          </div>
+          <div class="pdf-qr-caption">Scan QR to visit Instagram Profile</div>
+        </div>
+      </div>
+
+      <!-- Footer Notice -->
+      <div class="pdf-footer">
+        <div>Thank you for celebrating with Sugar Cubes! Making life sweeter one cube at a time. 🎂</div>
+        <div>Page 1 of 1 • System Generated by Sugar Cubes Enterprise POS</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       Floating Mobile Cart Bar (Sticky on Mobile Screens)
+       ========================================================================= -->
+  <div id="mobileStickyCartBar" class="mobile-sticky-cart-bar" style="display: none;" onclick="switchMobileView('cart', true)">
+    <div class="mobile-cart-info">
+      <div class="mobile-cart-badge-wrap">
+        <span style="font-size: 1.25rem;">🛒</span>
+        <span class="mobile-cart-badge" id="mobileCartItemCount">0</span>
+      </div>
+      <div class="mobile-cart-text">
+        <span class="mobile-cart-label">Current Bill Total</span>
+        <span class="mobile-cart-total" id="mobileCartTotalVal">₹0.00</span>
+      </div>
+    </div>
+    <button type="button" class="btn-mobile-view-cart">
+      <span>View Bill & Pay</span>
+      <span style="font-size: 1.05rem;">➔</span>
+    </button>
+  </div>
+
+  <!-- =========================================================================
+       Fullscreen Authentication Portal: Login & Create Account
+       ========================================================================= -->
+  <div id="loginAuthScreen" class="auth-fullscreen-overlay auth-hidden" style="display: none;">
+    <div class="auth-card-container">
+      
+      <!-- Brand Header on Card -->
+      <div class="auth-brand-header">
+        <div class="auth-brand-icon">🍰</div>
+        <h2>Sugar Cubes</h2>
+        <p class="auth-brand-sub">Artisanal Cake Shop & Bakery POS</p>
+        <div class="auth-security-badge">
+          <span>🔒 SECURE REGISTER TERMINAL</span>
+        </div>
+      </div>
+
+      <!-- Auth Navigation Tabs: Sign In / Create Account -->
+      <div class="auth-tabs-nav">
+        <button type="button" class="auth-tab-btn active" id="tabBtnSignIn" onclick="switchAuthTab('signin')">
+          🔑 Sign In
+        </button>
+        <button type="button" class="auth-tab-btn" id="tabBtnRegister" onclick="switchAuthTab('register')">
+          ✨ Create Account
+        </button>
+      </div>
+
+      <!-- Error / Success Feedback Banner -->
+      <div id="authAlertBanner" class="auth-alert-banner" style="display: none;"></div>
+
+      <!-- ================= TAB 1: SIGN IN FORM ================= -->
+      <form id="signInForm" class="auth-form-body" onsubmit="event.preventDefault(); handleSignInSubmit(event); return false;">
+        <div class="auth-field-wrap">
+          <label for="loginIdInput">Email ID / Login ID</label>
+          <div class="auth-input-inner">
+            <span class="auth-field-icon">📧</span>
+            <input type="text" id="loginIdInput" value="" placeholder="Enter Email ID or Username" autocomplete="username" onkeydown="if(event.key==='Enter'){ handleSignInSubmit(event); }">
+          </div>
+        </div>
+
+        <div class="auth-field-wrap">
+          <label for="loginPasswordInput">Password</label>
+          <div class="auth-input-inner">
+            <span class="auth-field-icon">🔑</span>
+            <input type="password" id="loginPasswordInput" value="" placeholder="Enter Password" autocomplete="current-password" onkeydown="if(event.key==='Enter'){ handleSignInSubmit(event); }">
+            <button type="button" class="auth-eye-btn" onclick="togglePasswordVisibility('loginPasswordInput', this)" title="Show/Hide Password">👁️</button>
+          </div>
+        </div>
+
+        <div class="auth-options-row">
+          <label class="auth-remember-lbl">
+            <input type="checkbox" id="authRememberMe" checked>
+            <span>Stay signed in on this device</span>
+          </label>
+        </div>
+
+        <button type="submit" class="btn-auth-primary" id="btnSubmitLogin" onclick="handleSignInSubmit(event)">
+          <span>🚀 Sign In to POS Register</span>
+        </button>
+
+        <!-- Redirect to Create Account Page Button -->
+        <div class="auth-redirect-wrap" style="margin-top: 14px; text-align: center;">
+          <button type="button" class="btn-auth-redirect" onclick="switchAuthTab('register')" style="background: transparent; border: none; color: #2563eb; font-weight: 700; font-size: 0.86rem; cursor: pointer; text-decoration: underline; padding: 4px 8px;">
+            ✨ Don't have an account? Create an Account
+          </button>
+        </div>
+
+        <!-- Quick 1-Click Demo Login Button -->
+        <div class="auth-demo-divider">
+          <span>OR QUICK ACCESS</span>
+        </div>
+        <button type="button" class="btn-auth-demo" onclick="quickDemoLogin()" title="Instantly visit the POS UI in demo mode">
+          <span>⚡ Visit Demo POS UI (Direct Access)</span>
+        </button>
+      </form>
+
+      <!-- ================= TAB 2: CREATE ACCOUNT FORM ================= -->
+      <form id="registerForm" class="auth-form-body" style="display: none;" onsubmit="event.preventDefault(); handleRegisterSubmit(event); return false;">
+        <div class="auth-field-wrap">
+          <label for="regFullName">Full Name</label>
+          <div class="auth-input-inner">
+            <span class="auth-field-icon">🏷️</span>
+            <input type="text" id="regFullName" placeholder="e.g. Rachel Green" required onkeydown="if(event.key==='Enter'){ handleRegisterSubmit(event); }">
+          </div>
+        </div>
+
+        <div class="auth-field-wrap">
+          <label for="regEmail">Email Address</label>
+          <div class="auth-input-inner">
+            <span class="auth-field-icon">📧</span>
+            <input type="email" id="regEmail" placeholder="e.g. rachel@sugarcubes.com" required onkeydown="if(event.key==='Enter'){ handleRegisterSubmit(event); }">
+          </div>
+        </div>
+
+        <div class="auth-field-wrap">
+          <label for="regPassword">Create Password</label>
+          <div class="auth-input-inner">
+            <span class="auth-field-icon">🔒</span>
+            <input type="password" id="regPassword" placeholder="Minimum 4 characters" required minlength="4" onkeydown="if(event.key==='Enter'){ handleRegisterSubmit(event); }">
+            <button type="button" class="auth-eye-btn" onclick="togglePasswordVisibility('regPassword', this)" title="Show/Hide Password">👁️</button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-auth-primary" id="btnSubmitRegister" onclick="handleRegisterSubmit(event)">
+          <span>✨ Create Account & Proceed to Sign In</span>
+        </button>
+      </form>
+
+      <!-- API Key & Cloud Settings Link (Hidden on UI - handled in backend) -->
+      <div class="auth-api-link-wrap" style="display: none;">
+        <button type="button" class="btn-auth-api-link" onclick="openApiKeyModal()" title="Configure your custom API Key for Firebase, Supabase, or Custom REST API">
+          <span>⚙️ Configure API Key & Cloud Sync Settings</span>
+        </button>
+      </div>
+
+      <!-- Footer Info -->
+      <div class="auth-footer-note">
+        <span>Sugar Cubes Enterprise POS • All data safely kept on device</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       API Key & Cloud Authorization Settings Modal
+       ========================================================================= -->
+  <div id="apiKeyConfigModal" class="modal-backdrop" style="display: none;" onclick="closeApiKeyModalOnBackdrop(event)">
+    <div class="modal-window-card api-config-modal-card" onclick="event.stopPropagation()">
+      <div class="modal-header" style="background: linear-gradient(135deg, #022c22 0%, #064e3b 100%); color: #ffffff; padding: 14px 18px; border-bottom: 2px solid #10b981; border-top-left-radius: 16px; border-top-right-radius: 16px;">
+        <div class="modal-header-left" style="display: flex; align-items: center; gap: 10px;">
+          <span class="modal-icon" style="font-size: 1.3rem;">⚡</span>
+          <div>
+            <h3 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #ffffff;">Supabase Database & Cloud Settings</h3>
+            <p class="modal-subtitle" style="margin: 2px 0 0; font-size: 0.74rem; color: #a7f3d0;">Connect your Supabase Cloud Database & API Keys</p>
+          </div>
+        </div>
+        <button type="button" class="modal-close-x" style="color: #ffffff;" onclick="closeApiKeyModal()" aria-label="Close">✕</button>
+      </div>
+
+      <div class="modal-body" style="padding: 16px; background: #ffffff;">
+        <div id="apiConfigAlertBanner" class="auth-alert-banner" style="display: none;"></div>
+
+        <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 10px; padding: 10px 12px; margin-bottom: 14px; display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.2rem;">🟢</span>
+          <div>
+            <span style="font-weight: 800; font-size: 0.8rem; color: #065f46; display: block;">Supabase Database Active (Sugar Cubes)</span>
+            <span style="font-size: 0.72rem; color: #047857;">Cloud Sync & Storage configured for project: sugar cubes - Sughan</span>
+          </div>
+        </div>
+
+        <div class="auth-field-wrap" style="margin-bottom: 14px;">
+          <label for="apiProviderSelect" style="font-weight: 700; font-size: 0.8rem; color: #334155; display: block; margin-bottom: 4px;">Cloud Service / Database Provider</label>
+          <div class="auth-input-inner select-wrap">
+            <span class="auth-field-icon">🌐</span>
+            <select id="apiProviderSelect" onchange="handleApiProviderChange()" style="width: 100%; padding: 8px 10px 8px 36px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 700; font-size: 0.82rem;">
+              <option value="supabase" selected>Supabase Cloud Database (URL & API Keys)</option>
+              <option value="resend">Resend API (Email & Cloud Auth Key)</option>
+              <option value="firebase">Firebase Auth (REST API Key)</option>
+              <option value="custom_rest">Custom REST API Endpoint</option>
+              <option value="local">Local Instant Mode (Offline / Device Storage)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="auth-field-wrap" id="apiEndpointInputWrap" style="margin-bottom: 14px;">
+          <label for="cfgApiEndpoint" style="font-weight: 700; font-size: 0.8rem; color: #334155; display: block; margin-bottom: 4px;">Supabase Project URL</label>
+          <div class="auth-input-inner">
+            <span class="auth-field-icon">🔗</span>
+            <input type="url" id="cfgApiEndpoint" placeholder="e.g. https://your-project.supabase.co" style="width: 100%; padding: 8px 10px 8px 36px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.82rem;">
+          </div>
+        </div>
+
+        <div class="auth-field-wrap" id="apiKeyInputWrap" style="margin-bottom: 14px;">
+          <label for="cfgApiKey" style="font-weight: 700; font-size: 0.8rem; color: #334155; display: block; margin-bottom: 4px;">Publishable API Key (Public / Anon JWT Key)</label>
+          <div class="auth-input-inner" style="position: relative;">
+            <span class="auth-field-icon">🔑</span>
+            <input type="password" id="cfgApiKey" placeholder="e.g. eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." autocomplete="off" style="width: 100%; padding: 8px 36px 8px 36px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.82rem;">
+            <button type="button" class="auth-eye-btn" onclick="togglePasswordVisibility('cfgApiKey', this)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;">👁️</button>
+          </div>
+          <small style="color: #059669; font-size: 0.72rem; display: block; margin-top: 4px;">💡 <strong>Where to find:</strong> In your Supabase Dashboard, click <strong>Connect</strong> (green button) or <strong>Project Settings ⚙️ &rarr; API &rarr; 'anon' 'public'</strong> (starts with <code>eyJhbGci...</code>)</small>
+        </div>
+
+        <div class="auth-field-wrap" id="apiSecretKeyInputWrap" style="margin-bottom: 14px;">
+          <label for="cfgSecretKey" style="font-weight: 700; font-size: 0.8rem; color: #dc2626; display: block; margin-bottom: 4px;">Secret Key (Optional - Server / Service Role)</label>
+          <div class="auth-input-inner" style="position: relative;">
+            <span class="auth-field-icon">🔒</span>
+            <input type="password" id="cfgSecretKey" placeholder="e.g. eyJhbGciOiJIUzI1Ni..." autocomplete="off" style="width: 100%; padding: 8px 36px 8px 36px; border: 1px solid #fca5a5; border-radius: 8px; font-size: 0.82rem; background: #fff5f5;">
+            <button type="button" class="auth-eye-btn" onclick="togglePasswordVisibility('cfgSecretKey', this)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;">👁️</button>
+          </div>
+          <small style="color: #64748b; font-size: 0.74rem; display: block; margin-top: 4px;">Secrets are loaded securely from .env or configured locally on your device.</small>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="display: flex; gap: 10px; justify-content: flex-end; align-items: center; padding: 12px 18px; border-top: 1px solid #e2e8f0; background: #f8fafc; flex-wrap: wrap;">
+        <button type="button" class="util-btn" onclick="testSupabaseConnection()" style="background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer;">
+          🔌 Test Connection
+        </button>
+        <button type="button" class="util-btn" onclick="closeApiKeyModal()" style="background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer;">Cancel</button>
+        <button type="button" class="btn-auth-primary" onclick="saveApiKeySettings()" style="background: #047857; color: white; border: none; padding: 8px 18px; border-radius: 8px; font-weight: 800; font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+          <span>💾 Save & Sync Supabase</span>
+        </button>
+      </div>
+    </div>
+  <!-- =========================================================================
+       Modal: Active POS Terminal Quick Actions & Status
+       ========================================================================= -->
+  <div id="posQuickActionsModal" class="modal-backdrop" style="display: none; z-index: 10045;" onclick="closePosQuickActionsModalOnBackdrop(event)">
+    <div class="modal-window-card" style="max-width: 480px; width: 92%; border-radius: 18px; overflow: hidden;" onclick="event.stopPropagation()">
+      <div class="modal-card-top" style="background: linear-gradient(135deg, #064e3b 0%, #047857 100%); color: #fff; padding: 14px 18px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+              🟢
+            </div>
+            <div>
+              <h3 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #fff;">Shift Action Terminal #1</h3>
+              <p style="margin: 2px 0 0; font-size: 0.75rem; color: #a7f3d0;">Live Register Shift Active & Ready</p>
+            </div>
+          </div>
+          <button type="button" class="modal-close-x" style="color: #fff;" onclick="closePosQuickActionsModal()">✕</button>
+        </div>
+      </div>
+
+      <div style="padding: 16px; background: #f8fafc; display: flex; flex-direction: column; gap: 10px;">
+        
+        <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 1.2rem;">🔢</span>
+            <div>
+              <span style="font-size: 0.7rem; font-weight: 700; color: #64748b; display: block;">STARTING BILL NO</span>
+              <span style="font-size: 0.95rem; font-weight: 800; color: #0f172a;" id="posQuickBillNo">#SC-001</span>
+            </div>
+          </div>
+          <button type="button" onclick="closePosQuickActionsModal(); promptEditBillNumber();" style="background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; padding: 6px 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer;">
+            ✏️ Edit Bill No
+          </button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <button type="button" onclick="toggleAudioSound(); updatePosQuickModalState();" style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 12px; text-align: left; cursor: pointer;">
+            <span style="font-size: 1.2rem; display: block; margin-bottom: 4px;" id="posQuickSoundIcon">🔔</span>
+            <span style="font-size: 0.8rem; font-weight: 800; color: #0f172a; display: block;" id="posQuickSoundTitle">Sound: ON</span>
+            <span style="font-size: 0.68rem; color: #64748b;">Tap to toggle audio sound</span>
+          </button>
+
+          <button type="button" onclick="closePosQuickActionsModal(); openDailyReportModal('all');" style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 12px; text-align: left; cursor: pointer;">
+            <span style="font-size: 1.2rem; display: block; margin-bottom: 4px;">📊</span>
+            <span style="font-size: 0.8rem; font-weight: 800; color: #0f172a; display: block;">Sales Closing</span>
+            <span style="font-size: 0.68rem; color: #64748b;">View Turnover Statement</span>
+          </button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <button type="button" onclick="closePosQuickActionsModal(); resetCatalogStock();" style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 12px; text-align: left; cursor: pointer;">
+            <span style="font-size: 1.2rem; display: block; margin-bottom: 4px;">🔄</span>
+            <span style="font-size: 0.8rem; font-weight: 800; color: #0f172a; display: block;">Restock Stock</span>
+            <span style="font-size: 0.68rem; color: #64748b;">Reset default inventory</span>
+          </button>
+
+          <button type="button" onclick="closePosQuickActionsModal(); logoutUser();" style="background: #fff1f2; border: 1.5px solid #fecdd3; border-radius: 12px; padding: 12px; text-align: left; cursor: pointer;">
+            <span style="font-size: 1.2rem; display: block; margin-bottom: 4px;">🔒</span>
+            <span style="font-size: 0.8rem; font-weight: 800; color: #e11d48; display: block;">Lock Register</span>
+            <span style="font-size: 0.68rem; color: #be123c;">Logout active shift</span>
+          </button>
+        </div>
+
+      </div>
+
+      <div style="padding: 10px 16px; background: #ffffff; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end;">
+        <button type="button" class="btn-dismiss" onclick="closePosQuickActionsModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
