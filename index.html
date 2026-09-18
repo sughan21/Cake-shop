@@ -1,20 +1,69 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="auth-pending">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Sugar Cubes | Artisanal Cake Shop POS & Daily Sales Tracker</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍰</text></svg>">
+  <link rel="icon" type="image/png" href="assets/sugar_cubes_logo.png">
+  <link rel="apple-touch-icon" href="assets/sugar_cubes_logo.png">
   <link rel="stylesheet" href="style.css">
   <!-- Client-Side High-Fidelity PDF Engine -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <!-- Client-Side QR Code Engine -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <!-- Mandatory Login Portal Gate: Web link always opens on Login/Register page -->
+  <!-- Supabase Cloud Database Client Engine -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Runtime Cloud & Database Configuration -->
+  <script>
+    window.ENV = window.ENV || {
+      SUPABASE_URL: "https://xcfwdmlmbesgcomblmcm.supabase.co",
+      SUPABASE_ANON_KEY: "sb_publishable_aD5eVWVqXxwnqOD83WagWw_sRlIDCmE",
+      SUPABASE_PUBLISHABLE_KEY: "sb_publishable_aD5eVWVqXxwnqOD83WagWw_sRlIDCmE",
+      VITE_APP_NAME: "Sugar Cubes & Café POS",
+      VITE_STORE_LOCATION: "Coimbatore Branch, Tamil Nadu",
+      VITE_GSTIN: "33AAAAA0000A1Z5"
+    };
+  </script>
+  <style>
+    .step-action-row:hover {
+      background: #f8fafc !important;
+      border-color: #cbd5e1 !important;
+      transform: translateX(4px);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+    }
+    body.app-custom-fullscreen, html.app-custom-fullscreen {
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      z-index: 999990 !important;
+      overflow: auto !important;
+      background: #f8fafc !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    .util-btn.btn-fullscreen-active {
+      background: #ffe4e6 !important;
+      border-color: #f43f5e !important;
+      color: #be185d !important;
+      font-weight: 800 !important;
+      box-shadow: 0 0 10px rgba(244, 63, 94, 0.2) !important;
+    }
+  </style>
+  <!-- Mandatory Login Portal Gate & Immediate LocalStorage Demo Data Purge -->
   <script>
     (function() {
       try {
         document.documentElement.classList.add('auth-pending');
+        var keys = ['sugarCubesOrders', 'sugarCubesOrders_STORE01', 'sugarCubesOrders_STORE02', 'sugarCubesOrders_STORE03', 'sugarCubesOrders_OWNER', 'sc_sales_history', 'sugarcubes_sales_v1', 'sugarCubesTicketNum'];
+        var isDirty = keys.some(function(k) {
+          var val = localStorage.getItem(k);
+          return val && (val.indexOf('Ananya') !== -1 || val.indexOf('Rahul') !== -1 || val.indexOf('SC-099') !== -1 || val.indexOf('Priya') !== -1);
+        });
+        if (isDirty || !localStorage.getItem('sugarCubes_force_purge_v30')) {
+          keys.forEach(function(k) { localStorage.removeItem(k); });
+          localStorage.setItem('sugarCubes_force_purge_v30', 'true');
+        }
       } catch (e) {}
     })();
   </script>
@@ -28,13 +77,15 @@
     <header class="pos-app-header">
     <div class="brand-section">
       <div class="brand-identity-left">
-        <div class="brand-avatar">🍰</div>
+        <div class="brand-avatar" style="overflow: hidden; border-radius: 12px; background: transparent;">
+          <img src="assets/sugar_cubes_logo.png" alt="Sugar Cubes Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">
+        </div>
         <div class="brand-details">
           <div class="brand-title-row">
             <h1 class="brand-title-heading"><span class="shiny-brand-text">Sugar Cubes</span> <span class="brand-logo-sparkle" title="Official Registered Brand">✨</span></h1>
             <div class="brand-live-badge">
               <span class="pulse-dot"></span>
-              <span>STORE OPEN • COUNTER #1</span>
+              <span id="headerLiveStoreBadge">STORE OPEN - DEMO MODE</span>
             </div>
           </div>
           <div class="brand-meta-sub-row">
@@ -102,8 +153,21 @@
         <span class="desktop-tab-label">Daily Sales Page</span>
       </button>
     </div>
-  </nav>
 </div>
+
+  <!-- Automatic Supabase Cloud Sync Quick-Setup Notification Banner -->
+  <div id="supabaseSetupNoticeBanner" style="display: none; background: linear-gradient(90deg, #022c22 0%, #064e3b 100%); color: #ffffff; padding: 10px 16px; border-bottom: 2px solid #10b981; align-items: center; justify-content: space-between; gap: 12px; font-size: 0.82rem; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+      <span style="font-size: 1.2rem;">⚡</span>
+      <span><strong>Automatic Supabase Cloud Sync:</strong> Paste your Supabase <code>anon</code> <code>public</code> key so every frontend sale & catalog update instantly saves to your database.</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <button type="button" onclick="openApiKeyModal()" style="background: #10b981; color: #ffffff; border: none; border-radius: 6px; padding: 6px 14px; font-weight: 800; font-size: 0.78rem; cursor: pointer; white-space: nowrap;">
+        🔑 Paste Key & Connect
+      </button>
+      <button type="button" onclick="this.parentElement.parentElement.style.display='none'" style="background: transparent; border: none; color: #a7f3d0; font-size: 1rem; cursor: pointer; padding: 0 4px;">✕</button>
+    </div>
+  </div>
 
   <!-- Mobile-Only View Switcher (Visible on phone viewports <= 768px) -->
   <div class="mobile-section-nav" id="mobileSectionNav">
@@ -279,9 +343,9 @@
             <div class="register-order-tag" id="registerTicketNum" onclick="promptEditBillNumber()" title="Click to adjust starting Bill No">
               <span>BILL NO:</span> <strong>#SC-001</strong> <span style="font-size: 0.65rem; opacity: 0.7;">✏️</span>
             </div>
-            <button type="button" class="register-terminal-badge-btn" onclick="handleActivePosClick()" title="Click for POS Quick Actions & Terminal Status">
+            <button type="button" class="register-terminal-badge-btn" onclick="handleActivePosClick()" title="Click for Shift Quick Actions & Terminal Status">
               <span class="live-dot-green"></span>
-              <span>Active POS</span>
+              <span>Shift Action</span>
               <span style="font-size: 0.62rem; opacity: 0.8; margin-left: 2px;">⚡</span>
             </button>
           </div>
@@ -308,7 +372,7 @@
             </div>
             <div class="cust-input-wrap">
               <span class="cust-input-icon">👤</span>
-              <input type="text" id="custName" placeholder="Name (Optional)">
+              <input type="text" id="custName" placeholder="Name (Optional)" onchange="handleCustNameChange(this)">
             </div>
           </div>
           <div class="register-customer-subrow">
@@ -467,6 +531,9 @@
       </div>
 
       <div class="kpi-page-header-right">
+        <button type="button" class="btn-kpi-loyalty" onclick="openLoyaltyModal()" title="View Customer Loyalty Directory & Rewards">
+          <span>🎴</span> <span>Loyalty</span>
+        </button>
         <button type="button" class="btn-kpi-export-csv" onclick="exportToExcel()" title="Export all sales to CSV spreadsheet">
           <span>📈</span> <span>Export CSV</span>
         </button>
@@ -546,7 +613,14 @@
               <p class="kpi-page-card-sub" id="desktopOrdersCardSub">Orders recorded for active date filter</p>
             </div>
           </div>
-          <div class="kpi-page-orders-search">
+          <div class="kpi-page-orders-search" style="display: flex; gap: 8px; align-items: center;">
+            <select id="desktopOrdersStoreFilter" onchange="renderDesktopPageOrdersList()" style="display: none; padding: 7px 12px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 0.82rem; font-weight: 700; color: #0f172a; background: #ffffff; cursor: pointer; outline: none;">
+              <option value="ALL">👑 All Stores (Master View)</option>
+              <option value="STORE01">📍 Store #1 - Main Branch</option>
+              <option value="STORE02">📍 Store #2 - Express Mall</option>
+              <option value="STORE03">📍 Store #3 - Airport Kiosk</option>
+              <option value="DEMO">⚡ Demo Mode Register</option>
+            </select>
             <input type="text" id="desktopOrdersSearchInput" placeholder="🔍 Search bill #, phone, cake..." oninput="renderDesktopPageOrdersList()">
           </div>
         </div>
@@ -1161,7 +1235,9 @@
     <div class="modal-window-card" style="max-width: 660px; width: 92%; border-radius: 20px; overflow: hidden; box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.1); border: none;" onclick="event.stopPropagation()">
       
       <!-- Modal Header -->
-      <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0f172a 100%); color: #ffffff; padding: 20px 24px; border-bottom: 2px solid rgba(16, 185, 129, 0.4); display: flex; justify-content: space-between; align-items: center; position: relative;">
+      <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0f172a 100%); color: #ffffff; padding: 18px 24px; border-bottom: 2px solid rgba(16, 185, 129, 0.4); position: relative;">
+        <div class="mobile-sheet-drag-handle" style="width: 42px; height: 5px; background: rgba(255, 255, 255, 0.35); border-radius: 4px; margin: 0 auto 14px auto; display: none;"></div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
         <div style="display: flex; align-items: center; gap: 14px;">
           <div style="width: 46px; height: 46px; border-radius: 14px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(5, 150, 105, 0.15) 100%); border: 1.5px solid rgba(52, 211, 153, 0.4); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; box-shadow: 0 0 16px rgba(16, 185, 129, 0.25);">
             ⚡
@@ -1179,63 +1255,97 @@
           </div>
         </div>
         <button type="button" class="modal-close-x" style="color: #cbd5e1; font-size: 1.2rem; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); width: 34px; height: 34px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;" onclick="closeShiftActionModal()" onmouseover="this.style.color='#fff'; this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.color='#cbd5e1'; this.style.background='rgba(255,255,255,0.08)'">✕</button>
+        </div>
       </div>
 
-      <!-- Modal Body -->
-      <div style="padding: 22px; background: #ffffff; display: flex; flex-direction: column; gap: 16px;">
-        
-        <!-- ⚡ Staff Quick Actions Container -->
-        <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 16px; padding: 18px; box-shadow: inset 0 2px 4px rgba(15, 23, 42, 0.02);">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid #e2e8f0;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 1.1rem; color: #f59e0b;">⚡</span>
-              <span style="font-weight: 800; font-size: 0.92rem; color: #0f172a; letter-spacing: -0.2px;">Quick Actions & Store Directory</span>
+      <!-- Modal Body: Step-by-Step Operations Directory -->
+      <div style="padding: 20px 24px; background: #ffffff; display: flex; flex-direction: column; gap: 14px;">
+
+        <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 10px; border-bottom: 1.5px solid #f1f5f9;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 1rem; color: #10b981;">⚡</span>
+            <span style="font-weight: 800; font-size: 0.92rem; color: #0f172a; letter-spacing: -0.2px;">Store Operations & Shift Directory</span>
+          </div>
+          <span style="font-size: 0.72rem; font-weight: 700; color: #64748b; background: #f1f5f9; padding: 4px 10px; border-radius: 12px;">5 Step Actions</span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+
+          <!-- Step 1: Owner Details -->
+          <div class="step-action-row" onclick="openOwnerDetailsModal();" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; cursor: pointer; transition: all 0.2s ease;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="background: #ecfdf5; color: #059669; font-weight: 800; font-size: 0.72rem; padding: 4px 8px; border-radius: 6px; border: 1px solid #a7f3d0; white-space: nowrap;">STEP 01</span>
+              <span style="font-size: 1.2rem;">🏢</span>
+              <div>
+                <div style="font-weight: 800; font-size: 0.88rem; color: #0f172a;">Owner & Leadership Profile</div>
+                <div style="font-size: 0.74rem; color: #64748b; margin-top: 1px;">Store contact details, manager profile & credentials</div>
+              </div>
             </div>
-            <span style="font-size: 0.7rem; font-weight: 700; color: #64748b; background: #e2e8f0; padding: 3px 10px; border-radius: 12px;">3 Directory Services</span>
+            <button type="button" style="background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; padding: 6px 12px; border-radius: 20px; font-size: 0.76rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; white-space: nowrap;">
+              View Profile <span>→</span>
+            </button>
           </div>
 
-          <div class="shift-action-cards-grid">
-            
-            <!-- Action Card 1: Owner's Details -->
-            <button type="button" onclick="openOwnerDetailsModal();" class="shift-action-tile tile-green">
-              <div class="tile-top-bar"></div>
-              <div class="tile-icon-box">🏢</div>
-              <div class="tile-text-wrap">
-                <span class="tile-title">Owner's Details</span>
-                <span class="tile-sub">Store Leadership</span>
+          <!-- Step 2: Payslip Statement -->
+          <div class="step-action-row" onclick="downloadEmployeePayslip();" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; cursor: pointer; transition: all 0.2s ease;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="background: #eff6ff; color: #2563eb; font-weight: 800; font-size: 0.72rem; padding: 4px 8px; border-radius: 6px; border: 1px solid #bfdbfe; white-space: nowrap;">STEP 02</span>
+              <span style="font-size: 1.2rem;">📄</span>
+              <div>
+                <div style="font-weight: 800; font-size: 0.88rem; color: #0f172a;">Shift Statement & Payslip</div>
+                <div style="font-size: 0.74rem; color: #64748b; margin-top: 1px;">Generate & download official PDF shift earnings statement</div>
               </div>
-              <div class="tile-action-pill pill-green">
-                View Profile <span>→</span>
-              </div>
+            </div>
+            <button type="button" style="background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 6px 12px; border-radius: 20px; font-size: 0.76rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; white-space: nowrap;">
+              Download PDF <span>→</span>
             </button>
-
-            <!-- Action Card 2: Employee Payslip Download -->
-            <button type="button" onclick="downloadEmployeePayslip();" class="shift-action-tile tile-blue">
-              <div class="tile-top-bar"></div>
-              <div class="tile-icon-box">📄</div>
-              <div class="tile-text-wrap">
-                <span class="tile-title">Payslip Download</span>
-                <span class="tile-sub">Shift Statement</span>
-              </div>
-              <div class="tile-action-pill pill-blue">
-                Download PDF <span>→</span>
-              </div>
-            </button>
-
-            <!-- Action Card 3: Registered Accounts & Email Directory -->
-            <button type="button" onclick="openResignReloginModal();" class="shift-action-tile tile-rose">
-              <div class="tile-top-bar"></div>
-              <div class="tile-icon-box">🔑</div>
-              <div class="tile-text-wrap">
-                <span class="tile-title">Registered Accounts & Email Directory</span>
-                <span class="tile-sub">Resign & Re-login</span>
-              </div>
-              <div class="tile-action-pill pill-rose">
-                Manage Roster <span>→</span>
-              </div>
-            </button>
-
           </div>
+
+          <!-- Step 3: Staff Roster & Registered Accounts Directory -->
+          <div class="step-action-row" onclick="openResignReloginModal();" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; cursor: pointer; transition: all 0.2s ease;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="background: #fdf2f8; color: #db2777; font-weight: 800; font-size: 0.72rem; padding: 4px 8px; border-radius: 6px; border: 1px solid #fbcfe8; white-space: nowrap;">STEP 03</span>
+              <span style="font-size: 1.2rem;">👥</span>
+              <div>
+                <div style="font-weight: 800; font-size: 0.88rem; color: #0f172a;">Registered Accounts Directory</div>
+                <div style="font-size: 0.74rem; color: #64748b; margin-top: 1px;">Switch active cashier account, re-authenticate or resign</div>
+              </div>
+            </div>
+            <button type="button" style="background: #fdf2f8; color: #be185d; border: 1px solid #fbcfe8; padding: 6px 12px; border-radius: 20px; font-size: 0.76rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; white-space: nowrap;">
+              Manage Directory <span>→</span>
+            </button>
+          </div>
+
+          <!-- Step 4: Lock Terminal -->
+          <div class="step-action-row" onclick="closeShiftActionModal(); logoutUser();" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; cursor: pointer; transition: all 0.2s ease;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="background: #fff1f2; color: #e11d48; font-weight: 800; font-size: 0.72rem; padding: 4px 8px; border-radius: 6px; border: 1px solid #fecdd3; white-space: nowrap;">STEP 04</span>
+              <span style="font-size: 1.2rem;">🔒</span>
+              <div>
+                <div style="font-weight: 800; font-size: 0.88rem; color: #0f172a;">Lock Register Terminal</div>
+                <div style="font-size: 0.74rem; color: #64748b; margin-top: 1px;">Safely sign out active cashier and lock POS register terminal</div>
+              </div>
+            </div>
+            <button type="button" style="background: #fff1f2; color: #be123c; border: 1px solid #fecdd3; padding: 6px 12px; border-radius: 20px; font-size: 0.76rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; white-space: nowrap;">
+              Lock Register <span>→</span>
+            </button>
+          </div>
+
+          <!-- Step 5: Full System Reset -->
+          <div class="step-action-row" onclick="closeShiftActionModal(); clearAllSalesAndLogoutSystem();" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; cursor: pointer; transition: all 0.2s ease;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="background: #fffbe3; color: #b45309; font-weight: 800; font-size: 0.72rem; padding: 4px 8px; border-radius: 6px; border: 1px solid #fde68a; white-space: nowrap;">STEP 05</span>
+              <span style="font-size: 1.2rem;">🔄</span>
+              <div>
+                <div style="font-weight: 800; font-size: 0.88rem; color: #9f1239;">Reset All Records & Restart</div>
+                <div style="font-size: 0.74rem; color: #64748b; margin-top: 1px;">Purge sales orders & clear Supabase history (preserves user login IDs)</div>
+              </div>
+            </div>
+            <button type="button" style="background: #fff1f2; color: #be123c; border: 1px solid #fecdd3; padding: 6px 12px; border-radius: 20px; font-size: 0.76rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; white-space: nowrap;">
+              Full Restart <span>→</span>
+            </button>
+          </div>
+
         </div>
 
       </div>
@@ -1354,7 +1464,7 @@
                 🏢
               </div>
               <div style="flex: 1;">
-                <h2 id="psCompName" style="margin: 0; font-size: 1.4rem; font-weight: 900; color: #0f172a; letter-spacing: -0.3px; line-height: 1.2;">SUGAR CUBES BAKERY & CAFÉ</h2>
+                <h2 id="psCompName" style="margin: 0; font-size: 1.4rem; font-weight: 900; color: #0f172a; letter-spacing: -0.3px; line-height: 1.2;">SUGAR CUBES & CAFÉ</h2>
                 <p id="psCompAddr" style="margin: 4px 0 0; font-size: 0.82rem; color: #475569; font-weight: 500; line-height: 1.3;">Central Branch, Main Road • GSTIN: 33AAAAA0000A1Z5</p>
                 <p style="margin: 4px 0 0; font-size: 0.85rem; color: #334155; font-weight: 700; line-height: 1.3;">Pay Slip for <span id="psPayPeriodText" style="font-weight: 900; color: #0f172a;">September 2026</span></p>
               </div>
@@ -1511,7 +1621,7 @@
             
             <div style="grid-column: span 2;">
               <label style="font-weight: 700; color: #334155; display: block; margin-bottom: 3px;">Company Name</label>
-              <input type="text" id="editPsCompName" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.82rem; font-weight: 700; color: #0f172a; box-sizing: border-box;" placeholder="SUGAR CUBES BAKERY & CAFÉ">
+              <input type="text" id="editPsCompName" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.82rem; font-weight: 700; color: #0f172a; box-sizing: border-box;" placeholder="SUGAR CUBES & CAFÉ">
             </div>
 
             <div style="grid-column: span 2;">
@@ -1813,7 +1923,7 @@
 
         <div>
           <label style="font-size: 0.72rem; font-weight: 800; color: #475569; display: block; margin-bottom: 4px;">📍 STORE BRANCH / ADDRESS</label>
-          <input type="text" id="ownerBranchInput" placeholder="e.g. Sugar Cubes Bakery, Main Road, Chennai Central" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1.5px solid #cbd5e1; font-weight: 700; font-size: 0.85rem; box-sizing: border-box;">
+          <input type="text" id="ownerBranchInput" placeholder="e.g. Sugar Cubes, Main Road, Chennai Central" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1.5px solid #cbd5e1; font-weight: 700; font-size: 0.85rem; box-sizing: border-box;">
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px;">
@@ -1886,9 +1996,11 @@
 
       <!-- Modal Footer -->
       <div class="modal-card-bottom" id="orderHistoryModalBottom" style="padding: 12px 18px; background: #ffffff; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-        <button type="button" class="btn-reg-secondary" onclick="exportToExcel()" title="Export all sales to CSV">
-          📈 Export CSV
-        </button>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button type="button" class="btn-reg-secondary" onclick="exportToExcel()" title="Export all sales to CSV">
+            📈 Export CSV
+          </button>
+        </div>
         <div style="display: flex; gap: 8px; flex-wrap: wrap;" id="orderHistoryModalActionBtns">
           <button type="button" class="btn-primary-action" style="padding: 8px 14px; font-size: 0.84rem;" onclick="openDailyReportModal('all')">
             📊 Total Sales Report
@@ -1993,10 +2105,10 @@
         <div class="pdf-brand-block">
           <div class="pdf-brand-icon">🍰</div>
           <div class="pdf-brand-info">
-            <h2>Sugar Cubes Bakery</h2>
+            <h2>Sugar Cubes</h2>
             <p><strong>Artisanal Cakes, Fine Pastries & Confectionery</strong></p>
-            <p>Sugar Cubes Artisanal Bakery, Coimbatore, Tamil Nadu</p>
-            <p>📞 +91 98765 43210 • ✉️ orders@sugarcubesbakery.com • www.sugarcubes.in</p>
+            <p id="pdfStoreAddress">Sugar Cubes, Coimbatore, Tamil Nadu</p>
+            <p id="pdfStoreContactInfo">📞 +91 98765 43210 • ✉️ orders@sugarcubesbakery.com • www.sugarcubes.in</p>
             <p><strong>GSTIN:</strong> 29AABCS1429K1ZT &nbsp;|&nbsp; <strong>FSSAI Lic No:</strong> 11223344556677</p>
           </div>
         </div>
@@ -2066,7 +2178,7 @@
             </div>
             <div style="text-align: right; font-size: 0.72rem; color: #475569;">
               Authorized Signature / Seal<br>
-              <strong>Sugar Cubes Bakery & Cafe</strong>
+              <strong>Sugar Cubes & Cafe</strong>
             </div>
           </div>
         </div>
@@ -2151,12 +2263,14 @@
   <!-- =========================================================================
        Fullscreen Authentication Portal: Login & Create Account
        ========================================================================= -->
-  <div id="loginAuthScreen" class="auth-fullscreen-overlay auth-hidden" style="display: none;">
+  <div id="loginAuthScreen" class="auth-fullscreen-overlay auth-hidden" style="display: none !important;">
     <div class="auth-card-container">
       
       <!-- Brand Header on Card -->
       <div class="auth-brand-header">
-        <div class="auth-brand-icon">🍰</div>
+        <div class="auth-brand-icon" style="background: transparent; box-shadow: none; width: 68px; height: 68px; padding: 0; margin-bottom: 12px; display: inline-flex; align-items: center; justify-content: center;">
+          <img src="assets/sugar_cubes_logo.png" alt="Sugar Cubes Brand Logo" style="width: 68px; height: 68px; object-fit: cover; border-radius: 16px; box-shadow: 0 8px 22px rgba(0,0,0,0.18); border: 2px solid rgba(255, 255, 255, 0.9);">
+        </div>
         <h2>Sugar Cubes</h2>
         <p class="auth-brand-sub">Artisanal Cake Shop & Bakery POS</p>
         <div class="auth-security-badge">
@@ -2275,60 +2389,82 @@
        ========================================================================= -->
   <div id="apiKeyConfigModal" class="modal-backdrop" style="display: none;" onclick="closeApiKeyModalOnBackdrop(event)">
     <div class="modal-window-card api-config-modal-card" onclick="event.stopPropagation()">
-      <div class="modal-header">
-        <div class="modal-header-left">
-          <span class="modal-icon">⚙️</span>
+      <div class="modal-header" style="background: linear-gradient(135deg, #022c22 0%, #064e3b 100%); color: #ffffff; padding: 14px 18px; border-bottom: 2px solid #10b981; border-top-left-radius: 16px; border-top-right-radius: 16px;">
+        <div class="modal-header-left" style="display: flex; align-items: center; gap: 10px;">
+          <span class="modal-icon" style="font-size: 1.3rem;">⚡</span>
           <div>
-            <h3>API Key & Authorization Settings</h3>
-            <p class="modal-subtitle">Connect your custom API key (Firebase, Supabase, or REST API)</p>
+            <h3 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #ffffff;">Supabase Database & Cloud Settings</h3>
+            <p class="modal-subtitle" style="margin: 2px 0 0; font-size: 0.74rem; color: #a7f3d0;">Connect your Supabase Cloud Database & API Keys</p>
           </div>
         </div>
-        <button type="button" class="modal-close-x" onclick="closeApiKeyModal()" aria-label="Close">✕</button>
+        <button type="button" class="modal-close-x" style="color: #ffffff;" onclick="closeApiKeyModal()" aria-label="Close">✕</button>
       </div>
 
-      <div class="modal-body">
+      <div class="modal-body" style="padding: 16px; background: #ffffff;">
         <div id="apiConfigAlertBanner" class="auth-alert-banner" style="display: none;"></div>
 
+        <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 10px; padding: 10px 12px; margin-bottom: 14px; display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.2rem;">🟢</span>
+          <div>
+            <span style="font-weight: 800; font-size: 0.8rem; color: #065f46; display: block;">Supabase Database Active (Sugar Cubes)</span>
+            <span style="font-size: 0.72rem; color: #047857;">Cloud Sync & Storage configured for project: sugar cubes - Sughan</span>
+          </div>
+        </div>
+
         <div class="auth-field-wrap" style="margin-bottom: 14px;">
-          <label for="apiProviderSelect">Cloud Auth Service / Provider</label>
+          <label for="apiProviderSelect" style="font-weight: 700; font-size: 0.8rem; color: #334155; display: block; margin-bottom: 4px;">Cloud Service / Database Provider</label>
           <div class="auth-input-inner select-wrap">
             <span class="auth-field-icon">🌐</span>
-            <select id="apiProviderSelect" onchange="handleApiProviderChange()">
-              <option value="resend" selected>Resend API (Email & Cloud Auth Key)</option>
+            <select id="apiProviderSelect" onchange="handleApiProviderChange()" style="width: 100%; padding: 8px 10px 8px 36px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 700; font-size: 0.82rem;">
+              <option value="supabase" selected>Supabase Cloud Database (URL & API Keys)</option>
+              <option value="resend">Resend API (Email & Cloud Auth Key)</option>
               <option value="firebase">Firebase Auth (REST API Key)</option>
-              <option value="supabase">Supabase Auth (URL & Anon API Key)</option>
               <option value="custom_rest">Custom REST API Endpoint</option>
-              <option value="local">Local Instant Mode (Offline / No API Key required)</option>
+              <option value="local">Local Instant Mode (Offline / Device Storage)</option>
             </select>
           </div>
         </div>
 
-        <div class="auth-field-wrap" id="apiKeyInputWrap" style="margin-bottom: 14px;">
-          <label for="cfgApiKey">API Key</label>
-          <div class="auth-input-inner">
-            <span class="auth-field-icon">🔑</span>
-            <input type="password" id="cfgApiKey" placeholder="Paste your API Key here (e.g. AIzaSy...)" autocomplete="off">
-            <button type="button" class="auth-eye-btn" onclick="togglePasswordVisibility('cfgApiKey', this)">👁️</button>
-          </div>
-          <small style="color: #64748b; font-size: 0.76rem; display: block; margin-top: 4px;">Your API Key is kept safe and stored locally on your device.</small>
-        </div>
-
         <div class="auth-field-wrap" id="apiEndpointInputWrap" style="margin-bottom: 14px;">
-          <label for="cfgApiEndpoint">API Endpoint / Project URL (Optional)</label>
+          <label for="cfgApiEndpoint" style="font-weight: 700; font-size: 0.8rem; color: #334155; display: block; margin-bottom: 4px;">Supabase Project URL</label>
           <div class="auth-input-inner">
             <span class="auth-field-icon">🔗</span>
-            <input type="url" id="cfgApiEndpoint" placeholder="e.g. https://your-project.supabase.co or https://api.myshop.com">
+            <input type="url" id="cfgApiEndpoint" placeholder="e.g. https://your-project.supabase.co" style="width: 100%; padding: 8px 10px 8px 36px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.82rem;">
           </div>
+        </div>
+
+        <div class="auth-field-wrap" id="apiKeyInputWrap" style="margin-bottom: 14px;">
+          <label for="cfgApiKey" style="font-weight: 700; font-size: 0.8rem; color: #334155; display: block; margin-bottom: 4px;">Publishable API Key (Public / Anon JWT Key)</label>
+          <div class="auth-input-inner" style="position: relative;">
+            <span class="auth-field-icon">🔑</span>
+            <input type="password" id="cfgApiKey" placeholder="e.g. eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." autocomplete="off" style="width: 100%; padding: 8px 36px 8px 36px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.82rem;">
+            <button type="button" class="auth-eye-btn" onclick="togglePasswordVisibility('cfgApiKey', this)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;">👁️</button>
+          </div>
+          <small style="color: #059669; font-size: 0.72rem; display: block; margin-top: 4px;">💡 <strong>Where to find:</strong> In your Supabase Dashboard, click <strong>Connect</strong> (green button) or <strong>Project Settings ⚙️ &rarr; API &rarr; 'anon' 'public'</strong> (starts with <code>eyJhbGci...</code>)</small>
+        </div>
+
+        <div class="auth-field-wrap" id="apiSecretKeyInputWrap" style="margin-bottom: 14px;">
+          <label for="cfgSecretKey" style="font-weight: 700; font-size: 0.8rem; color: #dc2626; display: block; margin-bottom: 4px;">Secret Key (Optional - Server / Service Role)</label>
+          <div class="auth-input-inner" style="position: relative;">
+            <span class="auth-field-icon">🔒</span>
+            <input type="password" id="cfgSecretKey" placeholder="e.g. eyJhbGciOiJIUzI1Ni..." autocomplete="off" style="width: 100%; padding: 8px 36px 8px 36px; border: 1px solid #fca5a5; border-radius: 8px; font-size: 0.82rem; background: #fff5f5;">
+            <button type="button" class="auth-eye-btn" onclick="togglePasswordVisibility('cfgSecretKey', this)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;">👁️</button>
+          </div>
+          <small style="color: #64748b; font-size: 0.74rem; display: block; margin-top: 4px;">Secrets are loaded securely from .env or configured locally on your device.</small>
         </div>
       </div>
 
-      <div class="modal-footer" style="display: flex; gap: 10px; justify-content: flex-end; padding: 12px 18px; border-top: 1px solid #e2e8f0;">
-        <button type="button" class="util-btn" onclick="closeApiKeyModal()">Cancel</button>
-        <button type="button" class="btn-auth-primary" onclick="saveApiKeySettings()" style="width: auto; padding: 8px 18px; height: 38px;">
-          <span>💾 Save API Settings</span>
+      <div class="modal-footer" style="display: flex; gap: 10px; justify-content: flex-end; align-items: center; padding: 12px 18px; border-top: 1px solid #e2e8f0; background: #f8fafc; flex-wrap: wrap;">
+        <button type="button" class="util-btn" onclick="testSupabaseConnection()" style="background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer;">
+          🔌 Test Connection
+        </button>
+        <button type="button" class="util-btn" onclick="closeApiKeyModal()" style="background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer;">Cancel</button>
+        <button type="button" class="btn-auth-primary" onclick="saveApiKeySettings()" style="background: #047857; color: white; border: none; padding: 8px 18px; border-radius: 8px; font-weight: 800; font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+          <span>💾 Save & Sync Supabase</span>
         </button>
       </div>
     </div>
+  </div>
   <!-- =========================================================================
        Modal: Active POS Terminal Quick Actions & Status
        ========================================================================= -->
@@ -2341,7 +2477,7 @@
               🟢
             </div>
             <div>
-              <h3 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #fff;">Active POS Terminal #1</h3>
+              <h3 id="shiftModalTitle" style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #fff;">Shift Action Terminal</h3>
               <p style="margin: 2px 0 0; font-size: 0.75rem; color: #a7f3d0;">Live Register Shift Active & Ready</p>
             </div>
           </div>
@@ -2349,47 +2485,94 @@
         </div>
       </div>
 
-      <div style="padding: 16px; background: #f8fafc; display: flex; flex-direction: column; gap: 10px;">
-        
-        <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between;">
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <span style="font-size: 1.2rem;">🔢</span>
-            <div>
-              <span style="font-size: 0.7rem; font-weight: 700; color: #64748b; display: block;">STARTING BILL NO</span>
-              <span style="font-size: 0.95rem; font-weight: 800; color: #0f172a;" id="posQuickBillNo">#SC-001</span>
-            </div>
+      <!-- Modal Body: Step-by-Step Operations Directory -->
+      <div style="padding: 20px 24px; background: #ffffff; display: flex; flex-direction: column; gap: 14px;">
+
+        <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 10px; border-bottom: 1.5px solid #f1f5f9;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 1rem; color: #10b981;">⚡</span>
+            <span style="font-weight: 800; font-size: 0.92rem; color: #0f172a; letter-spacing: -0.2px;">Store Operations & Shift Directory</span>
           </div>
-          <button type="button" onclick="closePosQuickActionsModal(); promptEditBillNumber();" style="background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; padding: 6px 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer;">
-            ✏️ Edit Bill No
-          </button>
+          <span style="font-size: 0.72rem; font-weight: 700; color: #64748b; background: #f1f5f9; padding: 4px 10px; border-radius: 12px;">5 Step Actions</span>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-          <button type="button" onclick="toggleAudioSound(); updatePosQuickModalState();" style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 12px; text-align: left; cursor: pointer;">
-            <span style="font-size: 1.2rem; display: block; margin-bottom: 4px;" id="posQuickSoundIcon">🔔</span>
-            <span style="font-size: 0.8rem; font-weight: 800; color: #0f172a; display: block;" id="posQuickSoundTitle">Sound: ON</span>
-            <span style="font-size: 0.68rem; color: #64748b;">Tap to toggle audio sound</span>
-          </button>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
 
-          <button type="button" onclick="closePosQuickActionsModal(); openDailyReportModal('all');" style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 12px; text-align: left; cursor: pointer;">
-            <span style="font-size: 1.2rem; display: block; margin-bottom: 4px;">📊</span>
-            <span style="font-size: 0.8rem; font-weight: 800; color: #0f172a; display: block;">Sales Closing</span>
-            <span style="font-size: 0.68rem; color: #64748b;">View Turnover Statement</span>
-          </button>
-        </div>
+          <!-- Step 1: Owner Details -->
+          <div class="step-action-row" onclick="closePosQuickActionsModal(); openOwnerDetailsModal();" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; cursor: pointer; transition: all 0.2s ease;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="background: #ecfdf5; color: #059669; font-weight: 800; font-size: 0.72rem; padding: 4px 8px; border-radius: 6px; border: 1px solid #a7f3d0; white-space: nowrap;">STEP 01</span>
+              <span style="font-size: 1.2rem;">🏢</span>
+              <div>
+                <div style="font-weight: 800; font-size: 0.88rem; color: #0f172a;">Owner & Leadership Profile</div>
+                <div style="font-size: 0.74rem; color: #64748b; margin-top: 1px;">Store contact details, manager profile & credentials</div>
+              </div>
+            </div>
+            <button type="button" style="background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; padding: 6px 12px; border-radius: 20px; font-size: 0.76rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; white-space: nowrap;">
+              View Profile <span>→</span>
+            </button>
+          </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-          <button type="button" onclick="closePosQuickActionsModal(); resetCatalogStock();" style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 12px; text-align: left; cursor: pointer;">
-            <span style="font-size: 1.2rem; display: block; margin-bottom: 4px;">🔄</span>
-            <span style="font-size: 0.8rem; font-weight: 800; color: #0f172a; display: block;">Restock Stock</span>
-            <span style="font-size: 0.68rem; color: #64748b;">Reset default inventory</span>
-          </button>
+          <!-- Step 2: Payslip Statement -->
+          <div class="step-action-row" onclick="closePosQuickActionsModal(); downloadEmployeePayslip();" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; cursor: pointer; transition: all 0.2s ease;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="background: #eff6ff; color: #2563eb; font-weight: 800; font-size: 0.72rem; padding: 4px 8px; border-radius: 6px; border: 1px solid #bfdbfe; white-space: nowrap;">STEP 02</span>
+              <span style="font-size: 1.2rem;">📄</span>
+              <div>
+                <div style="font-weight: 800; font-size: 0.88rem; color: #0f172a;">Shift Statement & Payslip</div>
+                <div style="font-size: 0.74rem; color: #64748b; margin-top: 1px;">Generate & download official PDF shift earnings statement</div>
+              </div>
+            </div>
+            <button type="button" style="background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 6px 12px; border-radius: 20px; font-size: 0.76rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; white-space: nowrap;">
+              Download PDF <span>→</span>
+            </button>
+          </div>
 
-          <button type="button" onclick="closePosQuickActionsModal(); logoutUser();" style="background: #fff1f2; border: 1.5px solid #fecdd3; border-radius: 12px; padding: 12px; text-align: left; cursor: pointer;">
-            <span style="font-size: 1.2rem; display: block; margin-bottom: 4px;">🔒</span>
-            <span style="font-size: 0.8rem; font-weight: 800; color: #e11d48; display: block;">Lock Register</span>
-            <span style="font-size: 0.68rem; color: #be123c;">Logout active shift</span>
-          </button>
+          <!-- Step 3: Staff Roster -->
+          <div class="step-action-row" onclick="closePosQuickActionsModal(); openResignReloginModal();" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; cursor: pointer; transition: all 0.2s ease;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="background: #fdf2f8; color: #db2777; font-weight: 800; font-size: 0.72rem; padding: 4px 8px; border-radius: 6px; border: 1px solid #fbcfe8; white-space: nowrap;">STEP 03</span>
+              <span style="font-size: 1.2rem;">👥</span>
+              <div>
+                <div style="font-weight: 800; font-size: 0.88rem; color: #0f172a;">Registered Accounts Directory</div>
+                <div style="font-size: 0.74rem; color: #64748b; margin-top: 1px;">Switch active cashier account, re-authenticate or resign</div>
+              </div>
+            </div>
+            <button type="button" style="background: #fdf2f8; color: #be185d; border: 1px solid #fbcfe8; padding: 6px 12px; border-radius: 20px; font-size: 0.76rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; white-space: nowrap;">
+              Manage Directory <span>→</span>
+            </button>
+          </div>
+
+          <!-- Step 4: Lock Terminal -->
+          <div class="step-action-row" onclick="closePosQuickActionsModal(); logoutUser();" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; cursor: pointer; transition: all 0.2s ease;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="background: #fff1f2; color: #e11d48; font-weight: 800; font-size: 0.72rem; padding: 4px 8px; border-radius: 6px; border: 1px solid #fecdd3; white-space: nowrap;">STEP 04</span>
+              <span style="font-size: 1.2rem;">🔒</span>
+              <div>
+                <div style="font-weight: 800; font-size: 0.88rem; color: #0f172a;">Lock Register Terminal</div>
+                <div style="font-size: 0.74rem; color: #64748b; margin-top: 1px;">Safely sign out active cashier and lock POS register terminal</div>
+              </div>
+            </div>
+            <button type="button" style="background: #fff1f2; color: #be123c; border: 1px solid #fecdd3; padding: 6px 12px; border-radius: 20px; font-size: 0.76rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; white-space: nowrap;">
+              Lock Register <span>→</span>
+            </button>
+          </div>
+
+          <!-- Step 5: Full System Reset -->
+          <div class="step-action-row" onclick="closePosQuickActionsModal(); clearAllSalesAndLogoutSystem();" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; cursor: pointer; transition: all 0.2s ease;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="background: #fffbe3; color: #b45309; font-weight: 800; font-size: 0.72rem; padding: 4px 8px; border-radius: 6px; border: 1px solid #fde68a; white-space: nowrap;">STEP 05</span>
+              <span style="font-size: 1.2rem;">🔄</span>
+              <div>
+                <div style="font-weight: 800; font-size: 0.88rem; color: #9f1239;">Reset All Records & Restart</div>
+                <div style="font-size: 0.74rem; color: #64748b; margin-top: 1px;">Purge sales orders & clear Supabase history (preserves user login IDs)</div>
+              </div>
+            </div>
+            <button type="button" style="background: #fff1f2; color: #be123c; border: 1px solid #fecdd3; padding: 6px 12px; border-radius: 20px; font-size: 0.76rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; white-space: nowrap;">
+              Full Restart <span>→</span>
+            </button>
+          </div>
+
         </div>
 
       </div>
@@ -2397,6 +2580,565 @@
       <div style="padding: 10px 16px; background: #ffffff; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end;">
         <button type="button" class="btn-dismiss" onclick="closePosQuickActionsModal()">Close</button>
       </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       🏬 MULTI-STORE AUTHENTICATION & STORE LOGIN MODAL
+       ========================================================================= -->
+  <div class="pos-modal-backdrop" id="storeLoginModal" onclick="handleSplashBackdropClick(event)" style="display: flex; flex-direction: column; align-items: center; justify-content: center; position: fixed; inset: 0; z-index: 999999; background: radial-gradient(circle at 50% 35%, #f8fafc 0%, #f1f5f9 55%, #e2e8f0 100%); padding: 20px; overflow-y: auto; overflow-x: hidden; cursor: pointer;">
+    
+    <!-- Single Centered Background Brand Name Outline Text Watermark -->
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 8.5rem; font-weight: 900; font-family: var(--font-sans); color: transparent; -webkit-text-stroke: 2.5px rgba(244, 114, 182, 0.26); letter-spacing: 0.15em; white-space: nowrap; pointer-events: none; user-select: none; z-index: 1;">
+      SUGAR CUBES
+    </div>
+
+    <!-- Initial Landing Splash Prompt (Opened when link is first clicked) -->
+    <div id="splashLandingPrompt" style="position: relative; z-index: 5; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 16px; cursor: pointer; transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);" onclick="revealStoreLoginPortal(event)">
+      <div style="width: 88px; height: 88px; background: #ffffff; border-radius: 26px; padding: 12px; box-shadow: 0 15px 35px rgba(236, 72, 153, 0.25), 0 5px 15px rgba(15, 23, 42, 0.08); border: 2.5px solid #fbcfe8; animation: floatBounce 3s ease-in-out infinite;">
+        <img src="assets/sugar_cubes_logo.png" alt="Sugar Cubes" style="width: 100%; height: 100%; object-fit: cover; border-radius: 18px;">
+      </div>
+      <button type="button" style="background: linear-gradient(135deg, #f472b6 0%, #ec4899 45%, #db2777 100%); color: #ffffff; border: none; padding: 16px 36px; border-radius: 99px; font-size: 1.05rem; font-weight: 800; cursor: pointer; box-shadow: 0 10px 30px rgba(219, 39, 119, 0.4); display: flex; align-items: center; gap: 10px; transition: transform 0.2s, box-shadow 0.2s;">
+        <span>🍰 Open Store POS Register</span>
+        <span style="font-size: 1.2rem;">➔</span>
+      </button>
+      <p style="margin: 0; font-size: 0.8rem; font-weight: 700; color: #64748b; letter-spacing: 0.03em;">Click anywhere on screen to open store login portal</p>
+    </div>
+
+    <!-- The Login Card (Revealed after clicking background or splash button) -->
+    <div id="storeLoginCard" class="store-login-card" onclick="event.stopPropagation()" style="display: none; opacity: 0; position: relative; z-index: 10; background: #ffffff; border-radius: 24px; max-width: 440px; width: 100%; margin: 0 auto; box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.3), 0 10px 30px -5px rgba(15, 23, 42, 0.15); overflow: hidden; border: 1.5px solid #e2e8f0; transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);">
+      
+      <!-- Login Header with Vibrant Aesthetic Pink Gradient -->
+      <div style="background: linear-gradient(135deg, #f472b6 0%, #ec4899 45%, #db2777 100%); padding: 28px 24px; text-align: center; color: #ffffff; position: relative;">
+        <div style="width: 72px; height: 72px; margin: 0 auto 12px; background: #ffffff; border-radius: 20px; padding: 8px; box-shadow: 0 10px 25px rgba(219, 39, 119, 0.35);">
+          <img src="assets/sugar_cubes_logo.png" alt="Sugar Cubes" style="width: 100%; height: 100%; object-fit: cover; border-radius: 14px;">
+        </div>
+        <h2 style="margin: 0; font-size: 1.4rem; font-weight: 800; letter-spacing: -0.02em; color: #ffffff; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);">Sugar Cubes Bakery</h2>
+        <p style="margin: 4px 0 0; font-size: 0.82rem; color: #fdf2f8; font-weight: 600; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);">Multi-Store POS Register Portal</p>
+      </div>
+
+      <!-- Quick Store Selection Pills -->
+      <div style="padding: 20px 24px 0; background: #fdf2f8;">
+        <label style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: #be185d; letter-spacing: 0.05em; display: block; margin-bottom: 8px;">QUICK SELECT STORE LOCATION</label>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;" id="quickStorePills">
+          <button type="button" onclick="selectStoreQuick('STORE01')" style="background: #fdf2f8; border: 1.5px solid #ec4899; border-radius: 12px; padding: 10px; text-align: left; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.22);" id="pill-STORE01">
+            <span style="font-size: 0.82rem; font-weight: 800; color: #9d174d; display: block;">📍 Store #1</span>
+            <span style="font-size: 0.68rem; color: #db2777;">Main Branch</span>
+          </button>
+          <button type="button" onclick="selectStoreQuick('STORE02')" style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 10px; text-align: left; cursor: pointer; transition: all 0.2s;" id="pill-STORE02">
+            <span style="font-size: 0.82rem; font-weight: 800; color: #0f172a; display: block;">📍 Store #2</span>
+            <span style="font-size: 0.68rem; color: #64748b;">Express Mall</span>
+          </button>
+          <button type="button" onclick="selectStoreQuick('STORE03')" style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 10px; text-align: left; cursor: pointer; transition: all 0.2s;" id="pill-STORE03">
+            <span style="font-size: 0.82rem; font-weight: 800; color: #0f172a; display: block;">📍 Store #3</span>
+            <span style="font-size: 0.68rem; color: #64748b;">Airport Kiosk</span>
+          </button>
+          <button type="button" onclick="selectStoreQuick('OWNER')" style="background: #fff5f7; border: 1.5px solid #fbcfe8; border-radius: 12px; padding: 10px; text-align: left; cursor: pointer; transition: all 0.2s;" id="pill-OWNER">
+            <span style="font-size: 0.82rem; font-weight: 800; color: #db2777; display: block;">👑 Master Owner</span>
+            <span style="font-size: 0.68rem; color: #ec4899;">All Stores View</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Login Form -->
+      <form id="storeLoginForm" onsubmit="handleStoreLogin(event)" style="padding: 20px 24px 24px; display: flex; flex-direction: column; gap: 14px;">
+        
+        <div>
+          <label style="font-size: 0.75rem; font-weight: 700; color: #475569; display: block; margin-bottom: 4px;">Store ID / Email</label>
+          <input type="text" id="loginStoreCode" placeholder="e.g. STORE01 or store1@sugarcubes.com" required style="width: 100%; padding: 12px; border: 1.5px solid #fbcfe8; border-radius: 12px; font-size: 0.95rem; font-weight: 700; color: #0f172a; box-sizing: border-box;">
+        </div>
+
+        <div>
+          <label style="font-size: 0.75rem; font-weight: 700; color: #475569; display: block; margin-bottom: 4px;">4-Digit Store Security PIN</label>
+          <input type="password" id="loginStorePin" placeholder="••••" maxlength="10" required style="width: 100%; padding: 12px; border: 1.5px solid #fbcfe8; border-radius: 12px; font-size: 1.2rem; font-weight: 800; letter-spacing: 0.3em; text-align: center; color: #db2777; box-sizing: border-box;">
+        </div>
+
+        <!-- Login Error Alert -->
+        <div id="loginErrorMessage" style="display: none; background: #fff1f2; border: 1px solid #fecdd3; border-radius: 10px; padding: 10px 12px; font-size: 0.78rem; font-weight: 700; color: #be185d; text-align: center;">
+        </div>
+
+        <button type="submit" id="btnLoginSubmit" style="background: linear-gradient(135deg, #f472b6 0%, #ec4899 45%, #db2777 100%); color: #ffffff; border: none; padding: 14px; border-radius: 14px; font-size: 1rem; font-weight: 800; cursor: pointer; box-shadow: 0 4px 18px rgba(219, 39, 119, 0.4); margin-top: 4px; transition: transform 0.1s;">
+          🚀 Open POS Register
+        </button>
+
+        <!-- Direct 1-Click Demo Access for Web Link Visitors -->
+        <div style="text-align: center; margin-top: 4px;">
+          <button type="button" onclick="quickDemoLogin()" style="background: #fdf2f8; color: #be185d; border: 1.5px solid #fbcfe8; padding: 10px 14px; border-radius: 12px; font-size: 0.84rem; font-weight: 800; cursor: pointer; width: 100%; transition: all 0.2s;">
+            ⚡ Direct Demo Access (Instant Open POS)
+          </button>
+        </div>
+
+        <p style="margin: 4px 0 0; text-align: center; font-size: 0.7rem; color: #94a3b8;">
+          Default PINs: Store #1: <strong style="color: #475569;">1234</strong> | Store #2: <strong style="color: #475569;">5678</strong> | Store #3: <strong style="color: #475569;">9012</strong> | Owner: <strong style="color: #db2777;">0000</strong>
+        </p>
+      </form>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       🎴 Customer Loyalty & Retention Hub Pop-up Page Modal
+       ========================================================================= -->
+  <div id="loyaltyPopupModal" class="modal-backdrop" onclick="if (event.target === this) closeLoyaltyModal()" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(8px); z-index: 99999; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: #ffffff; border-radius: 20px; width: 96%; max-width: 1160px; height: 90vh; max-height: 860px; min-height: 600px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 70px -15px rgba(15, 23, 42, 0.4); border: 1px solid #e2e8f0;">
+      
+      <!-- Scoped Scrollbar Style -->
+      <style>
+        #loyaltyPopupModal .loyalty-scroll-pane::-webkit-scrollbar { width: 6px; height: 6px; }
+        #loyaltyPopupModal .loyalty-scroll-pane::-webkit-scrollbar-track { background: #f8fafc; }
+        #loyaltyPopupModal .loyalty-scroll-pane::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        #loyaltyPopupModal .loyalty-scroll-pane::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        #loyaltyPopupModal .no-scrollbar::-webkit-scrollbar { display: none; }
+        #loyaltyPopupModal .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+      </style>
+
+      <!-- Modal Header -->
+      <div style="padding: 14px 24px; background: #ffffff; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-shrink: 0;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, #ec4899 0%, #be185d 100%); display: flex; align-items: center; justify-content: center; font-size: 1.35rem; color: #ffffff; box-shadow: 0 4px 12px rgba(190, 24, 93, 0.28); flex-shrink: 0;">
+            🎴
+          </div>
+          <div>
+            <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+              Digital Loyalty & Customer Retention Hub
+              <span style="font-size: 0.68rem; background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; padding: 2px 8px; border-radius: 20px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                <span style="width: 6px; height: 6px; border-radius: 50%; background: #10b981;"></span>Mobile Connected
+              </span>
+            </h3>
+            <p style="margin: 2px 0 0; font-size: 0.74rem; color: #64748b;">100% Digital • Customer phone (+91) is their loyalty card • Real-time visit log, points ledger & WhatsApp passes</p>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <button type="button" onclick="promptAddNewLoyaltyMember()" style="background: #be185d; color: #ffffff; border: none; padding: 8px 16px; border-radius: 10px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(190, 24, 93, 0.25); transition: all 0.2s;" onmouseover="this.style.background='#9d174d'" onmouseout="this.style.background='#be185d'">
+            <span>➕</span> <span>New Customer Card</span>
+          </button>
+          <button type="button" onclick="closeLoyaltyModal()" title="Close (Esc)" style="background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b; width: 36px; height: 36px; border-radius: 10px; font-size: 1.05rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all 0.15s;" onmouseover="this.style.background='#f1f5f9'; this.style.color='#0f172a';" onmouseout="this.style.background='#f8fafc'; this.style.color='#64748b';">
+            ✕
+          </button>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs (Guaranteed Single-Line Horizontal, No Scrollbars) -->
+      <div class="no-scrollbar" style="display: flex; background: #ffffff; border-bottom: 1.5px solid #e2e8f0; padding: 0 20px; gap: 4px; overflow-x: auto; white-space: nowrap; flex-shrink: 0;">
+        <button type="button" id="tabBtnLoyaltyHistory" onclick="switchLoyaltyTab('history')" style="background: #fdf2f8; border: none; border-bottom: 2.5px solid #be185d; color: #be185d; font-weight: 800; font-size: 0.8rem; padding: 11px 15px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; transition: all 0.15s;">
+          <span>📜</span> <span>Loyalty History & Points</span>
+        </button>
+        <button type="button" id="tabBtnLoyaltyMembers" onclick="switchLoyaltyTab('members')" style="background: transparent; border: none; border-bottom: 2.5px solid transparent; color: #64748b; font-weight: 700; font-size: 0.8rem; padding: 11px 15px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; transition: all 0.15s;">
+          <span>👥</span> <span>Customer Directory</span>
+        </button>
+        <button type="button" id="tabBtnLoyaltyLogger" onclick="switchLoyaltyTab('logger')" style="background: transparent; border: none; border-bottom: 2.5px solid transparent; color: #64748b; font-weight: 700; font-size: 0.8rem; padding: 11px 15px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; transition: all 0.15s;">
+          <span>⚡</span> <span>Log Visit & Purchase</span>
+        </button>
+        <button type="button" id="tabBtnLoyaltyMarketing" onclick="switchLoyaltyTab('marketing')" style="background: transparent; border: none; border-bottom: 2.5px solid transparent; color: #64748b; font-weight: 700; font-size: 0.8rem; padding: 11px 15px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; transition: all 0.15s;">
+          <span>📢</span> <span>Retention & Marketing (1-Click)</span>
+        </button>
+      </div>
+
+      <!-- TAB 1: Loyalty History & Log Pane -->
+      <div id="loyaltyPaneHistory" style="display: flex; flex-direction: column; flex: 1; overflow: hidden;">
+        
+        <!-- Top Controls & Filter Strip -->
+        <div style="padding: 12px 24px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; flex-shrink: 0;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 36px; height: 36px; border-radius: 10px; background: #e0e7ff; color: #4338ca; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; font-weight: 800;">📜</div>
+            <div>
+              <h4 style="margin: 0; font-size: 0.96rem; font-weight: 800; color: #0f172a;">Customer Points & Visit Ledger</h4>
+              <p style="margin: 1px 0 0; font-size: 0.72rem; color: #64748b;">Complete audit record of every visit, bill amount, points credited (+PTS) & reward milestones.</p>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <div style="position: relative; width: 220px;">
+              <span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.8rem; color: #94a3b8;">🔍</span>
+              <input type="text" id="historySearchInput" oninput="renderLoyaltyHistory()" placeholder="Search mobile number..." style="width: 100%; padding: 7px 10px 7px 30px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 0.8rem; font-weight: 600; outline: none; box-sizing: border-box; background: #ffffff;">
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <label style="font-size: 0.72rem; font-weight: 800; color: #475569; text-transform: uppercase;">CUSTOMER:</label>
+              <select id="historyCustomerFilterSelect" onchange="renderLoyaltyHistory()" style="padding: 7px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 0.8rem; font-weight: 700; color: #0f172a; background: #ffffff; outline: none;">
+                <option value="ALL">🌟 All Mobile Numbers (Full History)</option>
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+            <button type="button" onclick="switchLoyaltyTab('logger')" style="background: #ffffff; border: 1.5px solid #fbcfe8; color: #be185d; padding: 7px 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: all 0.2s;" onmouseover="this.style.background='#fdf2f8';" onmouseout="this.style.background='#ffffff';">
+              <span>⚡</span> <span>Log Visit</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Customer Points Spotlight Card (shown when customer is selected) -->
+        <div id="historyCustomerSpotlight" style="display: none; padding: 12px 24px; background: linear-gradient(135deg, #fdf2f8 0%, #fff1f2 100%); border-bottom: 1.5px solid #fce7f3; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; flex-shrink: 0;">
+          <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #ec4899 0%, #be185d 100%); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 800; box-shadow: 0 4px 10px rgba(190, 24, 93, 0.25);">
+              👑
+            </div>
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <h3 id="spotlightCustomerName" style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #831843;">+91 9876543210</h3>
+                <span id="spotlightCustomerTier" style="font-size: 0.7rem; background: #be185d; color: #fff; padding: 2px 8px; border-radius: 12px; font-weight: 800;">VIP MEMBER</span>
+              </div>
+              <div id="spotlightCustomerPhone" style="font-size: 0.76rem; color: #9d174d; margin-top: 2px;">📱 +91 9876543210 • 7 Visits • ₹8,400 Total Spend</div>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="background: #ffffff; border: 1.5px solid #fbcfe8; padding: 8px 14px; border-radius: 12px; text-align: right;">
+              <div style="font-size: 0.68rem; color: #9d174d; font-weight: 700; text-transform: uppercase;">Total Loyalty Points</div>
+              <div id="spotlightCustomerPoints" style="font-size: 1.25rem; font-weight: 900; color: #be185d;">500 PTS <span style="font-size: 0.76rem; font-weight: 700; color: #047857;">(500 PTS Total)</span></div>
+            </div>
+            <button type="button" id="spotlightWhatsappBtn" onclick="quickShareSpotlightCustomer()" style="background: #25d366; color: #ffffff; border: none; padding: 8px 14px; border-radius: 10px; font-size: 0.8rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3);">
+              <span>💬</span> <span>WhatsApp Points Pass</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- History KPI Summary Strip -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 12px 24px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; flex-shrink: 0;">
+          <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+            <div style="font-size: 0.67rem; color: #64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; justify-content: space-between;">
+              <span>Visits Logged</span>
+              <span>🚶</span>
+            </div>
+            <div id="historyStatTotalVisits" style="font-size: 1.18rem; font-weight: 900; color: #0f172a; margin-top: 4px;">15 Visits</div>
+          </div>
+          <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+            <div style="font-size: 0.67rem; color: #64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; justify-content: space-between;">
+              <span>Total Sales Tracked</span>
+              <span>💰</span>
+            </div>
+            <div id="historyStatTotalSales" style="font-size: 1.18rem; font-weight: 900; color: #047857; margin-top: 4px;">₹20,300</div>
+          </div>
+          <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+            <div style="font-size: 0.67rem; color: #64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; justify-content: space-between;">
+              <span>Points Credited</span>
+              <span>💎</span>
+            </div>
+            <div id="historyStatTotalPoints" style="font-size: 1.18rem; font-weight: 900; color: #be185d; margin-top: 4px;">+1,440 PTS</div>
+          </div>
+          <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+            <div style="font-size: 0.67rem; color: #64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; justify-content: space-between;">
+              <span>Milestones Reached</span>
+              <span>🎁</span>
+            </div>
+            <div id="historyStatTotalMilestones" style="font-size: 1.18rem; font-weight: 900; color: #7e22ce; margin-top: 4px;">4 Rewards</div>
+          </div>
+        </div>
+
+        <!-- History Timeline Table (Clean Sticky Table with Scroll) -->
+        <div style="flex: 1; overflow-y: auto; overflow-x: hidden; padding: 0 24px 16px;" class="loyalty-scroll-pane">
+          <table style="width: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 0; text-align: left;">
+            <thead style="position: sticky; top: 0; background: #ffffff; z-index: 5;">
+              <tr style="border-bottom: 2px solid #e2e8f0; font-size: 0.69rem; text-transform: uppercase; color: #475569; font-weight: 800; letter-spacing: 0.05em;">
+                <th style="padding: 10px 8px; background: #ffffff; border-bottom: 2px solid #e2e8f0; width: 22%;">Date & Time</th>
+                <th style="padding: 10px 8px; background: #ffffff; border-bottom: 2px solid #e2e8f0; width: 38%;">Mobile Number</th>
+                <th style="padding: 10px 8px; background: #ffffff; border-bottom: 2px solid #e2e8f0; width: 20%; text-align: right;">Points Earned</th>
+                <th style="padding: 10px 8px; background: #ffffff; border-bottom: 2px solid #e2e8f0; width: 20%; text-align: right;">Points Total</th>
+              </tr>
+            </thead>
+            <tbody id="loyaltyHistoryTableBody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 2: Customer Directory Pane -->
+      <div id="loyaltyPaneMembers" style="display: none; flex-direction: column; flex: 1; overflow: hidden;">
+        <!-- KPI Stats Bar -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 12px 24px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; flex-shrink: 0;">
+          <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+            <div style="font-size: 0.67rem; color: #64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; justify-content: space-between;">
+              <span>Total Members</span>
+              <span>👥</span>
+            </div>
+            <div id="loyaltyStatTotalMembers" style="font-size: 1.18rem; font-weight: 900; color: #0f172a; margin-top: 4px;">4</div>
+          </div>
+          <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+            <div style="font-size: 0.67rem; color: #64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; justify-content: space-between;">
+              <span>Total Store Visits</span>
+              <span>🚶</span>
+            </div>
+            <div id="loyaltyStatTotalVisits" style="font-size: 1.18rem; font-weight: 900; color: #0f172a; margin-top: 4px;">15 Visits</div>
+          </div>
+          <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+            <div style="font-size: 0.67rem; color: #64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; justify-content: space-between;">
+              <span>Lifetime Spend</span>
+              <span>💰</span>
+            </div>
+            <div id="loyaltyStatTotalSpend" style="font-size: 1.18rem; font-weight: 900; color: #047857; margin-top: 4px;">₹20,300</div>
+          </div>
+          <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+            <div style="font-size: 0.67rem; color: #64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; justify-content: space-between;">
+              <span>Points in Pool</span>
+              <span>💎</span>
+            </div>
+            <div id="loyaltyStatTotalPoints" style="font-size: 1.18rem; font-weight: 900; color: #be185d; margin-top: 4px;">1,040 PTS</div>
+          </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div style="padding: 12px 24px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #e2e8f0; background: #ffffff; flex-shrink: 0;">
+          <div style="flex: 1; position: relative;">
+            <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 0.9rem;">🔍</span>
+            <input type="text" id="loyaltySearchQuery" oninput="renderLoyaltyMembersList()" placeholder="Search by mobile number (+91)..." style="width: 100%; padding: 8px 12px 8px 36px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 0.84rem; font-weight: 600; outline: none; box-sizing: border-box;">
+          </div>
+          <button type="button" onclick="switchLoyaltyTab('history')" style="background: #f1f5f9; color: #334155; border: 1.5px solid #cbd5e1; padding: 8px 14px; border-radius: 10px; font-size: 0.8rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+            <span>📜</span> <span>View Full History</span>
+          </button>
+          <button type="button" onclick="switchLoyaltyTab('logger')" style="background: #fdf2f8; color: #be185d; border: 1.5px solid #fbcfe8; padding: 8px 14px; border-radius: 10px; font-size: 0.8rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+            <span>⚡</span> <span>Log Visit</span>
+          </button>
+        </div>
+
+        <!-- Customer Table -->
+        <div style="flex: 1; overflow-y: auto; padding: 0 24px 16px;" class="loyalty-scroll-pane">
+          <table style="width: 100%; border-collapse: separate; border-spacing: 0; text-align: left;">
+            <thead style="position: sticky; top: 0; background: #ffffff; z-index: 5;">
+              <tr style="border-bottom: 2px solid #e2e8f0; font-size: 0.7rem; text-transform: uppercase; color: #475569; font-weight: 800; letter-spacing: 0.05em;">
+                <th style="padding: 12px 14px; background: #ffffff; border-bottom: 2px solid #e2e8f0;">Mobile Number</th>
+                <th style="padding: 12px 14px; background: #ffffff; border-bottom: 2px solid #e2e8f0;">Visit Count</th>
+                <th style="padding: 12px 14px; background: #ffffff; border-bottom: 2px solid #e2e8f0; text-align: right;">Purchase Amount</th>
+                <th style="padding: 12px 14px; background: #ffffff; border-bottom: 2px solid #e2e8f0; text-align: right;">Loyalty Points</th>
+                <th style="padding: 12px 14px; background: #ffffff; border-bottom: 2px solid #e2e8f0; text-align: center;">Rewards Earned</th>
+                <th style="padding: 12px 14px; background: #ffffff; border-bottom: 2px solid #e2e8f0; text-align: right;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="loyaltyMembersTableBody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 3: Quick Visit & Purchase Logger Pane -->
+      <div id="loyaltyPaneLogger" style="display: none; flex-direction: column; flex: 1; overflow-y: auto; padding: 24px;">
+        <div style="max-width: 640px; margin: 0 auto; width: 100%;">
+          <div style="background: #fafafa; border: 1.5px solid #e2e8f0; border-radius: 16px; padding: 20px;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+              <div style="width: 36px; height: 36px; border-radius: 10px; background: #fdf2f8; color: #be185d; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">⚡</div>
+              <div>
+                <h4 style="margin: 0; font-size: 1rem; font-weight: 800; color: #0f172a;">Log Customer Visit & Purchase Amount</h4>
+                <p style="margin: 2px 0 0; font-size: 0.76rem; color: #64748b;">Updates visit count, lifetime purchase, loyalty points and checks reward milestones.</p>
+              </div>
+            </div>
+
+            <!-- Customer Selection -->
+            <div style="margin-bottom: 14px;">
+              <label style="display: block; font-size: 0.76rem; font-weight: 800; color: #334155; margin-bottom: 6px;">SELECT CUSTOMER (BY MOBILE / NAME):</label>
+              <select id="loggerCustomerSelect" onchange="onLoggerCustomerChange()" style="width: 100%; padding: 10px 12px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 0.86rem; font-weight: 600; outline: none; background: #ffffff;">
+                <!-- Filled dynamically -->
+              </select>
+            </div>
+
+            <!-- Bill Amount Input -->
+            <div style="margin-bottom: 16px;">
+              <label style="display: block; font-size: 0.76rem; font-weight: 800; color: #334155; margin-bottom: 6px;">CURRENT BILL / PURCHASE AMOUNT (₹):</label>
+              <div style="position: relative;">
+                <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-weight: 800; color: #64748b;">₹</span>
+                <input type="number" id="loggerPurchaseAmount" oninput="updateLoggerPreview()" placeholder="e.g. 450" style="width: 100%; padding: 10px 12px 10px 30px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 0.95rem; font-weight: 800; color: #0f172a; outline: none; box-sizing: border-box;">
+              </div>
+            </div>
+
+            <!-- Live Calculation Preview Card -->
+            <div id="loggerPreviewCard" style="background: #ffffff; border: 1.5px solid #fbcfe8; border-radius: 12px; padding: 14px; margin-bottom: 16px;">
+              <div style="font-size: 0.72rem; font-weight: 800; color: #be185d; text-transform: uppercase; margin-bottom: 8px;">📊 Live Impact Preview:</div>
+              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center;">
+                <div style="background: #fdf2f8; padding: 8px; border-radius: 8px;">
+                  <div style="font-size: 0.68rem; color: #9d174d; font-weight: 700;">VISITS</div>
+                  <div id="loggerPreviewVisits" style="font-size: 0.95rem; font-weight: 800; color: #831843;">-</div>
+                </div>
+                <div style="background: #f0fdf4; padding: 8px; border-radius: 8px;">
+                  <div style="font-size: 0.68rem; color: #166534; font-weight: 700;">TOTAL SPENT</div>
+                  <div id="loggerPreviewSpent" style="font-size: 0.95rem; font-weight: 800; color: #15803d;">-</div>
+                </div>
+                <div style="background: #fefce8; padding: 8px; border-radius: 8px;">
+                  <div style="font-size: 0.68rem; color: #854d0e; font-weight: 700;">POINTS</div>
+                  <div id="loggerPreviewPoints" style="font-size: 0.95rem; font-weight: 800; color: #a16207;">-</div>
+                </div>
+              </div>
+              <div id="loggerMilestoneAlert" style="margin-top: 10px; font-size: 0.78rem; font-weight: 700; color: #166534; background: #dcfce7; padding: 6px 10px; border-radius: 6px; display: none;"></div>
+            </div>
+
+            <!-- Action Button -->
+            <div style="display: flex; gap: 10px;">
+              <button type="button" onclick="submitLoggerVisit()" style="flex: 1; background: linear-gradient(135deg, #ec4899 0%, #be185d 100%); color: #ffffff; border: none; padding: 12px; border-radius: 10px; font-size: 0.9rem; font-weight: 800; cursor: pointer; box-shadow: 0 4px 12px rgba(190, 24, 93, 0.25);">
+                💾 Save Visit & Update Rewards
+              </button>
+              <button type="button" onclick="switchLoyaltyTab('members')" style="background: #ffffff; border: 1.5px solid #cbd5e1; color: #475569; padding: 12px 18px; border-radius: 10px; font-size: 0.85rem; font-weight: 700; cursor: pointer;">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: Customer Retention + Marketing Tool Pane -->
+      <div id="loyaltyPaneMarketing" style="display: none; flex-direction: column; flex: 1; overflow-y: auto; padding: 20px 24px;">
+        
+        <!-- Header & Top Command Bar -->
+        <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 14px; padding: 14px 18px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; box-shadow: 0 2px 8px rgba(15,23,42,0.03);">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #25d366 0%, #16a34a 100%); color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; box-shadow: 0 4px 10px rgba(37,211,102,0.3);">
+              🚀
+            </div>
+            <div>
+              <div style="font-size: 0.95rem; font-weight: 800; color: #0f172a;">All-in-One Retention Pass (Single-Click Send)</div>
+              <div style="font-size: 0.74rem; color: #64748b;">Sends all content (Points status, 20% weekend discount, ₹150 birthday voucher, Google review, Instagram & referral) in 1 click.</div>
+            </div>
+          </div>
+          
+          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <label style="font-size: 0.72rem; font-weight: 800; color: #475569; text-transform: uppercase;">TARGET MOBILE:</label>
+              <select id="marketingCustomerSelect" onchange="onMarketingCustomerChange()" style="padding: 8px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 0.82rem; font-weight: 700; background: #ffffff; outline: none; color: #0f172a;">
+                <!-- Dynamic -->
+              </select>
+            </div>
+            <button type="button" onclick="sendAllRetentionContent()" style="background: linear-gradient(135deg, #25d366 0%, #16a34a 100%); color: #ffffff; border: none; padding: 9px 18px; border-radius: 9px; font-size: 0.84rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35); transition: transform 0.15s ease;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='translateY(0)'">
+              <span>💬</span> <span>Send All Content (1-Click)</span>
+            </button>
+            <button type="button" onclick="copyAllRetentionContent()" style="background: #f8fafc; color: #334155; border: 1.5px solid #cbd5e1; padding: 9px 14px; border-radius: 9px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.15s ease;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#f8fafc'">
+              <span>📋</span> <span>Copy</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 2-Column Workspace: Left = Live WhatsApp Preview, Right = 6 Included Features -->
+        <div style="display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 16px; align-items: start;">
+          
+          <!-- LEFT: WhatsApp Live Message Preview Bubble -->
+          <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 16px; padding: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.02);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 1.1rem;">📱</span>
+                <span style="font-size: 0.82rem; font-weight: 800; color: #0f172a;">Live WhatsApp Message Preview</span>
+              </div>
+              <span id="marketingPreviewTargetPhone" style="font-size: 0.72rem; font-weight: 800; background: #f0fdf4; color: #166534; padding: 2px 8px; border-radius: 9999px; border: 1px solid #bbf7d0;">+91 9876543210</span>
+            </div>
+
+            <!-- Realistic WhatsApp Bubble -->
+            <div style="background: #eefbee; border: 1px solid #d1fae5; border-radius: 12px; padding: 14px 16px; position: relative; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+              <pre id="marketingLivePreviewText" style="margin: 0; font-family: inherit; font-size: 0.77rem; line-height: 1.45; color: #0f172a; white-space: pre-wrap; word-break: break-word;"></pre>
+              <div style="text-align: right; margin-top: 8px; font-size: 0.68rem; color: #059669; font-weight: 600;">
+                ✓✓ Ready to Send in 1-Click
+              </div>
+            </div>
+
+            <!-- Single-Click Action Button Under Preview -->
+            <div style="margin-top: 14px; display: flex; gap: 10px;">
+              <button type="button" onclick="sendAllRetentionContent()" style="flex: 1; background: linear-gradient(135deg, #25d366 0%, #16a34a 100%); color: #ffffff; border: none; padding: 12px; border-radius: 10px; font-size: 0.88rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);">
+                <span>💬</span> <span>Send All Content in Single Click (WhatsApp)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- RIGHT: Combined Perks Checklist with Checkbox, Edit & Delete -->
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2px; flex-wrap: wrap; gap: 8px;">
+              <div style="font-size: 0.74rem; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 0.05em;">
+                All Content Sent in This 1 Click:
+              </div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <button type="button" onclick="openAddRetentionItemModal()" style="background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; padding: 4px 10px; border-radius: 7px; font-size: 0.72rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: all 0.15s;" onmouseover="this.style.background='#dcfce7'" onmouseout="this.style.background='#f0fdf4'">
+                  <span>➕</span> <span>Add Perk</span>
+                </button>
+                <button type="button" onclick="resetRetentionItemsToDefault()" title="Reset back to default 6 perks" style="background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; padding: 4px 8px; border-radius: 7px; font-size: 0.72rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: all 0.15s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#f8fafc'">
+                  <span>↺</span> <span>Reset</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Dynamic List rendered by renderRetentionItemsList() -->
+            <div id="retentionItemsListContainer" style="display: flex; flex-direction: column; gap: 10px;">
+              <!-- Populated dynamically with checkboxes, edit, and delete buttons -->
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Edit / Add Retention Campaign Perk Modal -->
+      <div id="retentionItemModal" class="modal-backdrop" onclick="if (event.target === this) closeRetentionItemModal()" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(6px); z-index: 100001; align-items: center; justify-content: center; padding: 20px;">
+        <div style="background: #ffffff; border-radius: 16px; width: 100%; max-width: 540px; box-shadow: 0 20px 50px rgba(0,0,0,0.35); border: 1px solid #e2e8f0; overflow: hidden; display: flex; flex-direction: column; animation: zoomIn 0.18s ease;">
+          
+          <!-- Modal Header -->
+          <div style="padding: 14px 20px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span id="retModalIconDisplay" style="font-size: 1.3rem;">✏️</span>
+              <h4 id="retModalTitle" style="margin: 0; font-size: 0.95rem; font-weight: 800; color: #0f172a;">Edit Campaign Perk</h4>
+            </div>
+            <button type="button" onclick="closeRetentionItemModal()" style="background: transparent; border: none; font-size: 1.1rem; color: #64748b; cursor: pointer; padding: 4px 8px; border-radius: 6px;">✕</button>
+          </div>
+
+          <!-- Modal Body -->
+          <div style="padding: 18px 20px; display: flex; flex-direction: column; gap: 14px;">
+            <input type="hidden" id="retModalItemId" value="">
+            
+            <div style="display: grid; grid-template-columns: 80px 1fr; gap: 10px;">
+              <div>
+                <label style="font-size: 0.72rem; font-weight: 800; color: #475569; display: block; margin-bottom: 4px;">ICON</label>
+                <input type="text" id="retModalIcon" maxlength="4" style="width: 100%; padding: 8px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 1.15rem; text-align: center; box-sizing: border-box; outline: none;">
+              </div>
+              <div>
+                <label style="font-size: 0.72rem; font-weight: 800; color: #475569; display: block; margin-bottom: 4px;">TITLE</label>
+                <input type="text" id="retModalItemTitle" placeholder="e.g. Weekend 20% OFF Deal" style="width: 100%; padding: 8px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 0.84rem; font-weight: 700; box-sizing: border-box; outline: none;">
+              </div>
+            </div>
+
+            <div>
+              <label style="font-size: 0.72rem; font-weight: 800; color: #475569; display: block; margin-bottom: 4px;">SHORT SUMMARY / SUBTITLE</label>
+              <input type="text" id="retModalItemDesc" placeholder="e.g. Handcrafted celebration cakes & pastries" style="width: 100%; padding: 8px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 0.82rem; box-sizing: border-box; outline: none;">
+            </div>
+
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <label style="font-size: 0.72rem; font-weight: 800; color: #475569;">WHATSAPP MESSAGE CONTENT</label>
+                <span style="font-size: 0.68rem; color: #0284c7; font-weight: 700;">Supports {phone} & {points}</span>
+              </div>
+              <textarea id="retModalItemTemplate" rows="4" placeholder="Enter message text snippet for WhatsApp..." style="width: 100%; padding: 10px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 0.8rem; font-family: monospace; line-height: 1.4; resize: vertical; box-sizing: border-box; outline: none;"></textarea>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 8px; background: #f8fafc; padding: 10px 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+              <input type="checkbox" id="retModalItemEnabled" style="width: 17px; height: 17px; accent-color: #16a34a; cursor: pointer;">
+              <label for="retModalItemEnabled" style="font-size: 0.8rem; font-weight: 700; color: #0f172a; cursor: pointer;">Include this perk in the 1-Click WhatsApp message (Select Box)</label>
+            </div>
+          </div>
+
+          <!-- Modal Footer -->
+          <div style="padding: 12px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 10px;">
+            <button type="button" onclick="closeRetentionItemModal()" style="background: #ffffff; color: #64748b; border: 1.5px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer;">Cancel</button>
+            <button type="button" onclick="saveRetentionItemFromModal()" style="background: linear-gradient(135deg, #25d366 0%, #16a34a 100%); color: #ffffff; border: none; padding: 8px 18px; border-radius: 8px; font-size: 0.82rem; font-weight: 800; cursor: pointer; box-shadow: 0 2px 6px rgba(37,211,102,0.3);">Save Perk</button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Mini Digital Card Preview Drawer -->
+      <div id="loyaltyCardPreviewDrawer" style="display: none; padding: 16px 24px; background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%); color: #ffffff; border-top: 1.5px solid rgba(255,255,255,0.1); justify-content: space-between; align-items: center; gap: 16px; animation: slideUp 0.2s ease;">
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <div id="drawerCardQr" style="background: #ffffff; padding: 6px; border-radius: 8px; width: 64px; height: 64px; display: flex; align-items: center; justify-content: center;">
+            <img id="drawerQrImg" src="" alt="QR" style="width: 100%; height: 100%;">
+          </div>
+          <div>
+            <div style="font-size: 0.72rem; color: #f472b6; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;" id="drawerTier">👑 GOLD MEMBER</div>
+            <div style="font-size: 1.1rem; font-weight: 800; color: #ffffff;" id="drawerName">Rachel Green</div>
+            <div style="font-size: 0.78rem; color: #cbd5e1;" id="drawerMeta">📱 +91 9876543210 • 5 Visits • ₹4,500 Spent</div>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="text-align: right;">
+            <div style="font-size: 0.7rem; color: #cbd5e1; text-transform: uppercase;">Points Balance</div>
+            <div style="font-size: 1.25rem; font-weight: 900; color: #fb7185;" id="drawerPoints">250 PTS</div>
+          </div>
+          <button type="button" onclick="shareCustomerCardWhatsApp()" style="background: #25d366; color: #ffffff; border: none; padding: 8px 14px; border-radius: 10px; font-weight: 800; font-size: 0.78rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);">
+            <span>💬</span> <span>Share Card on WhatsApp</span>
+          </button>
+          <button type="button" onclick="logVisitForCurrentDrawerCustomer()" style="background: #be185d; color: #ffffff; border: none; padding: 8px 14px; border-radius: 10px; font-weight: 800; font-size: 0.78rem; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+            <span>⚡</span> <span>Update Visit</span>
+          </button>
+          <button type="button" onclick="viewHistoryForCurrentDrawerCustomer()" style="background: #4338ca; color: #ffffff; border: none; padding: 8px 14px; border-radius: 10px; font-weight: 800; font-size: 0.78rem; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+            <span>📜</span> <span>View History</span>
+          </button>
+          <button type="button" onclick="closeLoyaltyDrawer()" style="background: rgba(255,255,255,0.1); border: none; color: #cbd5e1; width: 30px; height: 30px; border-radius: 8px; cursor: pointer;">✕</button>
+        </div>
+      </div>
+
     </div>
   </div>
 
