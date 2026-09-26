@@ -1,0 +1,104 @@
+// This is your Prisma schema file for Sugar Cubes Bakery POS
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  CASHIER
+}
+
+enum OrderType {
+  TAKEAWAY
+  DINE_IN
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(CASHIER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  description String?
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Product {
+  id            Int         @id @default(autoincrement())
+  name          String
+  categoryId    Int
+  category      Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  price         Float
+  stockQuantity Int         @default(0)
+  imageUrl      String?     @db.Text
+  active        Boolean     @default(true)
+  orderItems    OrderItem[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model Customer {
+  id          Int      @id @default(autoincrement())
+  name        String
+  phone       String   @unique
+  email       String?
+  totalOrders Int      @default(0)
+  totalSpent  Float    @default(0)
+  orders      Order[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Order {
+  id            Int         @id @default(autoincrement())
+  orderNumber   String      @unique
+  customerId    Int?
+  customer      Customer?   @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  orderType     OrderType   @default(TAKEAWAY)
+  subtotal      Float
+  discount      Float       @default(0)
+  gst           Float       @default(0)
+  total         Float
+  paymentStatus String      @default("PAID")
+  items         OrderItem[]
+  invoices      Invoice[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model OrderItem {
+  id          Int      @id @default(autoincrement())
+  orderId     Int
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   Int?
+  product     Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productName String
+  quantity    Int
+  unitPrice   Float
+  total       Float
+  createdAt   DateTime @default(now())
+}
+
+model Invoice {
+  id            Int      @id @default(autoincrement())
+  orderId       Int
+  order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  invoiceNumber String   @unique
+  pdfUrl        String?  @db.Text
+  generatedAt   DateTime @default(now())
+}

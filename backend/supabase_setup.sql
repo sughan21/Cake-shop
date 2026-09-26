@@ -3,9 +3,21 @@
 -- Copy and paste this script into your Supabase Dashboard -> SQL Editor and click RUN
 -- ==============================================================================
 
--- 1. Create Orders Table
+-- 0. Create Stores Table (Multi-Store Support)
+CREATE TABLE IF NOT EXISTS public.stores (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    code TEXT UNIQUE NOT NULL,
+    pin TEXT NOT NULL DEFAULT '1234',
+    address TEXT,
+    phone TEXT,
+    created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- 1. Create Orders Table (Clean starting state - 0 orders)
 CREATE TABLE IF NOT EXISTS public.orders (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    store_id TEXT DEFAULT 'STORE01',
     ticket_number TEXT NOT NULL,
     created_at TIMESTAMPTZ DEFAULT now(),
     customer_name TEXT,
@@ -20,10 +32,12 @@ CREATE TABLE IF NOT EXISTS public.orders (
     cashier_name TEXT,
     status TEXT DEFAULT 'Completed'
 );
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS store_id TEXT DEFAULT 'STORE01';
 
 -- 2. Create Product Catalog Items Table
 CREATE TABLE IF NOT EXISTS public.catalog_items (
     id TEXT PRIMARY KEY,
+    store_id TEXT DEFAULT 'ALL',
     name TEXT NOT NULL,
     category TEXT NOT NULL,
     price NUMERIC(10,2) NOT NULL,
@@ -33,20 +47,26 @@ CREATE TABLE IF NOT EXISTS public.catalog_items (
     created_at TIMESTAMPTZ DEFAULT now(),
     updated_at TIMESTAMPTZ DEFAULT now()
 );
+ALTER TABLE public.catalog_items ADD COLUMN IF NOT EXISTS store_id TEXT DEFAULT 'ALL';
 
 -- 3. Create Registered Users / Staff Accounts Table
 CREATE TABLE IF NOT EXISTS public.registered_users (
     id TEXT PRIMARY KEY,
+    store_id TEXT DEFAULT 'STORE01',
     email TEXT UNIQUE NOT NULL,
     name TEXT NOT NULL,
     role TEXT DEFAULT 'Cashier',
+    password TEXT DEFAULT '1234',
     created_at TIMESTAMPTZ DEFAULT now()
 );
+ALTER TABLE public.registered_users ADD COLUMN IF NOT EXISTS store_id TEXT DEFAULT 'STORE01';
+ALTER TABLE public.registered_users ADD COLUMN IF NOT EXISTS password TEXT DEFAULT '1234';
 
 -- 4. Create Daily Sales Audit Table
 CREATE TABLE IF NOT EXISTS public.daily_sales_audits (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    audit_date DATE UNIQUE NOT NULL DEFAULT CURRENT_DATE,
+    store_id TEXT DEFAULT 'STORE01',
+    audit_date DATE NOT NULL DEFAULT CURRENT_DATE,
     total_revenue NUMERIC(10,2) DEFAULT 0.00,
     total_orders INT DEFAULT 0,
     cash_collected NUMERIC(10,2) DEFAULT 0.00,
@@ -54,6 +74,7 @@ CREATE TABLE IF NOT EXISTS public.daily_sales_audits (
     card_collected NUMERIC(10,2) DEFAULT 0.00,
     created_at TIMESTAMPTZ DEFAULT now()
 );
+ALTER TABLE public.daily_sales_audits ADD COLUMN IF NOT EXISTS store_id TEXT DEFAULT 'STORE01';
 
 -- ==============================================================================
 -- 🔓 ENABLE ROW LEVEL SECURITY (RLS) & PUBLIC ACCESS POLICIES
@@ -64,6 +85,7 @@ ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.catalog_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.registered_users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.daily_sales_audits ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.stores ENABLE ROW LEVEL SECURITY;
 
 -- Enable Supabase Realtime Live Streaming for all tables
 DO $$
@@ -78,25 +100,35 @@ EXCEPTION
   WHEN OTHERS THEN NULL;
 END $$;
 
--- Allow Public (Anon Key) & Authenticated users FULL READ/WRITE ACCESS
+-- Drop existing policies if present and create fresh RLS policies
+DROP POLICY IF EXISTS "Allow public read and write access on orders" ON public.orders;
 CREATE POLICY "Allow public read and write access on orders" 
     ON public.orders FOR ALL USING (true) WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Allow public read and write access on catalog_items" ON public.catalog_items;
 CREATE POLICY "Allow public read and write access on catalog_items" 
     ON public.catalog_items FOR ALL USING (true) WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Allow public read and write access on registered_users" ON public.registered_users;
 CREATE POLICY "Allow public read and write access on registered_users" 
     ON public.registered_users FOR ALL USING (true) WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Allow public read and write access on daily_sales_audits" ON public.daily_sales_audits;
 CREATE POLICY "Allow public read and write access on daily_sales_audits" 
     ON public.daily_sales_audits FOR ALL USING (true) WITH CHECK (true);
 
--- Insert Default Staff Users into registered_users if not exists
-INSERT INTO public.registered_users (id, email, name, role)
+DROP POLICY IF EXISTS "Allow public read and write access on stores" ON public.stores;
+CREATE POLICY "Allow public read and write access on stores" 
+    ON public.stores FOR ALL USING (true) WITH CHECK (true);
+
+-- Insert Seed Stores & Master Accounts
+INSERT INTO public.stores (id, name, code, pin, address, phone)
 VALUES 
-    ('admin', 'admin@sugarcubes.com', 'Store Manager', 'Store Manager'),
-    ('cashier', 'cashier@sugarcubes.com', 'Front Cashier', 'Cashier')
-ON CONFLICT (id) DO NOTHING;
+    ('STORE01', 'Sugar Cubes - Main Branch', 'STORE01', '1234', '12 Baker Street, City Center', '+91 9876543210'),
+    ('STORE02', 'Sugar Cubes - Express Mall', 'STORE02', '5678', 'Food Court, Grand Mall', '+91 9876543211'),
+    ('STORE03', 'Sugar Cubes - Airport Kiosk', 'STORE03', '9012', 'Terminal 2, International Airport', '+91 9876543212'),
+    ('OWNER', 'Master Business Owner', 'OWNER', '0000', 'Corporate Head Office', '+91 9000000000')
+ON CONFLICT (id) DO UPDATE SET pin = EXCLUDED.pin, name = EXCLUDED.name;
 
 -- Populate Real Sugar Cubes Bakery Product Catalog (19 Items)
 INSERT INTO public.catalog_items (id, name, category, price, stock, unit)
@@ -123,25 +155,5 @@ VALUES
 ON CONFLICT (id) DO UPDATE 
 SET name = EXCLUDED.name, category = EXCLUDED.category, price = EXCLUDED.price, stock = EXCLUDED.stock;
 
--- Populate Initial Seed Orders into public.orders
-INSERT INTO public.orders (
-    ticket_number, created_at, customer_name, customer_phone, order_type, payment_method, items, subtotal, gst_amount, discount_amount, grand_total, cashier_name, status
-) VALUES 
-(
-    '#SC-001', NOW() - INTERVAL '3 hours', 'Ananya Sharma', '9876543210', 'Takeaway', 'UPI',
-    '[{"id": "c1", "name": "Belgian Chocolate Truffle Cake (1 Kg)", "category": "Cakes", "quantity": 1, "unitPrice": 750, "amount": 750}, {"id": "p1", "name": "Red Velvet Cream Cheese Pastry", "category": "Pastries", "quantity": 2, "unitPrice": 120, "amount": 240}]'::jsonb,
-    990.00, 0.00, 0.00, 990.00, 'Store Manager', 'Completed'
-),
-(
-    '#SC-002', NOW() - INTERVAL '2 hours', 'Rahul Verma', '9845012345', 'Dine-In', 'Cash',
-    '[{"id": "p2", "name": "Blueberry Glazed Cheesecake", "category": "Pastries", "quantity": 2, "unitPrice": 140, "amount": 280}, {"id": "b1", "name": "Iced Caramel Macchiato", "category": "Beverages", "quantity": 2, "unitPrice": 90, "amount": 180}]'::jsonb,
-    460.00, 0.00, 0.00, 460.00, 'Front Cashier', 'Completed'
-),
-(
-    '#SC-003', NOW() - INTERVAL '1 hour', 'Priya Sundaram', '9789012345', 'Takeaway', 'Card',
-    '[{"id": "c2", "name": "Classic Black Forest Gateau (500g)", "category": "Cakes", "quantity": 1, "unitPrice": 450, "amount": 450}, {"id": "p3", "name": "Butter Croissant", "category": "Pastries", "quantity": 2, "unitPrice": 85, "amount": 170}]'::jsonb,
-    620.00, 0.00, 0.00, 620.00, 'Store Manager', 'Completed'
-);
-
 -- Confirmation Output
-SELECT 'Sugar Cubes Supabase Schema & Sample Data Setup Completed Successfully!' AS status;
+SELECT 'Sugar Cubes Supabase Schema Setup Completed Successfully! (0 Orders - Clean Slate)' AS status;
