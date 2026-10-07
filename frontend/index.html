@@ -144,16 +144,17 @@
   <nav class="desktop-sub-header-bar desktop-only-btn" id="desktopSubHeaderBar" aria-label="POS Workspace Page Navigation">
     <div class="desktop-view-nav-tabs" id="desktopViewNavTabs">
       <div class="desktop-nav-tab-slider" id="desktopNavTabSlider" aria-hidden="true"></div>
-      <button type="button" id="btnNavPosStore" class="desktop-nav-tab-btn active" onclick="switchDesktopPage('store')" title="Switch to POS Register & Menu Catalog">
-        <span class="desktop-tab-icon">🏪</span>
-        <span class="desktop-tab-label">POS Counter</span>
+      <button type="button" id="btnNavPosStore" class="desktop-nav-tab-btn active" onclick="switchDesktopPage('store')" title="Switch to POS Store & Billing">
+        <span class="desktop-tab-icon">🍰</span>
+        <span class="desktop-tab-label">POS Store</span>
       </button>
       <button type="button" id="btnNavSalesPage" class="desktop-nav-tab-btn" onclick="switchDesktopPage('sales')" title="Switch to Daily Sales & Business Performance Page">
         <span class="desktop-tab-icon">📊</span>
         <span class="desktop-tab-label">Daily Sales Page</span>
       </button>
     </div>
-</div>
+  </nav>
+  </div>
 
   <!-- Automatic Supabase Cloud Sync Quick-Setup Notification Banner -->
   <div id="supabaseSetupNoticeBanner" style="display: none; background: linear-gradient(90deg, #022c22 0%, #064e3b 100%); color: #ffffff; padding: 10px 16px; border-bottom: 2px solid #10b981; align-items: center; justify-content: space-between; gap: 12px; font-size: 0.82rem; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
@@ -366,7 +367,7 @@
         <!-- Customer Mobile & Name Input Bar (Direct WhatsApp Bill) -->
         <div class="register-customer-bar">
           <div class="customer-input-row">
-            <div class="cust-input-wrap mobile-wrap">
+            <div class="cust-input-wrap">
               <span class="cust-input-icon">📱</span>
               <input type="tel" id="custMobile" placeholder="Customer Mobile (10 Digits)" maxlength="14" oninput="formatCustomerPhoneInput(this)">
             </div>
@@ -394,16 +395,18 @@
             <button type="button" class="cart-clear-link" onclick="clearCurrentCart()" title="Clear all items in cart" style="display: none;">🗑️ Clear</button>
           </div>
 
-          <ul class="cart-items-list" id="cartItemsList">
-            <!-- Populated dynamically by script.js -->
-          </ul>
+          <div class="cart-items-scroll-wrap" id="cartItemsScrollWrap">
+            <ul class="cart-items-list" id="cartItemsList">
+              <!-- Populated dynamically by script.js -->
+            </ul>
 
-          <div class="cart-empty-state" id="cartEmptyState">
-            <div class="cart-empty-icon-wrap">
-              <span class="cart-empty-icon">🍰</span>
+            <div class="cart-empty-state" id="cartEmptyState">
+              <div class="cart-empty-icon-wrap">
+                <span class="cart-empty-icon">🍰</span>
+              </div>
+              <p class="cart-empty-title">Cart is Ready & Empty</p>
+              <p class="cart-empty-subtitle">Tap any delicacy from the left menu to add items directly to this order.</p>
             </div>
-            <p class="cart-empty-title">Cart is Ready & Empty</p>
-            <p class="cart-empty-subtitle">Tap any delicacy from the left menu to add items directly to this order.</p>
           </div>
         </div>
 
@@ -1406,9 +1409,6 @@
           ✕ Close Window
         </button>
       </div>
-
-    </div>
-  </div>
 
     </div>
   </div>
@@ -2763,7 +2763,7 @@
                 <span style="width: 6px; height: 6px; border-radius: 50%; background: #10b981;"></span>Mobile Connected
               </span>
             </h3>
-            <p style="margin: 2px 0 0; font-size: 0.74rem; color: #64748b;">100% Digital • Customer phone (+91) is their loyalty card • Real-time visit log, points ledger & WhatsApp passes</p>
+            <p style="margin: 2px 0 0; font-size: 0.74rem; color: #64748b;">100% Digital • Customer phone (+91) is loyalty card • 1 Order = +100 PTS • Total 500 Points Only</p>
           </div>
         </div>
         <div style="display: flex; align-items: center; gap: 10px;">
@@ -2801,7 +2801,7 @@
             <div style="width: 36px; height: 36px; border-radius: 10px; background: #e0e7ff; color: #4338ca; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; font-weight: 800;">📜</div>
             <div>
               <h4 style="margin: 0; font-size: 0.96rem; font-weight: 800; color: #0f172a;">Customer Points & Visit Ledger</h4>
-              <p style="margin: 1px 0 0; font-size: 0.72rem; color: #64748b;">Complete audit record of every visit, bill amount, points credited (+PTS) & reward milestones.</p>
+              <p style="margin: 1px 0 0; font-size: 0.72rem; color: #64748b;">1 Order = +100 PTS • Max 500 PTS Total • Real-time visit audit & WhatsApp passes.</p>
             </div>
           </div>
           <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
@@ -2839,8 +2839,11 @@
           <div style="display: flex; align-items: center; gap: 12px;">
             <div style="background: #ffffff; border: 1.5px solid #fbcfe8; padding: 8px 14px; border-radius: 12px; text-align: right;">
               <div style="font-size: 0.68rem; color: #9d174d; font-weight: 700; text-transform: uppercase;">Total Loyalty Points</div>
-              <div id="spotlightCustomerPoints" style="font-size: 1.25rem; font-weight: 900; color: #be185d;">500 PTS <span style="font-size: 0.76rem; font-weight: 700; color: #047857;">(500 PTS Total)</span></div>
+              <div id="spotlightCustomerPoints" style="font-size: 1.25rem; font-weight: 900; color: #be185d;">500 / 500 PTS <span style="font-size: 0.76rem; font-weight: 700; color: #047857;">(500 PTS Max)</span></div>
             </div>
+            <button type="button" id="spotlightBillBtn" onclick="loadSpotlightCustomerIntoBilling()" style="background: #be185d; color: #ffffff; border: none; padding: 8px 14px; border-radius: 10px; font-size: 0.8rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(190, 24, 93, 0.25); transition: all 0.15s ease;" onmouseover="this.style.background='#9d174d'" onmouseout="this.style.background='#be185d'">
+              <span>🛒</span> <span>Bill Customer</span>
+            </button>
             <button type="button" id="spotlightWhatsappBtn" onclick="quickShareSpotlightCustomer()" style="background: #25d366; color: #ffffff; border: none; padding: 8px 14px; border-radius: 10px; font-size: 0.8rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3);">
               <span>💬</span> <span>WhatsApp Points Pass</span>
             </button>

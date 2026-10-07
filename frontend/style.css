@@ -102,17 +102,13 @@ body {
    Both headers pinned to the top on laptop/desktop web with frosted glass effect
    ========================================================================== */
 .desktop-sticky-header-container {
-  position: sticky;
-  top: 0;
-  z-index: 1000;
+  position: relative;
+  z-index: 100;
   width: 100%;
   max-width: 1440px;
-  margin: 0 auto 12px;
-  padding-top: 12px;
-  padding-bottom: 6px;
-  background: rgba(250, 248, 245, 0.94);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  margin: 0 auto 8px;
+  padding-top: 8px;
+  padding-bottom: 2px;
   box-sizing: border-box;
 }
 
@@ -281,6 +277,13 @@ body {
 
 /* Dedicated Sub-Header Page Navigation Bar (Laptop & Web Only - Animated Light Slider) */
 .desktop-sub-header-bar {
+  position: sticky;
+  top: 0;
+  z-index: 500;
+  background: rgba(250, 248, 245, 0.96);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 4px 0 6px;
   max-width: 1440px;
   margin: 0 auto;
   display: flex;
@@ -312,7 +315,7 @@ body {
   top: 3px;
   bottom: 3px;
   left: 3px;
-  width: calc(50% - 5px);
+  width: calc((100% - 10px) / 2);
   background: linear-gradient(135deg, #ffffff 0%, #fff1f2 100%);
   border: 1px solid #fecdd3;
   border-radius: 7px;
@@ -322,10 +325,29 @@ body {
   z-index: 1;
 }
 
-/* Slide position when Daily Sales Page is active */
+/* Slide 1: POS Store */
+.desktop-view-nav-tabs:has(#btnNavPosStore.active) .desktop-nav-tab-slider,
+.desktop-view-nav-tabs.store-active .desktop-nav-tab-slider {
+  transform: translateX(0);
+}
+
+/* Slide 2: Daily Sales Page */
 .desktop-view-nav-tabs:has(#btnNavSalesPage.active) .desktop-nav-tab-slider,
 .desktop-view-nav-tabs.sales-active .desktop-nav-tab-slider {
   transform: translateX(calc(100% + 4px));
+}
+
+.desktop-tab-badge {
+  background: #e11d48;
+  color: #ffffff;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 999px;
+  min-width: 16px;
+  text-align: center;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .desktop-nav-tab-btn {
@@ -356,6 +378,7 @@ body {
 }
 
 .desktop-nav-tab-btn.active#btnNavPosStore,
+.desktop-nav-tab-btn.active#btnNavPosCart,
 .desktop-nav-tab-btn.active#btnNavSalesPage {
   color: #e11d48;
   font-weight: 800;
@@ -602,6 +625,8 @@ body {
   align-items: start;
   width: 100%;
 }
+
+
 
 /* ==========================================================================
    LEFT COLUMN: Daily Analytics & Catalog
@@ -1268,16 +1293,17 @@ body {
 
 .pos-right-register {
   position: sticky;
-  top: 138px;
+  top: 48px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
+  align-self: start;
 }
 
 .register-main-card {
   background: #ffffff;
   border: 1px solid rgba(226, 232, 240, 0.9);
-  border-radius: 18px;
+  border-radius: 16px;
   box-shadow: 0 16px 40px -8px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(15, 23, 42, 0.04);
   display: flex;
   flex-direction: column;
@@ -1293,10 +1319,10 @@ body {
 .register-header {
   background: #ffffff;
   color: #0f172a;
-  padding: 14px 18px 12px;
+  padding: 10px 14px 8px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   border-bottom: 1px solid #f1f5f9;
 }
 
@@ -1431,7 +1457,7 @@ body {
   color: #475569;
   font-size: 0.8rem;
   font-weight: 700;
-  padding: 8px 4px;
+  padding: 5px 4px;
   border-radius: 7px;
   cursor: pointer;
   white-space: nowrap;
@@ -1462,10 +1488,10 @@ body {
 .register-customer-bar {
   background: #ffffff;
   border-bottom: 1px solid #f1f5f9;
-  padding: 12px 18px;
+  padding: 8px 14px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
 }
 
 .customer-input-row {
@@ -1478,8 +1504,118 @@ body {
   flex: 1;
 }
 
-.cust-input-wrap.mobile-wrap {
-  flex: 1.35;
+
+
+.cust-loyalty-live-badge {
+  background: linear-gradient(135deg, #fdf2f8 0%, #fff1f2 100%);
+  border: 1.5px solid #fce7f3;
+  border-radius: 9px;
+  padding: 6px 10px;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  box-shadow: 0 1px 3px rgba(190, 24, 93, 0.06);
+  animation: fadeInLoyaltyBadge 0.22s ease-out;
+}
+
+@keyframes fadeInLoyaltyBadge {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.cust-loyalty-badge-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.cust-loyalty-tier-badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.cust-loyalty-tier-badge.vip {
+  background: #7e22ce;
+  color: #ffffff;
+}
+
+.cust-loyalty-tier-badge.gold {
+  background: #f59e0b;
+  color: #ffffff;
+}
+
+.cust-loyalty-tier-badge.silver {
+  background: #64748b;
+  color: #ffffff;
+}
+
+.cust-loyalty-tier-badge.bronze {
+  background: #d97706;
+  color: #ffffff;
+}
+
+.cust-loyalty-tier-badge.new {
+  background: #10b981;
+  color: #ffffff;
+}
+
+.cust-loyalty-member-info {
+  font-size: 0.73rem;
+  color: #334155;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cust-loyalty-member-info strong {
+  color: #831843;
+  font-weight: 800;
+}
+
+.cust-loyalty-pts {
+  color: #be185d;
+  font-weight: 800;
+}
+
+.cust-loyalty-visits {
+  color: #64748b;
+  font-weight: 600;
+}
+
+.cust-loyalty-open-btn,
+.cust-loyalty-enroll-btn {
+  background: #ffffff;
+  border: 1px solid #fbcfe8;
+  color: #be185d;
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+}
+
+.cust-loyalty-open-btn:hover,
+.cust-loyalty-enroll-btn:hover {
+  background: #be185d;
+  color: #ffffff;
+  border-color: #be185d;
+  box-shadow: 0 2px 6px rgba(190, 24, 93, 0.25);
 }
 
 .cust-input-wrap input {
@@ -1487,8 +1623,8 @@ body {
   background: #f8fafc;
   border: 1.5px solid #e2e8f0;
   border-radius: 10px;
-  padding: 9px 12px 9px 34px;
-  font-size: 0.84rem;
+  padding: 6px 10px 6px 30px;
+  font-size: 0.8rem;
   font-family: var(--font-sans);
   color: #0f172a;
   outline: none;
@@ -1555,22 +1691,20 @@ body {
    ========================================================================== */
 
 .register-cart-container {
-  padding: 14px 18px;
-  min-height: 220px;
-  max-height: 320px;
-  overflow-y: auto;
+  padding: 8px 14px 4px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
   background: #ffffff;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .cart-section-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-bottom: 8px;
+  padding-bottom: 6px;
   border-bottom: 1px solid #f1f5f9;
+  flex-shrink: 0;
 }
 
 .cart-title-wrap {
@@ -1615,11 +1749,53 @@ body {
   background: #fee2e2;
 }
 
+/* ==========================================================================
+   Separate Scroll Container for Order Items
+   ========================================================================== */
+.cart-items-scroll-wrap {
+  min-height: 80px;
+  max-height: 175px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 4px 4px 4px 0;
+  margin-top: 2px;
+  overscroll-behavior-y: contain;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f8fafc;
+}
+
+/* Custom Visible Scrollbar for Separate Cart Scroll */
+.cart-items-scroll-wrap::-webkit-scrollbar,
+.register-cart-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.cart-items-scroll-wrap::-webkit-scrollbar-track,
+.register-cart-container::-webkit-scrollbar-track {
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+.cart-items-scroll-wrap::-webkit-scrollbar-thumb,
+.register-cart-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 8px;
+  border: 1px solid #f1f5f9;
+}
+
+.cart-items-scroll-wrap::-webkit-scrollbar-thumb:hover,
+.register-cart-container::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
 .cart-items-list {
   list-style: none;
   display: flex;
   flex-direction: column;
   gap: 8px;
+  margin: 0;
+  padding: 0;
 }
 
 .cart-line-item {
@@ -1752,60 +1928,60 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 34px 20px;
+  padding: 12px 10px;
   text-align: center;
-  border-radius: 12px;
+  border-radius: 10px;
   border: 1.5px dashed #cbd5e1;
   background: #fafbfd;
-  margin: 8px 0;
+  margin: 2px 0;
 }
 
 .cart-empty-icon-wrap {
-  width: 56px;
-  height: 56px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   background: #ffe4e6;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 10px;
+  margin-bottom: 4px;
   box-shadow: 0 4px 12px rgba(244, 63, 94, 0.15);
 }
 
 .cart-empty-icon {
-  font-size: 1.8rem;
+  font-size: 1.25rem;
   line-height: 1;
 }
 
 .cart-empty-title {
-  font-size: 0.92rem;
+  font-size: 0.82rem;
   font-weight: 800;
   color: #1e293b;
-  margin-bottom: 4px;
+  margin-bottom: 1px;
 }
 
 .cart-empty-subtitle {
-  font-size: 0.78rem;
+  font-size: 0.7rem;
   color: #64748b;
-  max-width: 250px;
-  line-height: 1.4;
+  max-width: 240px;
+  line-height: 1.25;
 }
 
 /* Calculation & Totals Panel */
 .register-calc-panel {
   background: #f8fafc;
   border-top: 1px solid var(--border);
-  padding: 14px 18px;
+  padding: 8px 14px 6px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
 }
 
 .calc-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   color: var(--text-muted);
 }
 
@@ -1820,14 +1996,14 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 4px 0;
+  padding: 2px 0;
 }
 
 .tax-toggle-label {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 600;
   color: var(--text-main);
   cursor: pointer;
@@ -1841,9 +2017,9 @@ body {
 .discount-pill {
   background: #ffffff;
   border: 1px solid var(--border);
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  padding: 2px 7px;
+  padding: 2px 6px;
   border-radius: 4px;
   cursor: pointer;
   transition: var(--transition);
@@ -1859,45 +2035,45 @@ body {
 .register-grand-total {
   background: linear-gradient(135deg, #090d16 0%, #1e293b 100%);
   color: #ffffff;
-  border-radius: var(--radius-md);
-  padding: 14px 18px;
+  border-radius: 8px;
+  padding: 8px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 6px;
+  margin-top: 4px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.25);
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.2);
 }
 
 .total-due-label {
-  font-size: 0.85rem;
+  font-size: 0.76rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.6px;
   color: #94a3b8;
 }
 
 .total-due-amount {
   font-family: var(--font-mono);
-  font-size: 1.75rem;
+  font-size: 1.4rem;
   font-weight: 800;
   color: #38bdf8;
   letter-spacing: -0.5px;
-  text-shadow: 0 2px 12px rgba(56, 189, 248, 0.35);
+  text-shadow: 0 2px 10px rgba(56, 189, 248, 0.35);
 }
 
 /* Payment Mode Selector */
 .payment-mode-bar {
-  padding: 12px 18px;
+  padding: 6px 14px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   border-top: 1px solid var(--border);
   background: #ffffff;
 }
 
 .payment-mode-label {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -1914,8 +2090,8 @@ body {
   background: var(--surface-raised);
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
-  padding: 8px 6px;
-  font-size: 0.8rem;
+  padding: 5px 4px;
+  font-size: 0.75rem;
   font-weight: 700;
   color: var(--text-main);
   cursor: pointer;
@@ -1939,10 +2115,10 @@ body {
 
 /* Register Action Buttons */
 .register-action-buttons {
-  padding: 14px 18px;
+  padding: 8px 14px 10px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   background: #f8fafc;
   border-top: 1px solid var(--border);
 }
@@ -1952,9 +2128,9 @@ body {
   background: linear-gradient(135deg, #25d366 0%, #16a34a 100%);
   border: none;
   color: #ffffff;
-  font-size: 0.95rem;
+  font-size: 0.84rem;
   font-weight: 800;
-  padding: 12px 16px;
+  padding: 8px 12px;
   border-radius: var(--radius-md);
   cursor: pointer;
   display: flex;
@@ -5638,7 +5814,7 @@ html.auth-pending .mobile-view-header {
 
   .pos-right-register {
     position: sticky !important;
-    top: 152px !important;
+    top: 48px !important;
   }
 }
 
@@ -6241,10 +6417,6 @@ html.auth-pending .mobile-view-header {
     display: flex;
     flex-direction: row;
     gap: 8px;
-  }
-
-  .cust-input-wrap.mobile-wrap {
-    flex: 1.35;
   }
 
   .cust-input-wrap {

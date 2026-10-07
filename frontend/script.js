@@ -2013,6 +2013,8 @@ function renderCart() {
     mobileNavBadge.textContent = totalUnits;
   }
 
+
+
   if (mobileStickyBar) {
     if (activeCart.length > 0 && currentMobileTab === 'menu' && window.innerWidth <= 768) {
       mobileStickyBar.style.display = 'flex';
@@ -2082,10 +2084,21 @@ function autoLookupCustomerName(mobileInput) {
 
     let matchedName = '';
 
+    // 0. Check Loyalty Members directory (Primary source for registered customers)
+    if (typeof getLoyaltyMembers === 'function') {
+      const members = getLoyaltyMembers();
+      const member = members.find(m => m.phone === cleanDigits);
+      if (member && member.name && member.name !== 'Valued Customer' && member.name !== 'Customer') {
+        matchedName = member.name;
+      }
+    }
+
     // 1. Check local customer directory
-    const directory = getStoredCustomerDirectory();
-    if (directory[cleanDigits] && directory[cleanDigits].name) {
-      matchedName = directory[cleanDigits].name;
+    if (!matchedName) {
+      const directory = getStoredCustomerDirectory();
+      if (directory[cleanDigits] && directory[cleanDigits].name) {
+        matchedName = directory[cleanDigits].name;
+      }
     }
 
     // 2. Fallback: Search recorded sales history
@@ -2152,6 +2165,77 @@ function formatCustomerPhoneInput(input) {
   let val = input.value.replace(/[^\d+ -]/g, '');
   input.value = val;
   autoLookupCustomerName(input);
+}
+
+// Safe stub for any existing callers
+function updateCustomerLoyaltyBadge(rawPhone) {
+  const badgeEl = document.getElementById('custLoyaltyLiveBadge');
+  if (badgeEl) {
+    badgeEl.style.display = 'none';
+    badgeEl.innerHTML = '';
+  }
+}
+
+// Quick 1-click enroll from billing input
+function enrollCustomerFromBilling(phone) {
+  const nameInput = document.getElementById('custName');
+  let custName = nameInput && nameInput.value.trim() ? nameInput.value.trim() : '';
+  if (!custName || custName === 'Walk-In Customer' || custName === 'Valued Customer') {
+    custName = prompt('✨ Enter Customer Name to enroll in Loyalty (+100 Welcome Points):', '');
+    if (!custName || !custName.trim()) return;
+    if (nameInput) nameInput.value = custName.trim();
+  }
+
+  const members = getLoyaltyMembers();
+  let existing = members.find(m => m.phone === phone);
+  if (!existing) {
+    const newMember = {
+      phone: phone,
+      name: custName.trim(),
+      id: 'SC-LOYAL-' + Math.floor(1000 + Math.random() * 9000),
+      points: 100, // 1st Order / Registration = 100 PTS (Total card holds 500 PTS only)
+      visits: 1,
+      totalSpent: 0,
+      tier: 'Bronze',
+      joinedDate: new Date().toISOString().split('T')[0],
+      lastVisit: new Date().toISOString().split('T')[0]
+    };
+    members.unshift(newMember);
+    saveLoyaltyMembers(members);
+
+    logLoyaltyHistoryEntry({
+      phone: phone,
+      name: custName.trim(),
+      billAmount: 0,
+      pointsEarned: 100,
+      visitNumber: 1,
+      milestone: '✨ Welcome & 1st Order (+100 PTS) [100/500 PTS]',
+      activity: 'New Loyalty Member Registration'
+    });
+  }
+
+  updateCustomerLoyaltyBadge(phone);
+  openLoyaltyModal('history', phone);
+  if (typeof showToast === 'function') {
+    showToast(`🎉 +91 ${phone} enrolled in Loyalty! 100/500 PTS`, 'success');
+  }
+}
+
+// Open Loyalty modal for the customer currently entered in the billing input
+function openLoyaltyForCurrentCustomer() {
+  const custMobileInput = document.getElementById('custMobile');
+  const val = custMobileInput ? custMobileInput.value.replace(/\D/g, '').slice(-10) : '';
+  if (val.length === 10) {
+    const members = getLoyaltyMembers();
+    const exists = members.some(m => m.phone === val);
+    if (!exists) {
+      enrollCustomerFromBilling(val);
+      return;
+    }
+    openLoyaltyModal('history', val);
+  } else {
+    openLoyaltyModal('history');
+  }
 }
 
 // ==========================================================================
@@ -3572,6 +3656,17 @@ function finalizeCurrentOrder(downloadPdf = false, resetAndAdvance = true) {
     console.warn('Background Supabase sync notice:', e);
   }
 
+  // 🎴 Automatically link & directly add customer into Loyalty Hub & Points Ledger
+  const rawCustMobile = mobile || (document.getElementById('custMobile') ? document.getElementById('custMobile').value : '');
+  const cleanCustMobile = String(rawCustMobile || '').replace(/\D/g, '').slice(-10);
+  if (cleanCustMobile.length === 10) {
+    try {
+      creditOrderLoyaltyPoints(cleanCustMobile, name, grandTotal, completedTicket);
+    } catch (e) {
+      console.warn('Loyalty points credit note:', e);
+    }
+  }
+
   if (resetAndAdvance) {
     // Clear inputs & Reset register for next customer
     activeCart = [];
@@ -3579,6 +3674,7 @@ function finalizeCurrentOrder(downloadPdf = false, resetAndAdvance = true) {
     const custNameInput = document.getElementById('custName');
     if (custMobileInput) custMobileInput.value = '';
     if (custNameInput) custNameInput.value = '';
+    if (typeof updateCustomerLoyaltyBadge === 'function') updateCustomerLoyaltyBadge('');
 
     advanceNextTicketNumber();
     renderCart();
@@ -3641,6 +3737,7 @@ function completeAndNewSale() {
   const custNameInput = document.getElementById('custName');
   if (custMobileInput) custMobileInput.value = '';
   if (custNameInput) custNameInput.value = '';
+  if (typeof updateCustomerLoyaltyBadge === 'function') updateCustomerLoyaltyBadge('');
 
   advanceNextTicketNumber();
   renderCart();
@@ -3653,6 +3750,11 @@ function completeAndNewSale() {
   setTimeout(() => {
     printThermalBill();
   }, 200);
+
+  // 5. Return to Menu Catalog for next customer
+  setTimeout(() => {
+    switchDesktopPage('store');
+  }, 1000);
 }
 
 // ==========================================================================
@@ -3803,8 +3905,11 @@ function switchDesktopPage(page) {
     sessionStorage.setItem('sugarCubesCurrentDesktopPage', page);
     localStorage.setItem('sugar_cubes_active_page', page);
   } catch (e) {}
+
   const storeView = document.getElementById('posWorkspaceGrid');
   const salesView = document.getElementById('desktopKpiPageView');
+  const leftPane = document.querySelector('.pos-left-pane');
+  const rightPane = document.querySelector('.pos-right-register');
   const btnStore = document.getElementById('btnNavPosStore');
   const btnSales = document.getElementById('btnNavSalesPage');
   const navTabs = document.getElementById('desktopViewNavTabs');
@@ -3814,12 +3919,31 @@ function switchDesktopPage(page) {
     if (salesView) salesView.style.display = 'block';
     if (btnStore) btnStore.classList.remove('active');
     if (btnSales) btnSales.classList.add('active');
+    if (navTabs) {
+      navTabs.classList.remove('store-active');
+      navTabs.classList.add('sales-active');
+    }
     renderDesktopPageData();
   } else {
     if (salesView) salesView.style.display = 'none';
-    if (storeView) storeView.style.display = 'grid';
+    if (storeView) {
+      storeView.style.display = 'grid';
+      storeView.classList.remove('view-mode-cart', 'view-mode-menu');
+    }
+    if (leftPane) {
+      leftPane.style.display = '';
+      leftPane.classList.remove('mobile-pane-hidden');
+    }
+    if (rightPane) {
+      rightPane.style.display = '';
+      rightPane.classList.remove('mobile-pane-hidden');
+    }
     if (btnSales) btnSales.classList.remove('active');
     if (btnStore) btnStore.classList.add('active');
+    if (navTabs) {
+      navTabs.classList.remove('sales-active');
+      navTabs.classList.add('store-active');
+    }
   }
 }
 
@@ -8091,10 +8215,8 @@ function switchMobileView(view, userExplicit = false) {
       }
     }
   } else {
-    // Desktop: both panes visible side-by-side
-    if (leftPane) leftPane.classList.remove('mobile-pane-hidden');
-    if (rightPane) rightPane.classList.remove('mobile-pane-hidden');
-    if (stickyBar) stickyBar.style.display = 'none';
+    // Desktop: sync with current page view
+    switchDesktopPage(currentDesktopPage);
   }
 }
 
@@ -8108,14 +8230,8 @@ window.addEventListener('resize', () => {
   }
   lastViewportWidth = currentWidth;
 
-  const leftPane = document.querySelector('.pos-left-pane');
-  const rightPane = document.querySelector('.pos-right-register');
-  const stickyBar = document.getElementById('mobileStickyCartBar');
-
   if (currentWidth > 768) {
-    if (leftPane) leftPane.classList.remove('mobile-pane-hidden');
-    if (rightPane) rightPane.classList.remove('mobile-pane-hidden');
-    if (stickyBar) stickyBar.style.display = 'none';
+    switchDesktopPage(currentDesktopPage);
   } else {
     switchMobileView(currentMobileTab, false);
   }
@@ -8368,15 +8484,29 @@ function getLoyaltyMembers() {
     const raw = localStorage.getItem(STORAGE_KEY_LOYALTY_DIR);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        // Enforce 100 points per order, capped at 500 points total only
+        return parsed.map(m => {
+          let pts = Number(m.points || 0);
+          if (pts > 500) pts = 500;
+          else if (pts === 116) pts = 100; // migrate recent order from ₹160
+          else if (pts > 0 && pts % 100 !== 0) {
+            pts = Math.min(500, Math.max(100, Math.round(pts / 100) * 100));
+          }
+          return {
+            ...m,
+            points: Math.min(500, pts)
+          };
+        });
+      }
     }
   } catch (e) {}
 
   const defaultMembers = [
-    { phone: '9876543210', name: 'Rachel Green', id: 'SC-LOYAL-1001', points: 250, visits: 5, totalSpent: 4500, tier: 'Gold', joinedDate: '2026-01-15', lastVisit: '2026-03-15' },
-    { phone: '9876543211', name: 'Ananya Sharma', id: 'SC-LOYAL-1002', points: 120, visits: 2, totalSpent: 2200, tier: 'Silver', joinedDate: '2026-02-10', lastVisit: '2026-03-10' },
-    { phone: '9876543212', name: 'Rahul Verma', id: 'SC-LOYAL-1003', points: 480, visits: 10, totalSpent: 9800, tier: 'VIP', joinedDate: '2025-11-20', lastVisit: '2026-03-18' },
-    { phone: '9876543213', name: 'Vikram Patel', id: 'SC-LOYAL-1004', points: 190, visits: 4, totalSpent: 3800, tier: 'Silver', joinedDate: '2026-02-25', lastVisit: '2026-03-12' }
+    { phone: '9876543210', name: 'Rachel Green', id: 'SC-LOYAL-1001', points: 300, visits: 3, totalSpent: 4500, tier: 'Gold', joinedDate: '2026-01-15', lastVisit: '2026-03-15' },
+    { phone: '9876543211', name: 'Ananya Sharma', id: 'SC-LOYAL-1002', points: 200, visits: 2, totalSpent: 2200, tier: 'Silver', joinedDate: '2026-02-10', lastVisit: '2026-03-10' },
+    { phone: '9876543212', name: 'Rahul Verma', id: 'SC-LOYAL-1003', points: 500, visits: 5, totalSpent: 9800, tier: 'VIP', joinedDate: '2025-11-20', lastVisit: '2026-03-18' },
+    { phone: '9876543213', name: 'Vikram Patel', id: 'SC-LOYAL-1004', points: 400, visits: 4, totalSpent: 3800, tier: 'Gold', joinedDate: '2026-02-25', lastVisit: '2026-03-12' }
   ];
   try { localStorage.setItem(STORAGE_KEY_LOYALTY_DIR, JSON.stringify(defaultMembers)); } catch (e) {}
   return defaultMembers;
@@ -8386,11 +8516,12 @@ function normalizeMemberRecord(m) {
   const cleanPhone = String(m.phone || '').replace(/\D/g, '').slice(-10);
   const visits = Number(m.visits !== undefined ? m.visits : (m.stamps || 0));
   const totalSpent = Number(m.totalSpent !== undefined ? m.totalSpent : (m.purchaseAmount || 0));
-  const points = Number(m.points || 0);
+  // Total points max 500 only
+  let points = Math.min(500, Math.max(0, Number(m.points || 0)));
   let tier = m.tier || 'Bronze';
-  if (visits >= 10 || totalSpent >= 8000) tier = 'VIP';
-  else if (visits >= 5 || totalSpent >= 4000) tier = 'Gold';
-  else if (visits >= 2 || totalSpent >= 1500) tier = 'Silver';
+  if (points >= 500 || visits >= 5 || totalSpent >= 5000) tier = 'VIP';
+  else if (points >= 300 || visits >= 3 || totalSpent >= 3000) tier = 'Gold';
+  else if (points >= 200 || visits >= 2 || totalSpent >= 1500) tier = 'Silver';
 
   return {
     phone: cleanPhone,
@@ -8411,12 +8542,27 @@ function saveLoyaltyMembers(list) {
 
 let activeSelectedLoyaltyPhone = null;
 
-function openLoyaltyModal(targetTab = 'history') {
+function openLoyaltyModal(targetTab = 'history', preferredPhone = null) {
   let modal = document.getElementById('loyaltyPopupModal');
   if (!modal) return;
 
   if (modal.parentElement !== document.body) {
     document.body.appendChild(modal);
+  }
+
+  // If preferredPhone not explicitly provided, check if cashier entered a mobile number in billing register
+  if (!preferredPhone) {
+    const custMobileInput = document.getElementById('custMobile');
+    if (custMobileInput && custMobileInput.value) {
+      const clean = custMobileInput.value.replace(/\D/g, '').slice(-10);
+      if (clean.length === 10) {
+        preferredPhone = clean;
+      }
+    }
+  }
+
+  if (preferredPhone) {
+    activeSelectedLoyaltyPhone = preferredPhone;
   }
 
   modal.style.setProperty('display', 'flex', 'important');
@@ -8425,7 +8571,7 @@ function openLoyaltyModal(targetTab = 'history') {
   modal.style.setProperty('opacity', '1', 'important');
   modal.style.setProperty('pointer-events', 'auto', 'important');
 
-  switchLoyaltyTab(targetTab || 'history');
+  switchLoyaltyTab(targetTab || 'history', preferredPhone);
 }
 
 function closeLoyaltyModal() {
@@ -8447,7 +8593,15 @@ function getLoyaltyHistory() {
     const raw = localStorage.getItem(STORAGE_KEY_LOYALTY_HIST);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        // Enforce 100 PTS per order
+        return parsed.map(entry => {
+          return {
+            ...entry,
+            pointsEarned: 100
+          };
+        });
+      }
     }
   } catch (e) {}
 
@@ -8459,10 +8613,10 @@ function getLoyaltyHistory() {
       time: '04:30 PM',
       phone: '9876543210',
       name: 'Rachel Green',
-      activity: 'Store Visit & Pastry Order',
+      activity: 'Store Order & Pastry Order',
       billAmount: 540,
-      pointsEarned: 54,
-      milestone: '🎁 ₹100 Reward Voucher Unlocked (5 Visits!)'
+      pointsEarned: 100,
+      milestone: '🎁 ₹100 Reward Voucher Unlocked (300/500 PTS)'
     },
     {
       id: 'LH-102',
@@ -8473,8 +8627,8 @@ function getLoyaltyHistory() {
       name: 'Ross Geller',
       activity: 'Celebration Cake Purchase',
       billAmount: 1850,
-      pointsEarned: 185,
-      milestone: '👑 ₹5,000 Lifetime Spend VIP Unlocked!'
+      pointsEarned: 100,
+      milestone: '🏆 Order Completed (+100 PTS)'
     },
     {
       id: 'LH-103',
@@ -8483,10 +8637,10 @@ function getLoyaltyHistory() {
       time: '07:40 PM',
       phone: '9988776655',
       name: 'Monica Geller',
-      activity: 'Store Visit & Brownie Platter',
+      activity: 'Store Order & Brownie Platter',
       billAmount: 480,
-      pointsEarned: 48,
-      milestone: '⭐ 10 Visits Special Store Gift Unlocked!'
+      pointsEarned: 100,
+      milestone: '⭐ Order Completed (+100 PTS)'
     },
     {
       id: 'LH-104',
@@ -8495,10 +8649,10 @@ function getLoyaltyHistory() {
       time: '11:20 AM',
       phone: '9876543210',
       name: 'Rachel Green',
-      activity: 'Store Visit & Coffee',
+      activity: 'Store Order & Coffee',
       billAmount: 320,
-      pointsEarned: 32,
-      milestone: '1 visit away from 5 Visits Reward'
+      pointsEarned: 100,
+      milestone: 'Order Completed (+100 PTS) [200/500 PTS]'
     },
     {
       id: 'LH-105',
@@ -8507,10 +8661,10 @@ function getLoyaltyHistory() {
       time: '06:05 PM',
       phone: '9845123456',
       name: 'Chandler Bing',
-      activity: 'New Member Registration Welcome Bonus',
-      billAmount: 0,
-      pointsEarned: 50,
-      milestone: '🎉 Welcome Bonus Credited'
+      activity: '1st Order Welcome Bonus',
+      billAmount: 250,
+      pointsEarned: 100,
+      milestone: '🎉 1st Order (+100 PTS) [100/500 PTS]'
     },
     {
       id: 'LH-106',
@@ -8519,10 +8673,10 @@ function getLoyaltyHistory() {
       time: '03:30 PM',
       phone: '9988776655',
       name: 'Monica Geller',
-      activity: 'Store Visit & Custom Dessert Box',
+      activity: 'Store Order & Custom Dessert Box',
       billAmount: 760,
-      pointsEarned: 76,
-      milestone: 'Standard Visit'
+      pointsEarned: 100,
+      milestone: 'Order Completed (+100 PTS)'
     }
   ];
 
@@ -8557,7 +8711,11 @@ function logLoyaltyHistoryEntry(entry) {
   saveLoyaltyHistory(history);
 }
 
-function switchLoyaltyTab(tabKey) {
+function switchLoyaltyTab(tabKey, targetPhone = null) {
+  if (targetPhone) {
+    activeSelectedLoyaltyPhone = targetPhone;
+  }
+  const phone = targetPhone || activeSelectedLoyaltyPhone;
   const tabs = ['members', 'logger', 'history', 'marketing'];
   tabs.forEach(t => {
     const btn = document.getElementById('tabBtnLoyalty' + t.charAt(0).toUpperCase() + t.slice(1));
@@ -8583,11 +8741,11 @@ function switchLoyaltyTab(tabKey) {
   if (tabKey === 'members') {
     renderLoyaltyMembersList();
   } else if (tabKey === 'logger') {
-    populateLoggerCustomerDropdown();
+    populateLoggerCustomerDropdown(phone);
   } else if (tabKey === 'history') {
-    renderLoyaltyHistory();
+    renderLoyaltyHistory(phone);
   } else if (tabKey === 'marketing') {
-    populateMarketingCustomerDropdown();
+    populateMarketingCustomerDropdown(phone);
   }
 }
 
@@ -8690,13 +8848,16 @@ function renderLoyaltyMembersList() {
           <div style="font-size: 0.68rem; color: #94a3b8;">Lifetime</div>
         </td>
         <td style="padding: 12px 14px; text-align: right;">
-          <div style="font-weight: 800; color: #be185d; font-size: 0.9rem;">💎 ${m.points || 0} PTS</div>
-          <div style="font-size: 0.68rem; color: #059669; font-weight: 600;">₹${m.points || 0} Value</div>
+          <div style="font-weight: 800; color: #be185d; font-size: 0.9rem;">💎 ${Math.min(500, m.points || 0)} / 500 PTS</div>
+          <div style="font-size: 0.68rem; color: #059669; font-weight: 600;">${(m.points || 0) >= 500 ? '🎉 Card Full (500 PTS)' : `₹${m.points || 0} Value`}</div>
         </td>
         <td style="padding: 12px 14px; text-align: center;">
           ${rewardsBadges}
         </td>
         <td style="padding: 12px 14px; text-align: right; white-space: nowrap;">
+          <button type="button" onclick="loadCustomerIntoPosRegister('${m.phone}', '${escapeHtml(m.name)}')" title="Load Customer into POS Billing Register" style="background: #fff1f2; color: #be185d; border: 1px solid #fbcfe8; padding: 5px 9px; border-radius: 7px; font-size: 0.73rem; font-weight: 800; cursor: pointer; margin-right: 4px; transition: all 0.15s ease;">
+            🛒 Bill
+          </button>
           <button type="button" onclick="selectAndOpenLogger('${m.phone}')" title="Log New Visit & Purchase" style="background: #fdf2f8; color: #be185d; border: 1px solid #fbcfe8; padding: 5px 9px; border-radius: 7px; font-size: 0.73rem; font-weight: 700; cursor: pointer; margin-right: 4px; transition: all 0.15s ease;">
             ⚡ Log Visit
           </button>
@@ -8730,7 +8891,18 @@ function populateLoggerCustomerSelectOptions(selectEl, selectedPhone) {
 
 function populateLoggerCustomerDropdown(preferredPhone) {
   const selectEl = document.getElementById('loggerCustomerSelect');
-  populateLoggerCustomerSelectOptions(selectEl, preferredPhone);
+  const targetPhone = preferredPhone || activeSelectedLoyaltyPhone;
+  populateLoggerCustomerSelectOptions(selectEl, targetPhone);
+
+  // Auto pre-fill purchase amount from active POS cart if available
+  const amtInput = document.getElementById('loggerPurchaseAmount');
+  if (amtInput && !amtInput.value && typeof activeCart !== 'undefined' && activeCart.length > 0) {
+    const calc = (typeof getCartCalculations === 'function') ? getCartCalculations() : null;
+    if (calc && calc.grandTotal > 0) {
+      amtInput.value = Math.round(calc.grandTotal);
+    }
+  }
+
   onLoggerCustomerChange();
 }
 
@@ -8753,17 +8925,12 @@ function updateLoggerPreview() {
   const visitsTo5 = (nextVisitNum >= 5) ? 0 : (5 - nextVisitNum);
   const visitsTo10 = (nextVisitNum >= 10) ? 0 : (10 - nextVisitNum);
 
+  const ptsLeft = Math.max(0, 500 - Number(m.points || 0));
   let milestoneAlert = '';
-  if (nextVisitNum === 5) {
-    milestoneAlert = '🎉 Logging this visit will UNLOCK the ₹100 Reward Voucher!';
-  } else if (nextVisitNum === 10) {
-    milestoneAlert = '⭐ Logging this visit will UNLOCK the 10th Visit Special Tasting Gift!';
-  } else if (nextVisitNum > 5 && nextVisitNum < 10) {
-    milestoneAlert = `🎯 ${visitsTo10} more visit${visitsTo10 === 1 ? '' : 's'} after this to reach 10 Visits Special Offer!`;
-  } else if (nextVisitNum < 5) {
-    milestoneAlert = `🎯 ${visitsTo5} more visit${visitsTo5 === 1 ? '' : 's'} after this to unlock ₹100 Reward Voucher!`;
+  if (m.points >= 500) {
+    milestoneAlert = '🏆 Customer has reached the Maximum 500/500 PTS! Eligible for special redemption voucher.';
   } else {
-    milestoneAlert = `👑 Elite Club: ${currentVisits} visits logged! Every ₹10 spent awards +1 PTS.`;
+    milestoneAlert = `🎯 Current Balance: ${m.points || 0}/500 PTS. Logging 1 order gives +100 PTS (${ptsLeft} PTS left to 500 PTS Card Completion).`;
   }
 
   if (nextMilestoneEl) nextMilestoneEl.innerHTML = milestoneAlert;
@@ -8784,12 +8951,12 @@ function updateLoggerPreview() {
     </div>
     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 10px; text-align: center;">
       <div>
-        <div style="font-size: 0.68rem; opacity: 0.8;">Visits So Far</div>
+        <div style="font-size: 0.68rem; opacity: 0.8;">Orders So Far</div>
         <div style="font-size: 1.05rem; font-weight: 800;">${m.visits}</div>
       </div>
       <div>
-        <div style="font-size: 0.68rem; opacity: 0.8;">Current Balance</div>
-        <div style="font-size: 1.05rem; font-weight: 800;">${m.points || 0} PTS</div>
+        <div style="font-size: 0.68rem; opacity: 0.8;">Points Balance</div>
+        <div style="font-size: 1.05rem; font-weight: 800;">${Math.min(500, m.points || 0)} / 500 PTS</div>
       </div>
       <div>
         <div style="font-size: 0.68rem; opacity: 0.8;">Lifetime Spend</div>
@@ -8811,27 +8978,25 @@ function submitLoggerVisit() {
 
   const phone = selectEl.value;
   const billAmount = Number(amtInput ? amtInput.value : 0) || 0;
-  const activity = (activityInput ? activityInput.value : 'Store Visit') || 'Store Visit';
+  const activity = (activityInput ? activityInput.value : 'Store Order') || 'Store Order';
 
   const members = getLoyaltyMembers();
   const member = members.find(m => m.phone === phone);
   if (!member) return;
 
-  const ptsEarned = Math.floor(billAmount / 10);
+  // 🎯 STRICT RULE: 1 Order gets 100 points, total capped at 500 points only
+  const ptsEarned = 100;
   member.visits += 1;
   member.totalSpent += billAmount;
-  member.points += ptsEarned;
+  member.points = Math.min(500, (Number(member.points) || 0) + ptsEarned);
   member.lastVisit = new Date().toISOString().split('T')[0];
 
-  if (member.visits >= 10 || member.totalSpent >= 8000) member.tier = 'VIP';
-  else if (member.visits >= 5 || member.totalSpent >= 4000) member.tier = 'Gold';
-  else if (member.visits >= 2 || member.totalSpent >= 1500) member.tier = 'Silver';
+  if (member.points >= 500 || member.visits >= 5 || member.totalSpent >= 5000) member.tier = 'VIP';
+  else if (member.points >= 300 || member.visits >= 3 || member.totalSpent >= 3000) member.tier = 'Gold';
+  else if (member.points >= 200 || member.visits >= 2 || member.totalSpent >= 1500) member.tier = 'Silver';
 
-  let milestoneNote = 'Standard Visit';
-  if (member.visits === 5) milestoneNote = '🎁 ₹100 Reward Voucher Unlocked (5 Visits!)';
-  else if (member.visits === 10) milestoneNote = '⭐ 10 Visits Special Store Gift Unlocked!';
-  else if (member.totalSpent >= 5000 && (member.totalSpent - billAmount) < 5000) milestoneNote = '👑 ₹5,000 Lifetime Spend VIP Unlocked!';
-  else milestoneNote = `${5 - (member.visits % 5)} visits left to ₹100 Reward`;
+  let milestoneNote = `${member.points}/500 PTS (${Math.max(0, 500 - member.points)} PTS to Card Completion)`;
+  if (member.points >= 500) milestoneNote = '🏆 Card Completed! 500/500 PTS (Max Points Reached)';
 
   logLoyaltyHistoryEntry({
     phone: member.phone,
@@ -8847,7 +9012,7 @@ function submitLoggerVisit() {
   if (amtInput) amtInput.value = '';
 
   if (typeof showToast === 'function') {
-    showToast(`⚡ Updated visit for ${member.name}! +1 Visit, +${ptsEarned} Points.`, 'success');
+    showToast(`⚡ Order logged for ${member.name}! +100 Points (${member.points}/500 PTS Total).`, 'success');
   }
 
   renderLoyaltyMembersList();
@@ -8859,29 +9024,45 @@ function populateHistoryCustomerDropdown(selectedPhone) {
   if (!selectEl) return;
   const members = getLoyaltyMembers();
   let html = '<option value="ALL">🌟 All Mobile Numbers (Full History)</option>';
+  
+  let found = false;
   members.forEach(m => {
-    const isSel = (selectedPhone && m.phone === selectedPhone) ? 'selected' : '';
-    html += `<option value="${m.phone}" ${isSel}>📱 +91 ${m.phone}</option>`;
+    const isSel = (selectedPhone && m.phone === selectedPhone);
+    if (isSel) found = true;
+    html += `<option value="${m.phone}" ${isSel ? 'selected' : ''}>📱 +91 ${m.phone} - ${escapeHtml(m.name)}</option>`;
   });
+
+  if (selectedPhone && selectedPhone !== 'ALL' && !found) {
+    html += `<option value="${selectedPhone}" selected>📱 +91 ${selectedPhone} (Billing Customer)</option>`;
+  }
+
   selectEl.innerHTML = html;
+  if (selectedPhone) {
+    selectEl.value = selectedPhone;
+  }
 }
 
 function renderLoyaltyHistory(filteredPhone) {
   const tbody = document.getElementById('loyaltyHistoryTableBody');
   const filterSelect = document.getElementById('historyCustomerFilterSelect');
-  const searchInput = document.getElementById('loyaltyHistorySearch');
-  const statVisits = document.getElementById('historyStatVisits');
-  const statSales = document.getElementById('historyStatSales');
-  const statPoints = document.getElementById('historyStatPoints');
-  const statMilestones = document.getElementById('historyStatMilestones');
+  const searchInput = document.getElementById('historySearchInput') || document.getElementById('loyaltyHistorySearch');
+  const statVisits = document.getElementById('historyStatTotalVisits') || document.getElementById('historyStatVisits');
+  const statSales = document.getElementById('historyStatTotalSales') || document.getElementById('historyStatSales');
+  const statPoints = document.getElementById('historyStatTotalPoints') || document.getElementById('historyStatPoints');
+  const statMilestones = document.getElementById('historyStatTotalMilestones') || document.getElementById('historyStatMilestones');
+  const spotlightCard = document.getElementById('historyCustomerSpotlight');
 
   if (!tbody) return;
 
-  populateHistoryCustomerDropdown(filteredPhone || (filterSelect ? filterSelect.value : 'ALL'));
+  const targetFilter = (filteredPhone !== undefined && filteredPhone !== null) 
+    ? filteredPhone 
+    : (filterSelect ? filterSelect.value : 'ALL');
+
+  populateHistoryCustomerDropdown(targetFilter);
 
   const history = getLoyaltyHistory();
   const members = getLoyaltyMembers();
-  const activeFilter = filterSelect ? filterSelect.value : (filteredPhone || 'ALL');
+  const activeFilter = filterSelect ? filterSelect.value : targetFilter;
   const searchQuery = (searchInput ? searchInput.value : '').trim().toLowerCase();
 
   const filtered = history.filter(item => {
@@ -8915,7 +9096,32 @@ function renderLoyaltyHistory(filteredPhone) {
   if (statVisits) statVisits.textContent = `${visitsCount} Visits`;
   if (statSales) statSales.textContent = `₹${totalSales.toLocaleString()}`;
   if (statPoints) statPoints.textContent = `+${totalPts.toLocaleString()} PTS`;
-  if (statMilestones) statMilestones.textContent = `${milestoneCount} Milestones`;
+  if (statMilestones) statMilestones.textContent = `${milestoneCount} Rewards`;
+
+  // Update Customer Spotlight Card if customer is selected
+  if (spotlightCard) {
+    if (activeFilter && activeFilter !== 'ALL') {
+      spotlightCard.style.display = 'flex';
+      const activeMember = members.find(m => m.phone === activeFilter);
+      const nameEl = document.getElementById('spotlightCustomerName');
+      const tierEl = document.getElementById('spotlightCustomerTier');
+      const phoneEl = document.getElementById('spotlightCustomerPhone');
+      const ptsEl = document.getElementById('spotlightCustomerPoints');
+      
+      const memberName = activeMember ? activeMember.name : (document.getElementById('custName')?.value?.trim() || 'Valued Customer');
+      const memberTier = activeMember ? (activeMember.tier || 'Gold').toUpperCase() + ' MEMBER' : 'LOYALTY PASS';
+      const visits = activeMember ? activeMember.visits : visitsCount;
+      const spend = activeMember ? activeMember.totalSpent : totalSales;
+      const pts = Math.min(500, activeMember ? (activeMember.points || 0) : Math.min(500, totalPts));
+
+      if (nameEl) nameEl.textContent = memberName;
+      if (tierEl) tierEl.textContent = memberTier;
+      if (phoneEl) phoneEl.innerHTML = `📱 +91 ${activeFilter} • ${visits} Orders • ₹${Number(spend).toLocaleString()} Total Spend`;
+      if (ptsEl) ptsEl.innerHTML = `${pts} / 500 PTS <span style="font-size: 0.76rem; font-weight: 700; color: ${pts >= 500 ? '#be185d' : '#047857'};">(${pts >= 500 ? 'Card Full! 500 PTS' : `${Math.max(0, 500 - pts)} PTS to 500 PTS Max`})</span>`;
+    } else {
+      spotlightCard.style.display = 'none';
+    }
+  }
 
   if (filtered.length === 0) {
     tbody.innerHTML = `
@@ -8943,7 +9149,7 @@ function renderLoyaltyHistory(filteredPhone) {
     }
 
     let milestoneTag = '';
-    if (h.milestone && (h.milestone.includes('Unlocked') || h.milestone.includes('Reward') || h.milestone.includes('Special') || h.milestone.includes('VIP'))) {
+    if (h.milestone && (h.milestone.includes('Unlocked') || h.milestone.includes('Reward') || h.milestone.includes('Special') || h.milestone.includes('VIP') || h.milestone.includes('Completed'))) {
       let shortText = h.milestone;
       if (shortText.includes('10 Visits') && shortText.includes('VIP')) {
         shortText = '⭐ 10 Visits + 👑 VIP';
@@ -8962,8 +9168,7 @@ function renderLoyaltyHistory(filteredPhone) {
     }
 
     const customerMember = members.find(m => m.phone === h.phone);
-    const currentTotalPts = customerMember ? (customerMember.points || 0) : h.pointsEarned;
-    const initials = (h.name || 'CU').trim().split(/\s+/).map(w => w[0]).join('').substring(0, 2).toUpperCase();
+    const memberTotalPts = Math.min(500, customerMember ? (customerMember.points || 0) : Math.min(500, Number(h.pointsEarned || 100)));
 
     html += `
       <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.15s ease;" onmouseover="this.style.background='#fff1f2'" onmouseout="this.style.background='transparent'">
@@ -8978,16 +9183,17 @@ function renderLoyaltyHistory(filteredPhone) {
             </div>
             <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
               <div style="font-weight: 800; color: #0f172a; font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">+91 ${h.phone}</div>
+              <div style="font-size: 0.7rem; color: #64748b;">${escapeHtml(h.name || 'Customer')}</div>
             </div>
           </div>
         </td>
         <td style="padding: 10px 8px; text-align: right; white-space: nowrap;">
-          <div style="font-weight: 800; color: #059669; font-size: 0.86rem;">+100 PTS</div>
-          <div style="font-size: 0.67rem; color: #10b981; font-weight: 600;">(Per Order)</div>
+          <div style="font-weight: 800; color: #059669; font-size: 0.86rem;">+${h.pointsEarned || 100} PTS</div>
+          <div style="font-size: 0.67rem; color: #10b981; font-weight: 600;">(1 Order = 100 PTS)</div>
         </td>
         <td style="padding: 10px 8px; text-align: right; white-space: nowrap;">
-          <div style="font-weight: 800; color: #701a75; font-size: 0.88rem;">💎 500 PTS</div>
-          <div style="font-size: 0.67rem; color: #94a3b8; font-weight: 500;">500 PTS Total</div>
+          <div style="font-weight: 800; color: #701a75; font-size: 0.88rem;">💎 ${memberTotalPts} / 500 PTS</div>
+          <div style="font-size: 0.67rem; color: #94a3b8; font-weight: 500;">${memberTotalPts >= 500 ? '⭐ Card Completed' : `${memberTotalPts} PTS Total (500 Max)`}</div>
         </td>
       </tr>
     `;
@@ -8997,8 +9203,135 @@ function renderLoyaltyHistory(filteredPhone) {
 }
 
 function filterAndShowHistory(phone) {
-  switchLoyaltyTab('history');
+  switchLoyaltyTab('history', phone);
   renderLoyaltyHistory(phone);
+}
+
+// 🛒 Bi-Directional Linking: Load customer from Loyalty Hub directly into POS billing register
+function loadCustomerIntoPosRegister(phone, name) {
+  const custMobileInput = document.getElementById('custMobile');
+  const custNameInput = document.getElementById('custName');
+  if (custMobileInput) {
+    custMobileInput.value = phone;
+  }
+  if (custNameInput && name) {
+    custNameInput.value = name;
+  }
+  if (custMobileInput) {
+    formatCustomerPhoneInput(custMobileInput);
+  }
+  closeLoyaltyModal();
+  if (typeof showToast === 'function') {
+    showToast(`🛒 Customer +91 ${phone} (${name || ''}) loaded into billing register!`, 'info');
+  }
+  if (window.innerWidth <= 768 && typeof switchMobileView === 'function') {
+    switchMobileView('cart');
+  }
+}
+
+function loadSpotlightCustomerIntoBilling() {
+  const filterSelect = document.getElementById('historyCustomerFilterSelect');
+  const phone = filterSelect ? filterSelect.value : null;
+  if (!phone || phone === 'ALL') return;
+  const members = getLoyaltyMembers();
+  const m = members.find(item => item.phone === phone);
+  loadCustomerIntoPosRegister(phone, m ? m.name : '');
+}
+
+// 🎴 Auto-Credit Order Loyalty Points and Record in Customer Ledger
+// RULE: 1 Order gets 100 Points, Total Points is capped at 500 Points ONLY
+function creditOrderLoyaltyPoints(mobile, name, grandTotal, ticketNumber) {
+  if (!mobile) return;
+  const cleanMobile = String(mobile).replace(/\D/g, '').slice(-10);
+  if (cleanMobile.length !== 10) return;
+
+  const cleanName = (name && name !== 'Walk-In Customer' && name !== 'Valued Customer' && name !== 'Customer') ? name.trim() : 'Valued Customer';
+  const amount = Number(grandTotal || 0);
+  
+  // 🎯 STRICT RULE: 1 Order = 100 Points
+  const ptsEarned = 100;
+  const MAX_POINTS = 500;
+
+  // Avoid duplicate loyalty credit for the exact same ticket
+  try {
+    const history = getLoyaltyHistory();
+    const cleanTicket = String(ticketNumber || '').replace('#', '').trim();
+    const alreadyCredited = history.some(h => 
+      h.phone === cleanMobile && 
+      (h.activity === `Store Order #${cleanTicket}` || h.activity === `Store Order #${ticketNumber}` || h.activity === `Store Order ${ticketNumber}`)
+    );
+    if (alreadyCredited) {
+      return;
+    }
+  } catch (e) {}
+
+  const members = getLoyaltyMembers();
+  let member = members.find(m => m.phone === cleanMobile);
+
+  let milestone = `Order #${ticketNumber} (+100 PTS)`;
+
+  if (!member) {
+    member = {
+      phone: cleanMobile,
+      name: cleanName,
+      id: 'SC-LOYAL-' + Math.floor(1000 + Math.random() * 9000),
+      points: ptsEarned, // 1st Order gets 100 PTS (Total max: 500 PTS)
+      visits: 1,
+      totalSpent: amount,
+      tier: 'Bronze',
+      joinedDate: new Date().toISOString().split('T')[0],
+      lastVisit: new Date().toISOString().split('T')[0]
+    };
+    milestone = `🎉 1st Order (+100 PTS) [100/500 PTS]`;
+    members.unshift(member);
+  } else {
+    member.visits = (Number(member.visits) || 0) + 1;
+    member.totalSpent = (Number(member.totalSpent) || 0) + amount;
+    const currentPts = Number(member.points) || 0;
+    // Cap total points at 500 PTS ONLY
+    member.points = Math.min(MAX_POINTS, currentPts + ptsEarned);
+    member.lastVisit = new Date().toISOString().split('T')[0];
+    if (cleanName && cleanName !== 'Valued Customer') {
+      member.name = cleanName;
+    }
+
+    // Tier Upgrade Check based on orders / 500 PTS journey
+    if (member.points >= 500 || member.visits >= 5 || member.totalSpent >= 5000) member.tier = 'VIP';
+    else if (member.points >= 300 || member.visits >= 3 || member.totalSpent >= 3000) member.tier = 'Gold';
+    else if (member.points >= 200 || member.visits >= 2 || member.totalSpent >= 1500) member.tier = 'Silver';
+
+    if (member.points >= 500) {
+      milestone = '🏆 Card Completed! 500/500 PTS (Max Points Reached)';
+    } else {
+      milestone = `Order #${ticketNumber} (+100 PTS) [${member.points}/500 PTS]`;
+    }
+  }
+
+  saveLoyaltyMembers(members);
+
+  logLoyaltyHistoryEntry({
+    phone: cleanMobile,
+    name: member.name,
+    billAmount: amount,
+    pointsEarned: ptsEarned,
+    visitNumber: member.visits,
+    milestone: milestone,
+    activity: `Store Order #${ticketNumber}`
+  });
+
+  // Sync to customer directory as well
+  saveCustomerDirectoryRecord(cleanMobile, member.name);
+
+  // If Loyalty modal is currently open, refresh it in real time
+  const modal = document.getElementById('loyaltyPopupModal');
+  if (modal && modal.style.display === 'flex') {
+    renderLoyaltyMembersList();
+    renderLoyaltyHistory(activeSelectedLoyaltyPhone || cleanMobile);
+  }
+
+  if (typeof showToast === 'function') {
+    showToast(`💎 Loyalty: +100 PTS credited for +91 ${cleanMobile}! Balance: ${member.points}/500 PTS`, 'success');
+  }
 }
 
 function viewHistoryForCurrentDrawerCustomer() {
@@ -9018,7 +9351,7 @@ function shareHistoryReceiptWhatsApp(phone, date, amount, points, milestone) {
   const members = getLoyaltyMembers();
   const member = members.find(m => m.phone === phone);
   const name = member ? member.name : 'Valued Customer';
-  const totalPts = member ? member.points : points;
+  const totalPts = Math.min(500, member ? member.points : points);
 
   const msg = 
 `🍰 *SUGAR CUBES - VISIT & LOYALTY RECEIPT* 🧾
@@ -9027,11 +9360,11 @@ Hello *${name}*!
 Thank you for visiting Sugar Cubes on *${date}*.
 
 💰 *Bill Amount*: ₹${amount > 0 ? amount.toLocaleString() : '0'}
-💎 *Points Earned on this Visit*: +${points} PTS
-⭐ *Total Active Points Balance*: ${totalPts} PTS (₹${totalPts} Cash Value)
+💎 *Points Earned on this Order*: +${points} PTS (1 Order = +100 PTS)
+⭐ *Total Active Points Balance*: ${totalPts} / 500 PTS (Max 500 PTS Total)
 🎁 *Milestone Status*: ${milestone}
 
-Your loyalty history stays permanently linked to your mobile number: *+91 ${phone}*.
+Your loyalty card stays permanently linked to your mobile: *+91 ${phone}*.
 See you next time! ✨
 Sugar Cubes Artisanal Bakehouse • Coimbatore`;
 
@@ -9525,9 +9858,9 @@ function viewCustomerCard(phone) {
   const qrImg = document.getElementById('drawerQrImg');
 
   if (nameEl) nameEl.textContent = member.name || 'Valued Customer';
-  if (metaEl) metaEl.textContent = `📱 +91 ${member.phone} • ${member.visits} Visits • ₹${member.totalSpent.toLocaleString()} Spent`;
+  if (metaEl) metaEl.textContent = `📱 +91 ${member.phone} • ${member.visits} Orders • ₹${member.totalSpent.toLocaleString()} Spent`;
   if (tierEl) tierEl.textContent = `👑 ${member.tier.toUpperCase()} MEMBER`;
-  if (ptsEl) ptsEl.textContent = `${member.points} PTS`;
+  if (ptsEl) ptsEl.textContent = `${Math.min(500, member.points || 0)} / 500 PTS`;
   if (qrImg) qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=SUGARCUBES-LOYALTY-${member.phone}`;
 
   if (drawer) drawer.style.display = 'flex';
@@ -9539,11 +9872,10 @@ function shareCustomerCardWhatsApp() {
   const member = members.find(m => m.phone === activeSelectedLoyaltyPhone);
   if (!member) return;
 
+  const pts = Math.min(500, member.points || 0);
   let rewardsSummary = '';
-  if (member.visits >= 5) rewardsSummary += '• 🎁 ₹100 Reward Voucher Active!\n';
-  if (member.visits >= 10) rewardsSummary += '• ⭐ 10-Visit Special Store Gift Active!\n';
-  if (member.totalSpent >= 5000) rewardsSummary += '• 👑 ₹5,000 Lifetime Spend VIP Perk Active!\n';
-  if (!rewardsSummary) rewardsSummary = `• ${5 - (member.visits % 5)} visits left to ₹100 Reward Voucher\n`;
+  if (pts >= 500) rewardsSummary += '• 🏆 Card Completed (500/500 PTS)! Claim your Special Reward Voucher!\n';
+  else rewardsSummary += `• 🎯 ${Math.max(0, 500 - pts)} PTS left to reach 500 PTS Card Completion\n`;
 
   const msg = 
 `🍰 *SUGAR CUBES - DIGITAL LOYALTY PASS* 🎴
@@ -9553,13 +9885,13 @@ Here is your official digital loyalty card connected to your mobile:
 
 📱 *Mobile Number*: +91 ${member.phone}
 ⭐ *Membership Tier*: ${member.tier} Member
-🚶 *Store Visits Count*: ${member.visits} Visits
+🚶 *Store Orders Count*: ${member.visits} Orders
 💰 *Total Purchase Amount*: ₹${member.totalSpent.toLocaleString()}
-💎 *Loyalty Points Balance*: ${member.points} PTS (₹${member.points} Cash Value)
+💎 *Loyalty Points Balance*: ${pts} / 500 PTS (1 Order = 100 PTS, Max 500 PTS Total)
 
 🎁 *Active Rewards & Milestones*:
 ${rewardsSummary}
-No physical cards needed! Simply quote your mobile number at checkout to redeem rewards. ✨
+No physical cards needed! Simply quote your mobile number at checkout to earn 100 PTS per order. ✨
 
 Sugar Cubes Artisanal Cake Shop & Bakery • Coimbatore`;
 
@@ -9570,10 +9902,12 @@ Sugar Cubes Artisanal Cake Shop & Bakery • Coimbatore`;
   }
 }
 
-function promptAddNewLoyaltyMember() {
-  const name = prompt('✨ Enter Customer Full Name:');
+function promptAddNewLoyaltyMember(defaultPhone = null) {
+  const phoneVal = defaultPhone || (document.getElementById('custMobile')?.value?.replace(/\D/g, '').slice(-10)) || '';
+  const defaultName = (document.getElementById('custName')?.value?.trim() !== 'Valued Customer' && document.getElementById('custName')?.value?.trim() !== 'Walk-In Customer') ? (document.getElementById('custName')?.value?.trim() || '') : '';
+  const name = prompt('✨ Enter Customer Full Name:', defaultName);
   if (!name || !name.trim()) return;
-  const phone = prompt('📱 Enter 10-Digit Mobile Number (+91):');
+  const phone = prompt('📱 Enter 10-Digit Mobile Number (+91):', phoneVal || '');
   if (!phone) return;
 
   const cleanPhone = phone.replace(/\D/g, '').slice(-10);
@@ -9606,11 +9940,23 @@ function promptAddNewLoyaltyMember() {
   saveLoyaltyMembers(members);
   renderLoyaltyMembersList();
   viewCustomerCard(cleanPhone);
+  updateCustomerLoyaltyBadge(cleanPhone);
 
   if (typeof showToast === 'function') {
     showToast(`✨ Created Digital Loyalty Card for ${name.trim()} (+100 Welcome Points)!`, 'success');
   }
 }
+
+// Initialize Loyalty Link and Page View on Load
+document.addEventListener('DOMContentLoaded', () => {
+  const custMobileInput = document.getElementById('custMobile');
+  if (custMobileInput && custMobileInput.value) {
+    updateCustomerLoyaltyBadge(custMobileInput.value);
+  }
+  if (typeof switchDesktopPage === 'function') {
+    switchDesktopPage(currentDesktopPage || 'store');
+  }
+});
 
 
 
